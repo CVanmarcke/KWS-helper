@@ -20,11 +20,11 @@ saveAndClosePt_KWS() | `EOL (speechkit, 2x duwen)` | Slaat het verslag op en slu
 heightLossGUI() | `hoogteverlies`<br />`wervelfx` | Typ de shortcut om een klein venster te krijgen waar je de hoogte van 2 wervels kan typen, waarna automatisch het hoogteverlies (in mm en %) geplakt zal worden. 
 openLastPtInLog_KWS() | `openlastpt` | Typ de shortcut eender waar om de laatste patiënt gesloten via `validateAndClosePt_KWS` of `saveAndClosePt_KWS` opnieuw te openen. 
 openEAD_KWS() | `Ctrl-O` | TODO
-pedAbdomenTemplate() | `pedabdomen` | Typ de shortcut om een venster te openen waar de lengte van de lever, milt en nieren in ingevuld kunnen worden, waarna automatisch een verslag met ingevulde standaarddeviaties geplakt zal worden. 
+pedAbdomenTemplate() | `pedabdomen` | Typ de shortcut om een venster te openen waar de lengte van de lever, milt en nieren in ingevuld kunnen worden, waarna automatisch een verslag met ingevulde standaarddeviaties geplakt zal worden. Origineel gemaakt door Johannes Devos.
 MoveLineUp() | `Ctrl-↑`<br />`rewind (speechkit)` | Verplaatst de huidige lijn één lijn naar boven (wisseld de huidige lijn met de lijn er net boven).
 MoveLineDown() | `Ctrl-↓`<br />`forward (speechkit)` | Verplaatst de huidige lijn één lijn naar onder (wisseld de huidige lijn met de lijn er net onder).
 deleteLine() | `Ctrl-d` | Verwijderd de huidige lijn. 
-auto_scroll() | `Ctrl-&` of `Ctrl-é` | Start automatisch met scrollen in het venster waar de muis in staat (Enterprise of IMPAX). Vertragen met `&` en versnellen met `é`, omkeren van richting met `space`. Gemaakt door JD. 
+auto_scroll() | `Ctrl-&` of `Ctrl-é` | Start automatisch met scrollen in het venster waar de muis in staat (Enterprise of IMPAX). Vertragen met `&` en versnellen met `é`, omkeren van richting met `space`. Gemaakt door Johannes Devos.
 
 ## Speechkit knoppen
 Knop | functie
@@ -39,9 +39,10 @@ Knop | functie
 `F1` | copyLastReport_KWS() 
 `F2` | / 
 `F3` | cleanReport_KWS() 
-`F4` | / 
+`F4` | Ctrl-F8 (start speechkit in venster)
 `back button (hold)` | Simuleert de Ctrl knop: kan gebruikt worden om in enterprise te zoomen en pannen. 
 
 ## Ideeën, bigfixes en aanpassingen
 Liefst een berichtje op Whatsapp of UZ Leuven mail.
+
 Voor bugfixes graag de error noteren en op welke lijn de error voorkwam, samen met een beschrijving van hoe het wordt uitgelokt.
