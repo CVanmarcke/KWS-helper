@@ -8,9 +8,9 @@ Start autohotkey via `AutohotkeyU64.exe`
 
 ## Hotkeys veranderden
 TODO
+De hotkeys zijn gedefinieerd in `AutohotkeyU64.ahk`. Zie de [Autohotkey tutorial](https://www.autohotkey.com/docs/Tutorial.htm#s2) voor een korte handleiding om hoe deze te veranderen.
 
 ## Mogelijke functies
-TODO
 Functienaam | Standaard Hotkey | Beschrijving 
 --- | --- | --- 
 copyLastReport_KWS() | `F7`<br />`-i- (speechkit)` | Plakt de inhoud van het voorgaande verslag in het huidige, corrigeert de inhoud en data, voegt "in vergelijking met" toe, en doet enkele kleinere aanpassingen. 
@@ -24,20 +24,24 @@ pedAbdomenTemplate() | `pedabdomen` | Typ de shortcut om een venster te openen w
 MoveLineUp() | `Ctrl-↑`<br />`rewind (speechkit)` | Verplaatst de huidige lijn één lijn naar boven (wisseld de huidige lijn met de lijn er net boven).
 MoveLineDown() | `Ctrl-↓`<br />`forward (speechkit)` | Verplaatst de huidige lijn één lijn naar onder (wisseld de huidige lijn met de lijn er net onder).
 deleteLine() | `Ctrl-d` | Verwijderd de huidige lijn. 
+auto_scroll() | `Ctrl-&` of `Ctrl-é` | Start automatisch met scrollen in het venster waar de muis in staat (Enterprise of IMPAX). Vertragen met `&` en versnellen met `é`, omkeren van richting met `space`. Gemaakt door JD. 
 
 ## Speechkit knoppen
 Knop | functie
 --- | --- 
-`INS (2x duwen)` | TODO 
-`EOL (2x duwen)` | TODO 
-`-i-` | TODO 
-`record` | TODO 
-`rewind` | TODO 
-`forward` | TODO 
-`play/pause` | TODO 
-`F1` | TODO 
-`F2` | TODO 
-`F3` | TODO 
-`F4` | TODO 
-`back button (hold)` | simuleert de Ctrl knop: kan gebruikt worden om in enterprise te zoomen en pannen. 
+`EOL (2x duwen)` | saveAndClosePt_KWS() 
+`-i-` | copyLastReport_KWS() 
+`INS (2x duwen)` | validateAndClosePt_KWS() 
+`record` | Niet aangepast: start/stop opnemen. 
+`rewind` | MoveLineUp() 
+`forward` | MoveLineDown() 
+`play/pause` | `Backspace` 
+`F1` | copyLastReport_KWS() 
+`F2` | / 
+`F3` | cleanReport_KWS() 
+`F4` | / 
+`back button (hold)` | Simuleert de Ctrl knop: kan gebruikt worden om in enterprise te zoomen en pannen. 
 
+## Ideeën, bigfixes en aanpassingen
+Liefst een berichtje op Whatsapp of UZ Leuven mail.
+Voor bugfixes graag de error noteren en op welke lijn de error voorkwam, samen met een beschrijving van hoe het wordt uitgelokt.
