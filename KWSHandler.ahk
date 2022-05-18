@@ -1,19 +1,14 @@
-;****************************************************************
-;																*
-;     		Kuist het verslag op, zet de puntjes op de i 		*
-;																*
-;**************************************************************** 
-;																*
-; 	Auteur: Cedric Vanmarcke									*
-; 																*
-; 	Handleiding: zie readme.txt bestand							*
-;																*
-; 	Vrij te gebruiken door iedereen								*
-;																*
-;	Voor vragen: cedric.vanmarcke@uzleuven.be					*
-; 	Bij fouten, graag het vorige verslag, huidige verslag 		*
-;		en resultaat doorsturen naar mijn email.				*
-;																*
+; ****************************************************** 
+;	Dit bestand bevat de eigenlijke functies, die worden gecalled door autohotkey.
+;
+; 	Handleiding: zie readme bestand	of https://github.com/CVanmarcke/KWS-helper
+;								
+; 	Auteur: Cedric Vanmarcke
+;
+;	Voor vragen: cedric.vanmarcke@uzleuven.be	
+; 	Bij fouten, graag het vorige verslag, huidige verslag 		
+;		en resultaat doorsturen naar mijn email.	
+;		
 ;****************************************************************
 
 ; CALLABLE FUNCTIONS
@@ -26,24 +21,14 @@ initKWSHandler() {
 	logfile := "logfile.csv"
 }
 
-cleanReport_KWS() {
-	; Actieve querry zou aberrante medicatieschemas moeten vinden en fixen"
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg)[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<content>[\s\S]+?)(?:\R*$|[\n\r]{2,}\*\* Eind)"
-	_KWS_CopyReportToClipboard()
-	RegExMatch(clipboard, RegexQuerry, report)	
-	_KWS_PasteToReport(reportheader . "`n" . cleanreport(reportcontent))
-}
-
+;=================================================
+; Verslag opkuiser:
+; Als er een bepaalde aanpassing je niet aanstaat, kan je gewoon die lijn verwijderen.
+;=================================================
 cleanreport(inputtext) {
-	; TODO
-	; dd 01-01-2020 vervangen door "van datum"
-	; \R-woord --> - woord
-	; 1) Hoofdletter
-	; T1/Th2
-
-	inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")						; replaces case insensitive besluit/conclusie door upper
+	inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")				; replaces case insensitive besluit/conclusie door upper
 	if (RegExMatch(inputtext, "m)^\. .+\R") OR RegExMatch(inputtext, "m)^.+# ?.?\R")) { 			; only executes if there is ". " or "#" in the script
-		inputtext := _sorttext(inputtext) 
+		inputtext := _sorttext(inputtext) ; zet alle zinnen met een punt vooraan, onder het verslag.
 	}
 	inputtext := StrReplace(inputtext, "bekend", "gekend", CaseSensitive := false)
 	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose") 		
@@ -64,23 +49,30 @@ cleanreport(inputtext) {
 	; inputtext := RegExReplace(inputtext, "i)gekende?", "\#\#\#")				
 	; inputtext := RegExReplace(inputtext, "i)op niveau van", "in")
 
-	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")				; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it woudl only capture the first
-	inputtext := RegExReplace(inputtext, "m)(?<=[\w\d\)])\s?$", ".")								; adds . to end of string, word, digit or )
-	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 							; converts to uppercase after ., newline or newline -
-	inputtext := RegExReplace(inputtext, "(?<=:)\ ?(\w)", " $L1")									; converts uppercase after : to lowercase
-	inputtext := RegExReplace(inputtext, "([CThD]\d{1,2}[\/-])[TD](?=\d{1,2})", "$1Th") 			; corrects T1/X to Th1 TODO: werkt neit T11-L3
+	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it woudl only capture the first
+	inputtext := RegExReplace(inputtext, "m)(?<=[\w\d\)])\s?$", ".")					; adds . to end of string, word, digit or )
+	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 					; converts to uppercase after ., newline or newline -
+	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts uppercase after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
+	inputtext := RegExReplace(inputtext, "([CThD]\d{1,2}[\/-])[TD](?=\d{1,2})", "$1Th") 			; corrects T1/X to Th1 TODO: werkt niet T11-L3
 	inputtext := RegExReplace(inputtext, "[TD](?=\d{1,2}[\/-][ThDL]{1,2}\d{1,2})", "Th") 			; corrects X/T1 to Th1
 	inputtext := RegExReplace(inputtext, "((?:C|Th|L|S)\d{1,2})\/((?:C|Th|L|S)\d{1,2})", "$1-$2") 	; corrects L1/L2 to L1-L2
 	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3") 			; corrects d/m/y tot d-m-y
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n") 											; replaces triple+ newline with double
 	inputtext := RegExReplace(inputtext, "im)^(?=\w|\()(?!CONCLUSIE|Vergel[ei]j?k[ie]n|Mede in|In vergel|NB|Nota|Storende|Suboptim|Reserv|Naar [lr])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
-	inputtext := RegExReplace(inputtext, "m)^- (.+:[\n\r])(?![ .\n\r\t])", "$1")							; removes - if :, except if after the newline followed by whitespace or . or... 
-	inputtext := RegExReplace(inputtext, "(?<=CONCLUSIE:[\n\r])- (.+\s?)$", "$1") 					; removes - if als maar 1 lijn conclusie, zal het het streepje weg doen.
-	inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1à$2") 									; maakt à als a tussen 2 getallen.
-	inputtext := RegExReplace(inputtext, "- {2,}", "- ")
-	inputtext := RegExReplace(inputtext, "i)supervis.*", "") ; verwijder supervisie.
-
+	inputtext := RegExReplace(inputtext, "m)^- (.+:[\n\r])(?![ .\n\r\t])", "$1")				; removes - if :, except if after the newline followed by whitespace or . or...
+	inputtext := RegExReplace(inputtext, "(?<=CONCLUSIE:[\n\r])- (.+\s?)$", "$1") 				; removes - if als maar 1 lijn conclusie, zal het het streepje weg doen.
+	inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1à$2") 						; maakt à als a tussen 2 getallen.
+	inputtext := RegExReplace(inputtext, "- {2,}", "- ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
+	inputtext := RegExReplace(inputtext, "i)supervis.*", "") ; verwijderd supervisie.
 	return inputtext
+}
+
+cleanReport_KWS() {
+	; Actieve querry zou aberrante medicatieschemas moeten vinden en fixen"
+	RegexQuerry := "(?<header>(?:Leuven|Pellenberg)[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<content>[\s\S]+?)(?:\R*$|[\n\r]{2,}\*\* Eind)"
+	_KWS_CopyReportToClipboard()
+	RegExMatch(clipboard, RegexQuerry, report)	
+	_KWS_PasteToReport(reportheader . "`n" . cleanreport(reportcontent))
 }
 
 copyLastReport_KWS() {
@@ -152,12 +144,8 @@ copyLastReport_KWS() {
 			oldreportcontent := RegExReplace(oldreportcontent, "((?:BESLUIT|CONCLUSIE).*)\R", "$1`nIn vergelijking met het voorgaande onderzoek van " . oldreportdate . ":`n", ,1, conclusielocatie-5)
 		}
 	}
-; Cleans report als RX, plakt gewoon als echo/MR/CT ....
-	if InStr(currentreporttype, "rx") {
-		_KWS_PasteToReport(currentreportheader . "`n" . compared . "`n`n" . cleanreport(oldreportcontent))
-	} else {
-		_KWS_PasteToReport(currentreportheader . "`n" . compared . "`n`n" . oldreportcontent)
-	}
+	; Cleans report als RX, plakt gewoon als echo/MR/CT ....
+	_KWS_PasteToReport(currentreportheader . "`n" . compared . "`n`n" . oldreportcontent)
 	Send ^{F8}							; Initieer dictee (ctrl F8)
 	MouseMove, mouseX, mouseY
 	return								; Klaar
