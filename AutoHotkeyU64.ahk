@@ -4,7 +4,6 @@
 
 #Include KWSHandler.ahk
 #Include SpeechDetector.ahk
-#Include toExcel.ahk
 #Include AHKHID.ahk
 
 init_this_file() { 				; called automatically when the script starts
