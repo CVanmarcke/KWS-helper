@@ -144,7 +144,8 @@ copyLastReport_KWS() {
 			oldreportcontent := RegExReplace(oldreportcontent, "((?:BESLUIT|CONCLUSIE).*)\R", "$1`nIn vergelijking met het voorgaande onderzoek van " . oldreportdate . ":`n", ,1, conclusielocatie-5)
 		}
 	}
-	; Cleans report als RX, plakt gewoon als echo/MR/CT ....
+
+	oldreportcontent := RegExReplace(oldreportcontent, "i)supervis.*", "") ; verwijder supervisie.
 	_KWS_PasteToReport(currentreportheader . "`n" . compared . "`n`n" . oldreportcontent)
 	Send ^{F8}							; Initieer dictee (ctrl F8)
 	MouseMove, mouseX, mouseY
