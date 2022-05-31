@@ -1,5 +1,5 @@
 ; ****************************************************** 
-;	Dit bestand bevat de eigenlijke functies, die worden gecalled door autohotkey.
+;	Dit bestand bevat de eigenlijke functies, die worden opgeroepen door autohotkey.
 ;
 ; 	Handleiding: zie readme bestand	of https://github.com/CVanmarcke/KWS-helper
 ;								
@@ -19,6 +19,10 @@ initKWSHandler() {
 	SetTitleMatchMode, 1 		;evt met regex (https://www.autohotkey.com/docs/commands/SetTitleMatchMode.htm)
 	global logfile
 	logfile := "logfile.csv"
+	;; Zet een timer dat het "mededelingen" venster van KWS automatisch sluit. Via een omweg want SetTimer kan eigenlijk enkel een label als parameter krijgen, geen functie.
+	closeMededeling_fn := Func("_KWS_closeMededelingen").bind()
+	SetTimer, % closeMededeling_fn, 500
+
 }
 
 ;=================================================
@@ -27,7 +31,7 @@ initKWSHandler() {
 ;=================================================
 cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")				; replaces case insensitive besluit/conclusie door upper
-	if (RegExMatch(inputtext, "m)^\. .+\R") OR RegExMatch(inputtext, "m)^.+# ?.?\R")) { 			; only executes if there is ". " or "#" in the script
+	if (RegExMatch(inputtext, "m)^\. .+(?:\R|$)") OR RegExMatch(inputtext, "m)^.+# ?.?(?:\R|$)")) { 			; only executes if there is ". " or "#" in the script
 		inputtext := _sorttext(inputtext) ; zet alle zinnen met een punt vooraan, onder het verslag.
 	}
 	inputtext := StrReplace(inputtext, "bekend", "gekend", CaseSensitive := false)
@@ -44,13 +48,16 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "segment V", "segment 5") 	
 	inputtext := StrReplace(inputtext, "segment III", "segment 3") 		
 	inputtext := StrReplace(inputtext, "segment II", "segment 2") 	
+	inputtext := StrReplace(inputtext, "segment I(?=[ ,])", "segment 1") 	
 	; inputtext := RegExReplace(inputtext, "[\n\r]GECOMMUNICEERDE DRINGENDE BEVINDINGEN:[\n\r]$", "") 	; removes if no CONCLUSIE
 		
 	; inputtext := RegExReplace(inputtext, "i)gekende?", "\#\#\#")				
 	; inputtext := RegExReplace(inputtext, "i)op niveau van", "in")
 
+	inputtext := RegExReplace(inputtext, "i)supervis.*", "") ; verwijderd supervisie.
+	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.+)\/ ?$", " . $1") ;; Alle zinnen met / op einde krijgen " . " er voor
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it woudl only capture the first
-	inputtext := RegExReplace(inputtext, "m)(?<=[\w\d\)])\s?$", ".")					; adds . to end of string, word, digit or )
+	inputtext := RegExReplace(inputtext, "m)(?<=[\w\d\)])\ *$", ".")					; adds . to end of string, word, digit or )
 	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 					; converts to uppercase after ., newline or newline -
 	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts uppercase after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 	inputtext := RegExReplace(inputtext, "([CThD]\d{1,2}[\/-])[TD](?=\d{1,2})", "$1Th") 			; corrects T1/X to Th1 TODO: werkt niet T11-L3
@@ -63,7 +70,6 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(?<=CONCLUSIE:[\n\r])- (.+\s?)$", "$1") 				; removes - if als maar 1 lijn conclusie, zal het het streepje weg doen.
 	inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1à$2") 						; maakt à als a tussen 2 getallen.
 	inputtext := RegExReplace(inputtext, "- {2,}", "- ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
-	inputtext := RegExReplace(inputtext, "i)supervis.*", "") ; verwijderd supervisie.
 	return inputtext
 }
 
@@ -89,11 +95,11 @@ copyLastReport_KWS() {
 	MouseGetPos, mouseX, mouseY
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\bevindingenLabel.png
 	if (ErrorLevel = 2) {
-		_makeSplashText("Error", "Something went wrong when looking for enter field", -2000, False)
+		_makeSplashText("Error", "Something went wrong when looking for enter field", -2000)
 		return
 	}
 	else if (ErrorLevel = 1) {
-		_makeSplashText("Error", "Could not find the report field!", -2000, False)
+		_makeSplashText("Error", "Could not find the report field!", -2000)
 		return
 	}
 	MouseClick, left, FoundX+100, FoundY+200
@@ -111,7 +117,7 @@ copyLastReport_KWS() {
 	catch e {
 		sleep, 50
 		Send {Enter}
-		_makeSplashText(title := "ERROR", text := "Geen laatste gelijkaardig verslag gevonden!", time := -3000, updateSplashExists := False)
+		_makeSplashText(title := "ERROR", text := "Geen laatste gelijkaardig verslag gevonden!", time := -3000)
 		return
 	}
 
@@ -119,7 +125,7 @@ copyLastReport_KWS() {
 		Send, ^z
 		Send, ^z
 		Send ^{F8}					; Initieer dictee (ctrl F8)
-		_makeSplashText(title := "ERROR", text := "Fout: het voorgaande verslag zijn ingevoerde beelden!", time := -2000, updateSplashExists := False)
+		_makeSplashText(title := "ERROR", text := "Fout: het voorgaande verslag zijn ingevoerde beelden!", time := -2000)
 		return						; Klaar
 	} 
 	oldreportunclean := clipboard			; zet variabele gelijk aan clipboard
@@ -144,7 +150,9 @@ copyLastReport_KWS() {
 			oldreportcontent := RegExReplace(oldreportcontent, "((?:BESLUIT|CONCLUSIE).*)\R", "$1`nIn vergelijking met het voorgaande onderzoek van " . oldreportdate . ":`n", ,1, conclusielocatie-5)
 		}
 	}
-
+	if (SubStr(currentreportheader, StrLen(currentreportheader)) != "`n") { ; Fix dat soms de "compare" tegen de onderzoeken wordt gezet. eventueel te fixen in de REGEX of gewoon extra newlines hier vanonder en dan de overschot newlines wegdoen
+		currentreportheader .= "`n"
+	}
 	oldreportcontent := RegExReplace(oldreportcontent, "i)supervis.*", "") ; verwijder supervisie.
 	_KWS_PasteToReport(currentreportheader . "`n" . compared . "`n`n" . oldreportcontent)
 	Send ^{F8}							; Initieer dictee (ctrl F8)
@@ -157,9 +165,9 @@ validateAndClose_KWS() {
 		WinActivate
 	else
 		return
-	global	splashExists
+	global splashExists
 	if (splashExists == "" or splashExists == False) {
-		_makeSplashText("Validate function", "Press the button again to validate and close.", time := -3000)
+		_makeSplashText("Validate function", "Press the button again to validate and close.", time := -3000, doublePressMode := True)
 		Send, ^s
 		return
 	} 
@@ -168,7 +176,7 @@ validateAndClose_KWS() {
 	MouseGetPos, mouseX, mouseY
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\valideersluit.png
 	if (ErrorLevel >= 1) {
-		_makeSplashText("ERROR valideerfunctie", "ERROR: valideerknop niet gevonden, of er is iets mis gegaan met het zoeken.", -2000, updateSplashExists := False)
+		_makeSplashText("ERROR valideerfunctie", "ERROR: valideerknop niet gevonden, of er is iets mis gegaan met het zoeken.", -2000)
 		return
 	} 
 	WinGetTitle, title, A
@@ -176,7 +184,7 @@ validateAndClose_KWS() {
 	MouseClick, left, FoundX+5, FoundY+5
 	MouseMove, mouseX, mouseY
 	_log(ead, "Gevalideerd en gesloten")
-	_makeSplashText(title := "Gevalideerd", text := "Gevalideerd.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000, updateSplashExists := False)
+	_makeSplashText(title := "Gevalideerd", text := "Gevalideerd.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
 	return
 }
 
@@ -185,16 +193,16 @@ saveAndClose_KWS() {
 		WinActivate
 	else
 		return
-	global	splashExists
+	global splashExists
 	if (splashExists == "" or splashExists == False) {
-		_makeSplashText(title := "Save function", text := "Press save button again to close.", time := -3000)
+		_makeSplashText(title := "Save function", text := "Press save button again to close.", time := -3000, doublePressMode := True)
 		Send, ^s
 	} else {
 		_destroySplash()
 		CoordMode "Pixel"
 		ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\bewarenGreyedButton.png
 		if (ErrorLevel = 2) {
-			_makeSplashText(title := "Save function", text := "Something went wrong when checking if it was alreade saved", time := -2000, updateSplashExists := False)
+			_makeSplashText(title := "Save function", text := "Something went wrong when checking if it was alreade saved", time := -2000)
 		} else if (ErrorLevel = 1) {
 			_makeSplashText(title := "Save function", text := "Try again, report was not saved", time := -2000)
 			Send, ^s
@@ -203,7 +211,7 @@ saveAndClose_KWS() {
 			ead := SubStr(title, InStr(title, "(")+1, 8)
 			_log(ead, "Opgeslagen en gesloten")
 			WinClose, Pt. 
-			_makeSplashText(title := "Opgeslagen", text := "Opgeslagen.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000, updateSplashExists := False)
+			_makeSplashText(title := "Opgeslagen", text := "Opgeslagen.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
 		}
 	}
 	return
@@ -248,22 +256,19 @@ openEAD_KWS(input := "") {
 		if (RegExMatch(clipboard, "\D(\d{8})\D", ead))
 			openEAD_KWS(ead1)
 		return
-	} else {
-		clipboard := ead1
-		if WinExist("Startscherm (") {
+	}
+	clipboard := ead1
+	if WinExist("Startscherm (") {
+		WinActivate
+		Send, ^+z ; Hotkey voor zoek patient
+		Sleep, 400
+		if WinExist("Zoek pat") {
 			WinActivate
-			Send, ^+z
-			Sleep, 300
-			if WinExist("Zoek pat") {
-				WinActivate
-				Send, ^v
-				Send, {Enter}
-			}
-		return
-		} else {
-		return
+			Send, ^v
+			Send, {Enter}
 		}
 	}
+	return
 }
 
 openLastPtInLog_KWS() {
@@ -276,6 +281,7 @@ openLastPtInLog_KWS() {
 
 pedAbdomenTemplate() { ; Gemaakt door Johannes Devos, aangepast en opgekuist door CV.
 	ptdata := _KWS_GetDemographicDataPatient()
+	if (ptdata = "") return
 	naam := ptdata[5]
 	Year := ptdata[1]
 	Month := ptdata[2]
@@ -284,7 +290,7 @@ pedAbdomenTemplate() { ; Gemaakt door Johannes Devos, aangepast en opgekuist doo
 
 	Gui, pedAbdGui:+LastFound
 	GuiHWND := WinExist()
-	Gui, pedAbdGui:Add, Text, x2 y-1 w140 h20 , Patiëntennaam: ;; Nodig?
+	Gui, pedAbdGui:Add, Text, x2 y-1 w140 h20 , Patiëntennaam: 
 	Gui, pedAbdGui:Add, Text, x2 y19 w140 h20 , Leeftijd:
 	Gui, pedAbdGui:Add, Text, x42 y39 w100 h20 , Jaar:
 	Gui, pedAbdGui:Add, Text, x42 y59 w100 h20 , Maand:
@@ -303,14 +309,14 @@ pedAbdomenTemplate() { ; Gemaakt door Johannes Devos, aangepast en opgekuist doo
 	Gui, pedAbdGui:Add, Edit, x132 y169 w100 h20 vrechterNier, 0
 	Gui, pedAbdGui:Add, Button, x2 y199 w370 h30 Default, OK
 	Gui, pedAbdGui:Show, x759 y391 h236 w379, Echografie Pediatrie Afmetingen
-	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
+	WinWaitClose, ahk_id %GuiHWND%  		; waiting for gui to close
 	WinActivate, Pt. 
-	return _KWS_PasteToReport(result, false)               	;--returning value
+	return _KWS_PasteToReport(result, false)       	; returning value
 ; --------
 pedAbdGuiButtonOK:
 	Gui, Submit
 	age := [Year, Month, day]
-	result := _makePedReport(age,  milt, linkernier, lever, rechternier)
+	result := _makePedReport(age, milt, linkernier, lever, rechternier)
 	Gui, pedAbdGui:Destroy
 	return
 ; -------
@@ -327,7 +333,7 @@ MoveLineUp() {
 	Send, +{Home}
 	Send, +{Left}
 	Send, ^x
-	ClipWait,1
+	ClipWait, 1
 	Send, {Up}
 	Send, {End}
 	Send, ^v
@@ -335,15 +341,15 @@ MoveLineUp() {
 }
 
 MoveLineDown() {
-	; evt nog aanpassen dat ook van de voorlaatste naar laatste lijn kan gaan.
 	clipboard := ""
-	Send, {Home}
-	Send, +{Down}
+	Send, {End}
+	Send, +{Home}
+	Send, +{Left}
 	Send, ^x
-	ClipWait,1
+	ClipWait, 1
 	Send, {Down}
+	Send, {End}
 	Send, ^v
-	Send, {Up}
 	Return
 }
 
@@ -377,9 +383,9 @@ _KWS_SelectReportBox() {
 	MouseGetPos, mouseX, mouseY
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\bevindingenLabel.png
 	if (ErrorLevel = 2)
-		_makeSplashText(title := "Error", text := "Something went wrong when looking for enter field", time := -2000, updateSplashExists := False)
+		_makeSplashText(title := "Error", text := "Something went wrong when looking for enter field", time := -2000)
 	else if (ErrorLevel = 1)
-		_makeSplashText(title := "Error", text := "Error finding the report field: did the action succeed nonetheless?", time := -2000, updateSplashExists := False)
+		_makeSplashText(title := "Error", text := "Error finding the report field: did the action succeed nonetheless?", time := -2000)
 	else {
 		MouseClick, left, FoundX+100, FoundY+200
 		MouseMove, mouseX, mouseY
@@ -410,18 +416,18 @@ _KWS_PasteToReport(text, overwrite := true) {
 	if WinExist("Pt. ")  {
 		WinActivate
 	} else {
-		_makeSplashText("Error", "No patient window exists", -2000, False)
+		_makeSplashText("Error", "No patient window exists", -2000)
 		return
 	}
 	CoordMode "Pixel"
 	MouseGetPos, mouseX, mouseY
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\bevindingenLabel.png
 	if (ErrorLevel = 2) {
-		_makeSplashText(title := "Error", text := "Something went wrong when looking for enter field", time := -2000, updateSplashExists := False)
+		_makeSplashText(title := "Error", text := "Something went wrong when looking for enter field", time := -2000)
 		return
 	}
 	else if (ErrorLevel = 1) {
-		_makeSplashText(title := "Error", text := "Could not find the report field!", time := -2000, updateSplashExists := False)
+		_makeSplashText(title := "Error", text := "Could not find the report field!", time := -2000)
 		return
 	}
 	MouseClick, left, FoundX+100, FoundY+200
@@ -431,7 +437,6 @@ _KWS_PasteToReport(text, overwrite := true) {
 }
 
 _sorttext(inputtext) {
-	;TODO: zet geen enter tussen inputtext en de dotlines
 	if (RegExMatch(inputtext, "([\s\S]+)(\RCONCLUSIE[\s\S]+)", split)) {
 		outputtext := _sorttext(split1) . split2
 		return outputtext
@@ -440,6 +445,7 @@ _sorttext(inputtext) {
 		return outputtext
 	} else {
 		dotlines := ""
+		;; TODO: evt via Loop, Parse, inputtext, "`n`r" en dan A_LoopField
 		while (RegExMatch(inputtext, "m)(?:\R|^)\.?\ ?(.+#.?)$" , line)) { 	;gets all lines with XXXXX #
 			dotlines := dotlines . "`n. " . line1
 			inputtext := StrReplace(inputtext, line , "")
@@ -453,19 +459,17 @@ _sorttext(inputtext) {
 	}
 }
 
-_makeSplashText(title := "Splash title", text := "Splash text", time := -3000, updateSplashExists := True) {
-	global	splashExists
+_makeSplashText(title := "Splash title", text := "Splash text", time := -3000, doublePressMode := false) {
+	time := Abs(time) * (-1) ;; Zorgt dat time altijd negatief is (dat removesplash dus maar 1 keer wordt uitgevoerd ipv in loop)
+	global splashExists
 	_destroySplash()
-	splashExists := updateSplashExists
+	splashExists := doublePressMode
 	Gui, splashGui:+AlwaysOnTop +Disabled -SysMenu +Owner  	; +Owner avoids a taskbar button.
 	Gui, splashGui:Add, Text,, %text%
 	Gui, splashGui:Show, NoActivate, %title%		; NoActivate prevents taking the focus
-	SetTimer, RemoveSplash, %time%
+	destroySplash_fn := Func("_destroySplash").bind() ; Settimer aanvaard enkel een label, iets wat ik probeer te vermijden. Op deze manier kan ik toch een functie aan setTimer geven.
+	SetTimer, % destroySplash_fn, %time%
 	return
-	RemoveSplash:
-	_destroySplash()   		; label is used because only a label can be called by settimer
-	return					; dit zorgt dat er een hoop fout loopt, opletten en zien of dit niet verwijderd kan worden. 
-							; Ik heb het nu in de functie geplaatst: eens zien of het nog allemaal fout loopt...
 }
 
 _destroySplash() {
@@ -486,52 +490,50 @@ auto_scroll(richting := 1, decreaseKey := "&", increaseKey := "é", directionKey 
 	; try Hotkey, %decreaseKey%, Off
 	; try Hotkey, %increaseKey%, Off
 	; try Hotkey, %directionKey%, Off
-  MouseGetPos,,,windowUnderCursor
-  WinGet, temp, ProcessName, ahk_id %windowUnderCursor%
-  If (temp = "impax-client-main.exe" OR temp = "syngo.Common.Container.exe" OR temp = "javaw.exe" OR temp = "javawClinapps.exe"){
-	keys := "{" . decreaseKey  . "}{" . increaseKey . "}{" . directionKey . "}{" . pauseKey . "}" 
-    hook := InputHook("L0", keys)
-    hook.VisibleNonText := false
-    hook.Start()
-    static sleep_delay := 300
-    endloop := 0
-    hook.OnChar := Func("_auto_scroll_down_helper")
-    Loop{
-		if not GetKeyState(pauseKey) {
-			if (richting = 1)
-				send {wheeldown 1}
-			if (richting = -1)
-				send {wheelup 1}
-		}
-      
-		Sleep sleep_delay
-	  
-		if (!hook.InProgress){
-			if (hook.EndReason = "Stopped"){
-				break
-			} else {
-				if (hook.EndKey = decreaseKey){
-					sleep_delay := sleep_delay / (0.85)
+	MouseGetPos,,,windowUnderCursor
+	WinGet, temp, ProcessName, ahk_id %windowUnderCursor%
+	If (temp = "impax-client-main.exe" OR temp = "syngo.Common.Container.exe" OR temp = "javaw.exe" OR temp = "javawClinapps.exe"){
+		keys := "{" . decreaseKey  . "}{" . increaseKey . "}{" . directionKey . "}{" . pauseKey . "}" 
+		hook := InputHook("L0", keys)
+		hook.VisibleNonText := false
+		hook.Start()
+		static sleep_delay := 300
+		endloop := 0
+		hook.OnChar := Func("_auto_scroll_down_helper")
+		Loop{
+			if not GetKeyState(pauseKey) {
+				if (richting = 1)
+					send {wheeldown 1}
+				if (richting = -1)
+					send {wheelup 1}
+			}
+			Sleep sleep_delay
+			if (!hook.InProgress){
+				if (hook.EndReason = "Stopped"){
+					break
+				} else {
+					if (hook.EndKey = decreaseKey){
+						sleep_delay := sleep_delay / (0.85)
+					}
+					if (hook.EndKey = increaseKey){
+						sleep_delay := sleep_delay * (0.85)
+					}
+					if (hook.Endkey = directionKey){
+						richting := richting * (-1)
+					}
+					hook.Start()
 				}
-				if (hook.EndKey = increaseKey){
-					sleep_delay := sleep_delay * (0.85)
-				}
-				if (hook.Endkey = directionKey){
-					richting := richting * (-1)
-				}
-				hook.Start()
 			}
 		}
-    }
-    hook.Stop()
-    Suspend, Off
-    return
-  }
-  ; Hotkey, If
- ;  Hotkey, %increaseKey%, On
-  ; Hotkey, %decreaseKey%, On
- ;  Hotkey, %directionKey%, On
-  ;Send ^&
+		hook.Stop()
+		Suspend, Off
+		return
+	}
+	; Hotkey, If
+	;  Hotkey, %increaseKey%, On
+	; Hotkey, %decreaseKey%, On
+	;  Hotkey, %directionKey%, On
+	;Send ^&
 }
 
 _auto_scroll_down_helper(ih, char){
@@ -547,6 +549,12 @@ _log(str, extrastr*) {
 	if FileExist(logfile)
 		output := "`n" . output
 	FileAppend, %output%, %logfile%
+}
+
+_KWS_closeMededelingen() {
+	if Winexist("Mededelingen ahk_exe javaw.exe") {
+		Winclose
+	}
 }
 
 clipboardcleaner() {
@@ -571,13 +579,16 @@ _MouseIsOver(vWinTitle:="", vWinText:="", vExcludeTitle:="", vExcludeText:="") {
 }
 
 _KWS_GetDemographicDataPatient() {
-	WinGetTitle, VensterTitel, "Pt. "
-	RegExMatch(VensterTitel, "(\d{6})([M,V,G,B])\d{3}, (\d{1,3})([jm])", EMD)
+	WinGetTitle, VensterTitel, A
+	RegExMatch(VensterTitel, "(\d{6})([M,V,G,B])\d{3}, (\d{1,3})([jmd])", EMD)
+	if (EMD = "") {
+		_makeSplashText("Error", "Geboortedatum werd niet gevonden.", 2000, false)
+		return EMD
+	}
 	;Extract de leeftijd
-	if ((EMD4 = "m") or (EMD3 < 22)){
+	if ((EMD1 < 500000) and (EMD3 < 50)) { ; tegen 2050 zal dit moeten worden aangepast, niet meer mijn probleem dan.
 		leeftijd := "20" . EMD1
-	} else if (EMD3 > 21) {
-		;; TODO: dit nog beter maken
+	} else {
 		leeftijd := "19" . EMD1
 	}
 	if (EMD2 = "M" or EMD3 = "B") { ; eigenlijk niet nodig
@@ -605,9 +616,9 @@ _makePedReport(age, Milt, LinkerNier, Lever, RechterNier) { ; Gemaakt door Johan
 	Result := [0,0,0,0]
 	SetFormat, Float, 0.2
 
-	Years := age%1%
-	Months := age%2%
-	Days := age%3%
+	Years := age[1]
+	Months := age[2]
+	Days := age[3]
 
 	; NIEREN
 	if (Years >= 1){
@@ -677,7 +688,7 @@ _makePedReport(age, Milt, LinkerNier, Lever, RechterNier) { ; Gemaakt door Johan
 		Result[4] := (Lever - Gemiddelde_Lever[11])/SD_Lever[11]
 	}
 	SetFormat, Float, 0.1
-	Verslag := "Normale ligging van de retroperitoneale grote vaten.`nNormale ligging van de organen.`n`nLeverspan: " . Lever/10 . " cm (SD: " . Result[4] . ").`nHomogeen leverparenchym met normale reflectiviteit.`nNormaal voorkomen van de portahoofdstam en de intrahepatische portatakken.`nNormale hepatische venen met normale hepatofugale flow.`nNormale hepatopetale portale flow.`nNormale flow in de a. hepatica.`nGeen gedilateerde intrahepatische noch extrahepatische galwegen aangetoond.`nNormale galblaas.`nNormale pancreas. Geen visualisatie van de ductus van Wirsung.`nMilt: " . Milt/10 . " cm (SD: " . Result[3] . ").`nNormaal vookomen van de milt.`n`nNormale bijnieren / bijnierloges.`nLinkernier: " . Linkernier/10 . " cm (SD: " . Result[1] . ").`nRechternier: " . Rechternier/10 . " cm (SD: " . Result[2] . ").`nNormale reflectiviteit van het nierparenchym met corticomedullaire differentiatie.`nGeen hydro-ureteronefrose.`nNormale blaasvulling.`nNormale aflijning en dikte van de blaaswand.`n`nNormale ligging van de A. en V. Mesenterica Superior.`nGeen adenopathieÃ«n aangetoond.`nNormale darmwanden.`nNormaal aspect van het terminale ileum.`nNormaal voorkomen van de appendix.`n`nCONCLUSIE:`n###`n`nGECOMMUNICEERDE DRINGENDE BEVINDINGEN:`n"
+	Verslag := "Normale ligging van de retroperitoneale grote vaten.`nNormale ligging van de organen.`n`nLeverspan: " . Lever/10 . " cm (SD: " . Result[4] . ").`nHomogeen leverparenchym met normale reflectiviteit.`nNormale portahoofdstam en intrahepatische portatakken.`nNormale hepatische venen met normale hepatofugale flow.`nNormale hepatopetale portale flow.`nNormale flow in de a. hepatica.`nGeen gedilateerde intrahepatische of extrahepatische galwegen aangetoond.`nNormale galblaas.`nNormale pancreas. Geen visualisatie van de ductus van Wirsung.`nMilt: " . Milt/10 . " cm (SD: " . Result[3] . ").`nNormale milt.`n`nNormale bijnieren en bijnierloges.`nLinkernier: " . Linkernier/10 . " cm (SD: " . Result[1] . ").`nRechternier: " . Rechternier/10 . " cm (SD: " . Result[2] . ").`nNormale reflectiviteit van het nierparenchym met corticomedullaire differentiatie.`nGeen hydro-ureteronefrose.`nNormale blaasvulling.`nNormale aflijning en dikte van de blaaswand.`n`nNormale ligging van de A. en V. Mesenterica Superior.`nGeen adenopathieën aangetoond.`nNormale darmwanden.`n###Normaal terminale ileum.`n###Normale appendix.`n`nCONCLUSIE:`n###`n`nGECOMMUNICEERDE DRINGENDE BEVINDINGEN:`n"
 	return Verslag
 }
 
