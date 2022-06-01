@@ -2,9 +2,10 @@
 Collectie van Autohotkey scripts om de radiologie workflow te verbeteren.
 
 ## Installatie
-Download eerst de zip versie van [Autohotkey hier](https://www.autohotkey.com/download/ahk.zip). Rechts klik -> uitpakken, en kies een locatie die je terugvindt (bijvoorbeeld documenten of bureaublad).
-Download vervolgens de bestanden van deze repo [hier](https://github.com/CVanmarcke/KWS-helper/archive/refs/heads/main.zip), en pak deze uit op dezelfde manier. Kopiëer dan de inhoud (dus de `.ahk` bestandjes) in de eerste folder, die `AutohotkeyU64.exe` bevat.
-Start het programma via `AutohotkeyU64.exe`
+1. Download eerst de zip versie van [Autohotkey hier](https://www.autohotkey.com/download/ahk.zip). Rechts klik -> uitpakken, en kies een locatie die je terugvindt (bijvoorbeeld documenten of bureaublad).
+2. Download vervolgens de bestanden van deze repo [hier](https://github.com/CVanmarcke/KWS-helper/archive/refs/heads/main.zip), en pak deze uit op dezelfde manier. 
+3. Kopiëer dan de inhoud (dus de `.ahk` bestandjes) in de eerste folder, die `AutohotkeyU64.exe` bevat.
+4. Start het programma via `AutohotkeyU64.exe`
 
 ## Hotkeys veranderden
 TODO
