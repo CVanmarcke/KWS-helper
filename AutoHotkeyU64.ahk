@@ -28,7 +28,7 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 RCtrl::CapsLock
 
 ;; Hotkeys die enkel werken als het KWS patientscherm in focus is
-#If WinActive("Pt. ")
+#If WinActive("KWS ahk_exe javaw.exe")
 ^b::^c				; maakt van ctrl-b gewoon ctrl-c; de originele functie van ctrl-b was uitloggen, en was te dicht tegen ctrl-c waardoor ik er soms perongeluk op duwde. Dit zet dit uit.
 ^d::deleteLine()
 F7::copyLastReport_KWS()
@@ -40,11 +40,11 @@ F9::cleanReport_KWS()		; verslag cleaner
 :X:pedabdomen::pedAbdomenTemplate() ; De datum van EAM nummer halen werkt nog niet correct, nog eens bekijken.
 
 ;; Hotkeys die enkel werken als PACS of patientscherm KWS in focys is.
-#If WinActive("Pt. ") or (WinExist("Pt. ") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")))
+#If WinActive("KWS ahk_exe javaw.exe") or (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")))
 F7::copyLastReport_KWS()
 F9::cleanReport_KWS() 
 
-; Autoscroller (in Enterprise en IMPAX), gemaakt door johannes. Cfr handleiding.
+; Autoscroller (in Enterprise en IMPAX) is gemaakt door johannes. Cfr handleiding.
 #if WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")
 $é::auto_scroll(-1, "&", "é", "Space")
 $&::auto_scroll(1, "&", "é", "Space")
@@ -75,27 +75,27 @@ PassHotkey(keypressed) {
 		Case "0000":
 		Send {Ctrl Up}
 	}
-	If WinActive("Pt. ") {
+	If WinActive("KWS ahk_exe javaw.exe") {
 		Switch keypressed {
 			Case "0020":		; EOL
-			saveAndClose_KWS()
+				saveAndClose_KWS()
 			Case "0080":		; -i-
-			copyLastReport_KWS()
+				copyLastReport_KWS()
 			Case "0040":		; INS/OVR
-			validateAndClose_KWS()
+				validateAndClose_KWS()
 			Case "0200":		; F1
-			copyLastReport_KWS()
+				copyLastReport_KWS()
 			Case "0400":		; F2
 			; KWStoExcel()
 			Case "0800":		; F3
-			cleanReport_KWS()
+				cleanReport_KWS()
 			Case "1000":		; F4
-			Send ^{F8}	
+				Send ^{F8}	
 		}
-	} else if (WinExist("Pt. ") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe"))){
+	} else if (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe"))){
 		Switch keypressed {
 			Case "0020":		; EOL
-			saveAndClose_KWS()
+				saveAndClose_KWS()
 			Case "0080":		; -i-
 				copyLastReport_KWS()
 			Case "0040":		; INS/OVR
