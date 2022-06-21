@@ -1,6 +1,8 @@
 # KWS-helper
 Collectie van Autohotkey scripts om de radiologie workflow te verbeteren.
 
+Werkt met de nieuwe versie van KWS (van 20-06-2022).
+
 ## Installatie
 1. Download eerst de zip versie van [Autohotkey hier](https://www.autohotkey.com/download/ahk.zip). Rechts klik -> uitpakken, en kies een locatie die je terugvindt (bijvoorbeeld documenten of bureaublad).
 2. Download vervolgens de bestanden van deze repo [hier](https://github.com/CVanmarcke/KWS-helper/archive/refs/heads/main.zip), en pak deze uit op dezelfde manier. 
@@ -39,7 +41,7 @@ Knop | functie
 `forward` | MoveLineDown() 
 `play/pause` | `Backspace` 
 `F1` | copyLastReport_KWS() 
-`F2` | / 
+`F2` | Sluit het huidige verslag zonder op te slaan.
 `F3` | cleanReport_KWS() 
 `F4` | Ctrl-F8 (start speechkit in venster)
 `back button (hold)` | Simuleert de Ctrl knop: kan gebruikt worden om in enterprise te zoomen en pannen. 
