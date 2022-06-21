@@ -46,8 +46,8 @@ F9::cleanReport_KWS()
 
 ; Autoscroller (in Enterprise en IMPAX) is gemaakt door johannes. Cfr handleiding.
 #if WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")
-$é::auto_scroll(-1, "&", "é", "Space")
-$&::auto_scroll(1, "&", "é", "Space")
+$Ã©::auto_scroll(-1, "&", "Ã©", "Space")
+$&::auto_scroll(1, "&", "Ã©", "Space")
 
 ; Allows windowing in IMPAX with the numpad keys
 #If WinActive("ahk_exe impax-client-main.exe")
@@ -86,7 +86,7 @@ PassHotkey(keypressed) {
 			Case "0200":		; F1
 				copyLastReport_KWS()
 			Case "0400":		; F2
-			; KWStoExcel()
+				closeWithoutSaving()
 			Case "0800":		; F3
 				cleanReport_KWS()
 			Case "1000":		; F4
