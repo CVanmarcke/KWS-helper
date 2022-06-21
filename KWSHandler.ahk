@@ -21,7 +21,7 @@ initKWSHandler() {
 	logfile := "logfile.csv"
 	;; Zet een timer dat het "mededelingen" venster van KWS automatisch sluit. Via een omweg want SetTimer kan eigenlijk enkel een label als parameter krijgen, geen functie.
 	closeMededeling_fn := Func("_KWS_closeMededelingen").bind()
-	SetTimer, % closeMededeling_fn, 500
+	;; SetTimer, % closeMededeling_fn, 500
 
 }
 
@@ -31,9 +31,10 @@ initKWSHandler() {
 ;=================================================
 cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")				; replaces case insensitive besluit/conclusie door upper
-	if (RegExMatch(inputtext, "m)^\. .+(?:\R|$)") OR RegExMatch(inputtext, "m)^.+# ?.?(?:\R|$)")) { 			; only executes if there is ". " or "#" in the script
+	if (RegExMatch(inputtext, "m)^\. ?.+(?:\R|$)") OR RegExMatch(inputtext, "m)^.+# ?.?(?:\R|$)")) { 			; only executes if there is ". " or "#" in the script
 		inputtext := _sorttext(inputtext) ; zet alle zinnen met een punt vooraan, onder het verslag.
 	}
+	sleep, 50
 	inputtext := StrReplace(inputtext, "bekend", "gekend", CaseSensitive := false)
 	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose") 		
 	inputtext := StrReplace(inputtext, "iffuse restrictie", "iffusie restrictie") 		
@@ -41,23 +42,24 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "pig katheter", "PIC katheter", CaseSensitive := false) 	
 	inputtext := StrReplace(inputtext, "flair", "FLAIR", CaseSensitive := false) 	
 	inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", CaseSensitive := false) 	
-	inputtext := StrReplace(inputtext, "segment VIII", "segment 8") 
-	inputtext := StrReplace(inputtext, "segment VII", "segment 7") 		
-	inputtext := StrReplace(inputtext, "segment VI", "segment 6") 		
+	inputtext := StrReplace(inputtext, "tbc", "TBC")
+	inputtext := StrReplace(inputtext, "kan configuratie", "CAM configuratie") 
+	inputtext := StrReplace(inputtext, "segment VIII", "segment 8")
+	inputtext := StrReplace(inputtext, "segment VII", "segment 7")
+	inputtext := StrReplace(inputtext, "segment VI", "segment 6", CaseSensitive := true) 		
 	inputtext := StrReplace(inputtext, "segment IV", "segment 4") 
-	inputtext := StrReplace(inputtext, "segment V", "segment 5") 	
+	inputtext := RegExReplace(inputtext, "segment V(?=[ ,\.])", "segment 5") 	
 	inputtext := StrReplace(inputtext, "segment III", "segment 3") 		
 	inputtext := StrReplace(inputtext, "segment II", "segment 2") 	
-	inputtext := StrReplace(inputtext, "segment I(?=[ ,])", "segment 1") 	
-	; inputtext := RegExReplace(inputtext, "[\n\r]GECOMMUNICEERDE DRINGENDE BEVINDINGEN:[\n\r]$", "") 	; removes if no CONCLUSIE
-		
+	inputtext := RegExReplace(inputtext, "segment I(?=[ ,\.])", "segment 1") 	
+	inputtext := RegExReplace(inputtext, "\RGECOMMUNICEERDE DRINGENDE BEVINDINGEN:(?=\R|$)", "") 	; verwijderd die zin
+	inputtext := RegExReplace(inputtext, "im)^Vergelijking met ", "Vergeleken met ")		
 	; inputtext := RegExReplace(inputtext, "i)gekende?", "\#\#\#")				
-	; inputtext := RegExReplace(inputtext, "i)op niveau van", "in")
+	inputtext := RegExReplace(inputtext, "im)[\ \t]*supervis.*$", "") ; verwijderd supervisie.
 
-	inputtext := RegExReplace(inputtext, "i)supervis.*", "") ; verwijderd supervisie.
-	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.+)\/ ?$", " . $1") ;; Alle zinnen met / op einde krijgen " . " er voor
-	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it woudl only capture the first
-	inputtext := RegExReplace(inputtext, "m)(?<=[\w\d\)])\ *$", ".")					; adds . to end of string, word, digit or )
+	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.+)\/ ?(?=\R|$)", "  . $1") ;; Alle zinnen met / op einde krijgen " . " er voor
+	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
+	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])(?=\R|$)", "$1.")					; adds . to end of string, word, digit or )
 	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 					; converts to uppercase after ., newline or newline -
 	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts uppercase after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 	inputtext := RegExReplace(inputtext, "([CThD]\d{1,2}[\/-])[TD](?=\d{1,2})", "$1Th") 			; corrects T1/X to Th1 TODO: werkt niet T11-L3
@@ -65,50 +67,31 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "((?:C|Th|L|S)\d{1,2})\/((?:C|Th|L|S)\d{1,2})", "$1-$2") 	; corrects L1/L2 to L1-L2
 	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3") 			; corrects d/m/y tot d-m-y
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n") 											; replaces triple+ newline with double
-	inputtext := RegExReplace(inputtext, "im)^(?=\w|\()(?!CONCLUSIE|Vergel[ei]j?k[ie]n|Mede in|In vergel|NB|Nota|Storende|Suboptim|Reserv|Naar [lr])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
-	inputtext := RegExReplace(inputtext, "m)^- (.+:[\n\r])(?![ .\n\r\t])", "$1")				; removes - if :, except if after the newline followed by whitespace or . or...
-	inputtext := RegExReplace(inputtext, "(?<=CONCLUSIE:[\n\r])- (.+\s?)$", "$1") 				; removes - if als maar 1 lijn conclusie, zal het het streepje weg doen.
+	inputtext := RegExReplace(inputtext, "im)^(?=\w|\()(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Reserv|Naar [lr])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
+	; inputtext := RegExReplace(inputtext, "m)(?<=^|[\r\n])- (.+\:\R)(?![ .\n\r\t])", "$1")				; removes - if :, except if after the newline followed by whitespace or . or...
+	; inputtext := RegExReplace(inputtext, "(?<=CONCLUSIE:[\n\r])- (.+(?:[\n\r]|$))(?![\w\-\ ])", "$1") 			; removes - als maar 1 lijn conclusie, zal het het streepje weg doen.
 	inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1à$2") 						; maakt à als a tussen 2 getallen.
-	inputtext := RegExReplace(inputtext, "- {2,}", "- ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
+	inputtext := RegExReplace(inputtext, "(\-\.) {2,}", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
 	return inputtext
 }
 
 cleanReport_KWS() {
 	; Actieve querry zou aberrante medicatieschemas moeten vinden en fixen"
 	RegexQuerry := "(?<header>(?:Leuven|Pellenberg)[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<content>[\s\S]+?)(?:\R*$|[\n\r]{2,}\*\* Eind)"
-	_KWS_CopyReportToClipboard()
+	_KWS_CopyReportToClipboard(True)
 	RegExMatch(clipboard, RegexQuerry, report)	
 	_KWS_PasteToReport(reportheader . "`n" . cleanreport(reportcontent))
 }
 
 copyLastReport_KWS() {
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg)[\s\S]+(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl |tov ).{5,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren).+)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
+	RegexQuerry := "(?<header>(?:Leuven|Pellenberg)[\s\S]+(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).+)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
 	; (?<header>(?:Leuven|Pellenberg)[\s\S]+(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R)(?<type>(?:.+\R?)+)\R{2,}(?:TOEGEDIENDE MEDICATIE[\s\S]+toegediend:\s[\d.,]{0,4}\s(?:ml|mg|zakje|spuit)\R+)?)(.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl |tov ).{5,45}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren).+)?\R+(?<content>[\s\S]+?)(?:$|\*\* Eind)"
 	; bigquerry "(?:Leuven|Pellenberg)[\s\S]+(\d+-\d+-\d+)[\s\S]+(?:KLINISCHE INLICHTINGEN:[\n\r])([\s\S]+)[\n\r]{2}(?:DIAGNOSTISCHE VRAAGSTELLING:[\n\r])([\s\S]+)[\n\r]{2}(?:ONDERZOEKE?N?:[\n\r])((?:.+[\n\r]?)+)[\n\r]{2,}(?:TOEGEDIENDE MEDICATIE[\s\S]+toegediend:\s[\d.,]{0,4}\s(?:ml|mg|zakje|spuit)[\n\r]+)*([\s\S]+?)(?=[\r\n]*\*\* einde|$)"
-
-	if WinExist("Pt. ") 
-		WinActivate 
-	else
-		throw Exception("KWS has no patient open!", -1)
-	
-	CoordMode "Pixel"
-	MouseGetPos, mouseX, mouseY
-	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\bevindingenLabel.png
-	if (ErrorLevel = 2) {
-		_makeSplashText("Error", "Something went wrong when looking for enter field", -2000)
-		return
-	}
-	else if (ErrorLevel = 1) {
-		_makeSplashText("Error", "Could not find the report field!", -2000)
-		return
-	}
-	MouseClick, left, FoundX+100, FoundY+200
-	_KWS_CopyReportToClipboard(selectReportBox := False)
-	
+	_KWS_CopyReportToClipboard(selectReportBox := True)
 	currentreportunclean := clipboard
 	clipboard := ""
 	
-	MouseClick, right, FoundX+100, FoundY+200 
+	_KWS_SelectReportBox("right")
 	Send {Down}					; klik pijltje naar beneden
 	Send {Down}
 	Send {Enter}	    				; selecteerd "neem laatste verslag over"
@@ -153,7 +136,10 @@ copyLastReport_KWS() {
 	if (SubStr(currentreportheader, StrLen(currentreportheader)) != "`n") { ; Fix dat soms de "compare" tegen de onderzoeken wordt gezet. eventueel te fixen in de REGEX of gewoon extra newlines hier vanonder en dan de overschot newlines wegdoen
 		currentreportheader .= "`n"
 	}
-	oldreportcontent := RegExReplace(oldreportcontent, "i)supervis.*", "") ; verwijder supervisie.
+	if (InStr(currentreporttype, "RX thorax")) {
+		oldreportcontent := cleanreport(oldreportcontent)
+	}
+	oldreportcontent := RegExReplace(oldreportcontent, "im)[\ \t]*supervis.*$", "") ; verwijder supervisie.
 	_KWS_PasteToReport(currentreportheader . "`n" . compared . "`n`n" . oldreportcontent)
 	Send ^{F8}							; Initieer dictee (ctrl F8)
 	MouseMove, mouseX, mouseY
@@ -161,10 +147,6 @@ copyLastReport_KWS() {
 }
 
 validateAndClose_KWS() {
-	if WinExist("Pt. ") 
-		WinActivate
-	else
-		return
 	global splashExists
 	if (splashExists == "" or splashExists == False) {
 		_makeSplashText("Validate function", "Press the button again to validate and close.", time := -3000, doublePressMode := True)
@@ -172,6 +154,8 @@ validateAndClose_KWS() {
 		return
 	} 
 	_destroySplash()
+	if WinExist("KWS ahk_exe javaw.exe")
+		WinActivate 
 	CoordMode "Pixel"
 	MouseGetPos, mouseX, mouseY
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\valideersluit.png
@@ -179,8 +163,7 @@ validateAndClose_KWS() {
 		_makeSplashText("ERROR valideerfunctie", "ERROR: valideerknop niet gevonden, of er is iets mis gegaan met het zoeken.", -2000)
 		return
 	} 
-	WinGetTitle, title, A
-	ead := SubStr(title, InStr(title, "(")+1, 8) ; extraheert ead voor logfile
+	ead := _getEAD()
 	MouseClick, left, FoundX+5, FoundY+5
 	MouseMove, mouseX, mouseY
 	_log(ead, "Gevalideerd en gesloten")
@@ -189,16 +172,14 @@ validateAndClose_KWS() {
 }
 
 saveAndClose_KWS() {
-	if WinExist("Pt. ") 
-		WinActivate
-	else
-		return
 	global splashExists
 	if (splashExists == "" or splashExists == False) {
-		_makeSplashText(title := "Save function", text := "Press save button again to close.", time := -3000, doublePressMode := True)
+		_makeSplashText("Save function", "Press save button again to close.", -3000, doublePressMode := True)
 		Send, ^s
 	} else {
 		_destroySplash()
+		if WinExist("KWS ahk_exe javaw.exe")
+			WinActivate 
 		CoordMode "Pixel"
 		ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\bewarenGreyedButton.png
 		if (ErrorLevel = 2) {
@@ -207,14 +188,38 @@ saveAndClose_KWS() {
 			_makeSplashText(title := "Save function", text := "Try again, report was not saved", time := -2000)
 			Send, ^s
 		} else {
-			WinGetTitle, title, A
-			ead := SubStr(title, InStr(title, "(")+1, 8)
+			MouseGetPos, mouseX, mouseY
+			ead := _getEAD(False)
+			ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\crossActive.png
+			if (ErrorLevel = 2) {
+				_makeSplashText(title := "Save function", text := "Something went wrong looking for the close button", time := -2000)
+			} else if (ErrorLevel = 1) {
+				_makeSplashText(title := "Save function", text := "Try again, report was not saved close button not found", time := -2000)
+				Send, ^s
+			}
+			;; Controlclick, % "x" FoundX+3 " y" FoundY+3, KWS
+			MouseClick, left, FoundX + 3, FoundY + 3
+			MouseMove, mouseX, mouseY
 			_log(ead, "Opgeslagen en gesloten")
-			WinClose, Pt. 
 			_makeSplashText(title := "Opgeslagen", text := "Opgeslagen.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
 		}
 	}
 	return
+}
+
+closeWithoutSaving() {
+	MouseGetPos, mouseX, mouseY
+	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\crossActive.png
+	if (ErrorLevel = 2) {
+		_makeSplashText(title := "Save function", text := "Something went wrong looking for the close button", time := -2000)
+	} else if (ErrorLevel = 1) {
+		_makeSplashText(title := "Save function", text := "Try again, report was not saved close button not found", time := -2000)
+		Send, ^s
+	}
+	MouseClick, left, FoundX + 3, FoundY + 3
+	sleep, 100
+	Send {Enter}
+	MouseMove, mouseX, mouseY
 }
 
 heightLossGUI() {
@@ -229,7 +234,7 @@ heightLossGUI() {
 	Gui, heightLoss:Add , Button, Default, OK
 	Gui, heightLoss:Show, , Vertebral height loss calculator
 	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
-	WinActivate, Pt. 
+	WinActivate, KWS
 	return _KWS_PasteToReport(result, false)               	;--returning value
 	;-------
 	heightLossButtonOK:
@@ -280,12 +285,12 @@ openLastPtInLog_KWS() {
 }
 
 pedAbdomenTemplate() { ; Gemaakt door Johannes Devos, aangepast en opgekuist door CV.
-	ptdata := _KWS_GetDemographicDataPatient()
-	if (ptdata = "") return
-	naam := ptdata[5]
-	Year := ptdata[1]
-	Month := ptdata[2]
-	day := ptdata[3]
+	;; ptdata := _KWS_GetDemographicDataPatient()
+	birthdate := _getBirthDate(returnMouse := false)
+	naam := "test" ; ptdata[5]
+	Year := SubStr(birthdate, 7)
+	Month := SubStr(birthdate, 4, 2)
+	day := SubStr(birthdate, 1, 2)
 	global milt, linkerNier, lever, rechterNier
 
 	Gui, pedAbdGui:+LastFound
@@ -310,7 +315,7 @@ pedAbdomenTemplate() { ; Gemaakt door Johannes Devos, aangepast en opgekuist doo
 	Gui, pedAbdGui:Add, Button, x2 y199 w370 h30 Default, OK
 	Gui, pedAbdGui:Show, x759 y391 h236 w379, Echografie Pediatrie Afmetingen
 	WinWaitClose, ahk_id %GuiHWND%  		; waiting for gui to close
-	WinActivate, Pt. 
+	WinActivate, KWS
 	return _KWS_PasteToReport(result, false)       	; returning value
 ; --------
 pedAbdGuiButtonOK:
@@ -363,10 +368,10 @@ deleteLine() {
 ; --------------------------------------
 
 _KWS_CopyReportToClipboard(selectReportBox := True) {
-	if WinExist("Pt. ")
+	if WinExist("KWS ahk_exe javaw.exe")
 		WinActivate 
 	else
-		throw Exception("KWS has no patient open!", -1)
+		throw Exception("KWS is not open!", -1)
 	if (selectReportBox) {
 		_KWS_SelectReportBox()
 	}
@@ -378,7 +383,8 @@ _KWS_CopyReportToClipboard(selectReportBox := True) {
 		throw Exception("Could not copy data to clipboard!", -1)                 				; STOPT als geen data in clipboard
 }
 
-_KWS_SelectReportBox() {
+_KWS_SelectReportBox(mousebutton := "left") {
+	;; assumes KWS already active
 	CoordMode "Pixel"
 	MouseGetPos, mouseX, mouseY
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\bevindingenLabel.png
@@ -387,13 +393,14 @@ _KWS_SelectReportBox() {
 	else if (ErrorLevel = 1)
 		_makeSplashText(title := "Error", text := "Error finding the report field: did the action succeed nonetheless?", time := -2000)
 	else {
-		MouseClick, left, FoundX+100, FoundY+200
+		MouseClick, %mousebutton%, FoundX+100, FoundY+200
 		MouseMove, mouseX, mouseY
 	}
 }
 
+
 _KWS_PasteToReport(text, overwrite := true) {
-	If WinActive("Pt. ") {
+	If WinActive("KWS") {
 		tempclip := clipboard
 		clipboard := ""  
 		clipboard := text           	; maakt het clipboard leeg 
@@ -407,32 +414,18 @@ _KWS_PasteToReport(text, overwrite := true) {
 			WinActivate
 			SendInput, {Enter}
 			Sleep, 50
-			Winactivate, Pt. 
+			Winactivate, KWS
 			_KWS_PasteToReport(text, overwrite)
 		}
 		clipboard := tempclip
 		return
 	}
-	if WinExist("Pt. ")  {
-		WinActivate
-	} else {
-		_makeSplashText("Error", "No patient window exists", -2000)
-		return
-	}
-	CoordMode "Pixel"
-	MouseGetPos, mouseX, mouseY
-	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\bevindingenLabel.png
-	if (ErrorLevel = 2) {
-		_makeSplashText(title := "Error", text := "Something went wrong when looking for enter field", time := -2000)
-		return
-	}
-	else if (ErrorLevel = 1) {
-		_makeSplashText(title := "Error", text := "Could not find the report field!", time := -2000)
-		return
-	}
-	MouseClick, left, FoundX+100, FoundY+200
+	if WinExist("KWS ahk_exe javaw.exe")
+		WinActivate 
+	else
+		throw Exception("KWS is not open!", -1)
+	_KWS_SelectReportBox()
 	_KWS_PasteToReport(text, overwrite)
-	MouseMove, mouseX, mouseY
 	return
 }
 
@@ -450,13 +443,50 @@ _sorttext(inputtext) {
 			dotlines := dotlines . "`n. " . line1
 			inputtext := StrReplace(inputtext, line , "")
 		}
-		while (RegExMatch(inputtext, "m)(?:\R|^)\.\ ?(.+)$" , line)) { 		;gets all lines with . XXXXX
+		while (RegExMatch(inputtext, "m)(?:\R|^)\.\ ?(.+[^\/])?$" , line)) { 		;gets all lines with . XXXXX (as long as not ending with /)
+		; while (RegExMatch(inputtext, "m)(?:\R|^)\.\ ?(.+)$" , line)) { 		;gets all lines with . XXXXX
 			dotlines := dotlines . "`n. " . line1
 			inputtext := StrReplace(inputtext, line , "")
 		}
 		outputtext := inputtext . "`n" . StrReplace(StrReplace(dotlines, "#" , ""), ". - ", ". ") . "`n`n"
 		return outputtext
 	}
+}
+
+_getEAD(returnMouse := false) {
+	if (returnMouse) {
+		MouseGetPos, mouseX, mouseY
+	}
+	clipboard := temp
+	clipboard := ""
+	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\eadnrLabel.png
+	Mouseclick, left, FoundX+70, FoundY+10
+	Clipwait, 1
+	ead := clipboard
+	clipboard := temp
+	if (returnMouse) {
+		MouseMove, mouseX, mouseY
+	}
+	return ead
+}
+
+_getBirthDate(returnMouse := false) {
+	if (returnMouse) {
+		MouseGetPos, mouseX, mouseY
+	}
+	WinGetTitle, VensterTitel, A
+	clipboard := temp
+	clipboard := ""
+	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\eadnrLabel.png
+	Mouseclick, left, FoundX-25, FoundY+10
+	;; Controlclick, % "x" FoundX+50 " y" FoundY+10, %VensterTitel% ; werkt niet...
+	Clipwait, 1
+	date := SubStr(clipboard, 2)
+	clipboard := temp
+	if (returnMouse) {
+		MouseMove, mouseX, mouseY
+	}
+	return date
 }
 
 _makeSplashText(title := "Splash title", text := "Splash text", time := -3000, doublePressMode := false) {
@@ -538,6 +568,11 @@ auto_scroll(richting := 1, decreaseKey := "&", increaseKey := "é", directionKey 
 
 _auto_scroll_down_helper(ih, char){
   ih.Stop()
+}
+
+_controlClick(coordX, coordY, mousebutton := "left") {
+	WinGetPos, vWinX, vWinY,,, A
+	Controlclick, % "x" -vWinX+coordX " y" -vWinY+coordY+23 , A ,,,1, NA Pos
 }
 
 _log(str, extrastr*) {

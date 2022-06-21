@@ -1,16 +1,16 @@
 
-; HID_Register(65440, 1, speechmic)
-; Speech ding: usage page 65440, usage 1. Vendor ID 1536, product ID 163, version number 777
-; Vendor 2321 Prod id 3100 version nr 533
-; NOTE: 2 variants of devices, with same prod ID but other key codes (however last 4 digits are the same)
-; https://www.autohotkey.com/board/topic/38015-ahkhid-an-ahk-implementation-of-the-hid-functions/
-
-
+; CODE ADAPTED FROM https://www.autohotkey.com/board/topic/38015-ahkhid-an-ahk-implementation-of-the-hid-functions/
 ; Note: for this script to work, it must be one of the first to be included in the main script!
 ; Be carefull with labels in the main script (or includes other scripts), as this can cause interference and may casue this script to fail to work.
 
 ;Must be in auto-execute section
 #Include %A_ScriptDir%\AHKHID.ahk
+
+; PHILIPS SPEECH DEVICE IDENTIFICATION:
+; NOTE: 2 variants of devices, with same prod ID but other key codes (however last 4 digits are the same)
+usagePage := 65440
+vendorID := 2321
+productID := 3100
  
 ; Create GUI to receive messages
 Gui, handlerGUI:+LastFound +HwndhandlerGUI
@@ -22,7 +22,7 @@ OnMessage(WM_INPUT, "InputMsg")
 ; Register Remote Control with RIDEV_INPUTSINK (so that data is received even in the background)
 ; 65440 and 1 are the usage page and usage, and are unique to the philips device. Use AHKHID_listdevices and AHKHID_interceptdata to get the number of other devices.
 ; Lower down (in get Input Msg) the vendor and prod id should be entered.
-r := AHKHID_Register(65440, 1, handlerGUI, RIDEV_INPUTSINK)
+r := AHKHID_Register(usagePage, 1, handlerGUI, RIDEV_INPUTSINK)
 
 Return
 
@@ -73,7 +73,7 @@ keyBuffer(keypressed) {				; Some devices will fire the output twice very fast: 
 		preventKeypress := True
 		PassHotkey(keypressed)		; Must be declared somewhere, otherwise script wont work! (see below for example)
 	}
-	Sleep 100						; might have to play a bit with this value.
+	Sleep 50						; might have to play a bit with this value.
 	preventKeypress := False
 }
 
@@ -87,70 +87,6 @@ Bin2Hex(addr, len) {									; magic
     return hex
 }
 
-
-/*
-PassHotkey(keypressed) {
-	if keypressed == "00800000000000000000"
-		return
-	Switch Keypressed {
-		Case "00800000000000000010": 	; back
-			MoveLineUp()
-		Case "00800000000000000008":	; forw
-			MoveLineDown() 
-		Case "00800000000000000004":		; Play/Pause
-			Send {BackSpace}
-	}
-	If WinActive("Pt. ") {
-		Switch keypressed {
-			Case "00800000000000000020":		; EOL
-				SaveAndCloseReportKWS()
-			Case "00800000000000000080":		; -i-
-				vorigVerslagCopy()
-			Case "00800000000000000040":		; INS/OVR
-				validateAndClose()
-			Case "00800000000000000004":		; Play/Pause
-				Send {BackSpace}
-			Case "00800000000000000200":		; F1
-				vorigVerslagCopy()
-			Case "00800000000000000400":		; F2
-				KWStoExcel()
-			Case "00800000000000000800":		; F3
-				kwshandlercleaner()
-			Case "00800000000000001000":		; F4
-				Send ^{F8}	
-		;	Case "00800000000000002000":		; Back button
-		;		MsgBox, back button 
-		;	Case "009E0000000000000000":		; picked up
-		;		MsgBox, picked up
-		;	Case "009E0000000000000001":		; Put down
-		;		MsgBox, put down
-		;	Case "00800000000000000000":		; Released
-		;		;do nothing, release
-		;	Case keypressed:
-		;		MsgBox, unknown key: %keypressed%
-		}
-	} else if (WinExist("Pt. ") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe"))){
-		Switch keypressed {
-			Case "00800000000000000020":		; EOL
-				SaveAndCloseReportKWS()
-			Case "00800000000000000080":		; -i-
-				vorigVerslagCopy()
-			Case "00800000000000000040":		; INS/OVR
-				validateAndClose()
-			Case "00800000000000000004":		; Play/Pause
-				return
-			Case "00800000000000000200":		; F1
-				vorigVerslagCopy()
-			Case "00800000000000000400":		; F2
-				return
-			Case "00800000000000000800":		; F3
-				kwshandlercleaner()
-			Case "00800000000000001000":		; F4
-				return
-		}
-	}
-}
-*/
 /*
 ; Key codes most Philips speech devices
 PassHotkey(keypressed) { 
