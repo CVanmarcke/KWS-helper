@@ -7,6 +7,12 @@ Werkt met de nieuwe versie van KWS (van 20-06-2022).
 1. Download de bestanden van deze repo [hier](https://github.com/CVanmarcke/KWS-helper/archive/refs/heads/main.zip), en pak deze uit ergens in een folder. 
 2. Start het programma via `AutohotkeyU64.exe`
 
+### Automatisch opstarten
+Om het script automatisch te laten opstarten met de computer, volg deze stappen:
+1. `Rechtsklik` op AutohotkeyU64.exe --> `Kopiëren`.
+2. Typ `Windows knop + R` (open het `run` venster). Typ hierin `shell:startup`.
+3. Er zal een windows verkennen scherm openen. In dit verkenner scherm `rechtsklik` --> `snelkoppeling plakken`.
+
 <!---
 [//]: # 1. Download eerst de zip versie van [Autohotkey hier](https://www.autohotkey.com/download/ahk.zip). Rechts klik -> uitpakken, en kies een locatie die je terugvindt (bijvoorbeeld documenten of bureaublad).
 
@@ -35,8 +41,8 @@ heightLossGUI() | `hoogteverlies`<br />`wervelfx` | Typ de shortcut om een klein
 openLastPtInLog_KWS() | `openlastpt` | Typ de shortcut eender waar om de laatste patiënt gesloten via `validateAndClosePt_KWS` of `saveAndClosePt_KWS` opnieuw te openen. 
 openEAD_KWS() | `Ctrl-O` | TODO
 pedAbdomenTemplate() | `pedabdomen` | Typ de shortcut om een venster te openen waar de lengte van de lever, milt en nieren in ingevuld kunnen worden, waarna automatisch een verslag met ingevulde standaarddeviaties geplakt zal worden. Origineel gemaakt door Johannes Devos.
-MoveLineUp() | `Ctrl-↑`<br />`rewind (speechkit)` | Verplaatst de huidige lijn één lijn naar boven (wisseld de huidige lijn met de lijn er net boven).
-MoveLineDown() | `Ctrl-↓`<br />`forward (speechkit)` | Verplaatst de huidige lijn één lijn naar onder (wisseld de huidige lijn met de lijn er net onder).
+MoveLineUp() | `Ctrl-↑`<br />`rewind (speechkit)` | Verplaatst de huidige lijn één lijn naar boven (wisselt de huidige lijn met de lijn er net boven).
+MoveLineDown() | `Ctrl-↓`<br />`forward (speechkit)` | Verplaatst de huidige lijn één lijn naar onder (wisselt de huidige lijn met de lijn er net onder).
 deleteLine() | `Ctrl-d` | Verwijderd de huidige lijn. 
 auto_scroll() | `Ctrl-&` of `Ctrl-é` | Start automatisch met scrollen in het venster waar de muis in staat (Enterprise of IMPAX). Vertragen met `&` en versnellen met `é`, omkeren van richting met `space`. Gemaakt door Johannes Devos.
 
