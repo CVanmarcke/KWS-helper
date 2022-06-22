@@ -6,8 +6,10 @@ Werkt met de nieuwe versie van KWS (van 20-06-2022).
 ## Installatie
 1. Download eerst de zip versie van [Autohotkey hier](https://www.autohotkey.com/download/ahk.zip). Rechts klik -> uitpakken, en kies een locatie die je terugvindt (bijvoorbeeld documenten of bureaublad).
 2. Download vervolgens de bestanden van deze repo [hier](https://github.com/CVanmarcke/KWS-helper/archive/refs/heads/main.zip), en pak deze uit op dezelfde manier. 
-3. Kopiëer dan de inhoud (dus de `.ahk` bestandjes) in de eerste folder, die `AutohotkeyU64.exe` bevat.
+3. Kopiëer dan de inhoud (dus de `.ahk` bestandjes + de `images` folder) in de eerste folder, die `AutohotkeyU64.exe` bevat. Hieronder is een voorbeeld van hoe de inhoud van de folder er uit zou moeten zien.
 4. Start het programma via `AutohotkeyU64.exe`
+
+![Alt text](images/RootExample.PNG?raw=true "Voorbeeld van hoe de inhoud er uit zou moeten zien")
 
 ## Hotkeys veranderden
 TODO
