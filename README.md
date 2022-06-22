@@ -28,7 +28,7 @@ Om het script automatisch te laten opstarten met de computer, volg deze stappen:
 ## Hotkeys veranderden
 TODO
 
-De hotkeys zijn gedefinieerd in `AutohotkeyU64.ahk`. Zie de [Autohotkey tutorial](https://www.autohotkey.com/docs/Tutorial.htm#s2) voor een korte handleiding om hoe deze te veranderen.
+De hotkeys zijn gedefinieerd in `AutohotkeyU64.ahk`. Zie de [Autohotkey tutorial](https://www.autohotkey.com/docs/Tutorial.htm#s2) voor een korte handleiding hoe deze te veranderen.
 
 ## Mogelijke functies
 Functienaam | Standaard Hotkey | Beschrijving 
