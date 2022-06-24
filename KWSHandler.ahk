@@ -17,7 +17,6 @@
 initKWSHandler() {
 	SetWorkingDir %A_ScriptDir%
 	SetTitleMatchMode, 1 		;evt met regex (https://www.autohotkey.com/docs/commands/SetTitleMatchMode.htm)
-	;; The user's keyboard and mouse input is ignored while a Click, MouseMove, MouseClick, or MouseClickDrag is in progress
 	global logfile
 	logfile := "logfile.csv"
 
@@ -84,7 +83,7 @@ cleanReport_KWS() {
 }
 
 copyLastReport_KWS() {
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg)[\s\S]+(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).+)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
+	RegexQuerry := "(?<header>(?:Leuven|Pellenberg)[\s\S]+(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).+)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
 	_KWS_CopyReportToClipboard(selectReportBox := True)
 	Send {Down}
 	currentreportunclean := clipboard
@@ -120,6 +119,13 @@ copyLastReport_KWS() {
 	RegExMatch(oldreportunclean, RegexQuerry, oldreport)
 	RegExMatch(currentreportunclean, RegexQuerry, currentreport)
 	compared := ""
+	;; Checkt of de regex van het vorige verslag gelukt is, en zo niet verwijderd het hele gedoe.
+	if (oldreportcontent = "") {
+		_makeSplashText(title := "ERROR", text := "Het voorgaande verslag heeft een vreemde layout, niet gelukt samen te voegen.", time := -2000)
+		Send, ^z
+		Send, ^z
+		Send ^{F8}					; Initieer dictee (ctrl F8)
+	}
 	if (oldreportcomparedwith && oldreportcompdate) {
 		compared := StrReplace(oldreportcomparedwith, oldreportcompdate, oldreportdate)
 		oldreportcontent :=  StrReplace(oldreportcontent, oldreportcompdate, oldreportdate)
@@ -127,7 +133,7 @@ copyLastReport_KWS() {
 		compared := "In vergelijking met het voorgaande onderzoek van " . oldreportdate . ":" 
 	}
 
-	; zoekt naar het besluit, en als het het vind voegt het "vergelijking met" toe of veranderd de datum van "in vergelijking met"
+	; zoekt naar het besluit, en als het het vindt voegt het "vergelijking met" toe of veranderdt het de datum van "in vergelijking met"
 	conclusielocatie := RegExMatch(oldreportcontent, "(BESLUIT|CONCLUSIE).*[\n\r]", conclusieText)
 	if (conclusielocatie) {
 		RegExMatch(oldreportcontent, "(?:ergel(?:ij|e)k|opzichte|vgl |tov ).{5,55}?(?<date>\d+[-\/.]\d+[-\/.]\d+)",conclcompare, conclusielocatie - 5)
@@ -172,6 +178,15 @@ validateAndClose_KWS() {
 	MouseMove, mouseX, mouseY
 	_log(ead, "Gevalideerd en gesloten")
 	_makeSplashText(title := "Gevalideerd", text := "Gevalideerd.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
+	sleep, 1000
+	;; Zoekt in Enterprise naar de discard knop voor als er metingen zijn.
+	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\discardButton.png
+	if (ErrorLevel = 0) {
+		MouseGetPos, mouseX, mouseY
+		MouseClick, left, FoundX+5, FoundY+5
+		MouseMove, mouseX, mouseY
+		return
+	} 
 	return
 }
 
