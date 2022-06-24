@@ -17,11 +17,9 @@
 initKWSHandler() {
 	SetWorkingDir %A_ScriptDir%
 	SetTitleMatchMode, 1 		;evt met regex (https://www.autohotkey.com/docs/commands/SetTitleMatchMode.htm)
+	;; The user's keyboard and mouse input is ignored while a Click, MouseMove, MouseClick, or MouseClickDrag is in progress
 	global logfile
 	logfile := "logfile.csv"
-	;; Zet een timer dat het "mededelingen" venster van KWS automatisch sluit. Via een omweg want SetTimer kan eigenlijk enkel een label als parameter krijgen, geen functie.
-	closeMededeling_fn := Func("_KWS_closeMededelingen").bind()
-	;; SetTimer, % closeMededeling_fn, 500
 
 }
 
@@ -43,7 +41,9 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "flair", "FLAIR", CaseSensitive := false) 	
 	inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", CaseSensitive := false) 	
 	inputtext := StrReplace(inputtext, "tbc", "TBC")
-	inputtext := StrReplace(inputtext, "kan configuratie", "CAM configuratie") 
+	inputtext := StrReplace(inputtext, "kan configuratie", """cam"" configuratie") 
+	inputtext := StrReplace(inputtext, "bewaarde", "intacte") 
+	inputtext := StrReplace(inputtext, "partiële beeld", "partiëel in beeld") 
 	inputtext := StrReplace(inputtext, "segment VIII", "segment 8")
 	inputtext := StrReplace(inputtext, "segment VII", "segment 7")
 	inputtext := StrReplace(inputtext, "segment VI", "segment 6", CaseSensitive := true) 		
@@ -59,15 +59,15 @@ cleanreport(inputtext) {
 
 	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.+)\/ ?(?=\R|$)", "  . $1") ;; Alle zinnen met / op einde krijgen " . " er voor
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
-	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])(?=\R|$)", "$1.")					; adds . to end of string, word, digit or )
+	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
 	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 					; converts to uppercase after ., newline or newline -
-	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts uppercase after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
+	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 	inputtext := RegExReplace(inputtext, "([CThD]\d{1,2}[\/-])[TD](?=\d{1,2})", "$1Th") 			; corrects T1/X to Th1 TODO: werkt niet T11-L3
 	inputtext := RegExReplace(inputtext, "[TD](?=\d{1,2}[\/-][ThDL]{1,2}\d{1,2})", "Th") 			; corrects X/T1 to Th1
 	inputtext := RegExReplace(inputtext, "((?:C|Th|L|S)\d{1,2})\/((?:C|Th|L|S)\d{1,2})", "$1-$2") 	; corrects L1/L2 to L1-L2
 	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3") 			; corrects d/m/y tot d-m-y
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n") 											; replaces triple+ newline with double
-	inputtext := RegExReplace(inputtext, "im)^(?=\w|\()(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Reserv|Naar [lr])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
+	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\()(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Reserv|Naar [lr])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
 	; inputtext := RegExReplace(inputtext, "m)(?<=^|[\r\n])- (.+\:\R)(?![ .\n\r\t])", "$1")				; removes - if :, except if after the newline followed by whitespace or . or...
 	; inputtext := RegExReplace(inputtext, "(?<=CONCLUSIE:[\n\r])- (.+(?:[\n\r]|$))(?![\w\-\ ])", "$1") 			; removes - als maar 1 lijn conclusie, zal het het streepje weg doen.
 	inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1à$2") 						; maakt à als a tussen 2 getallen.
@@ -85,22 +85,26 @@ cleanReport_KWS() {
 
 copyLastReport_KWS() {
 	RegexQuerry := "(?<header>(?:Leuven|Pellenberg)[\s\S]+(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).+)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
-	; (?<header>(?:Leuven|Pellenberg)[\s\S]+(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R)(?<type>(?:.+\R?)+)\R{2,}(?:TOEGEDIENDE MEDICATIE[\s\S]+toegediend:\s[\d.,]{0,4}\s(?:ml|mg|zakje|spuit)\R+)?)(.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl |tov ).{5,45}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren).+)?\R+(?<content>[\s\S]+?)(?:$|\*\* Eind)"
-	; bigquerry "(?:Leuven|Pellenberg)[\s\S]+(\d+-\d+-\d+)[\s\S]+(?:KLINISCHE INLICHTINGEN:[\n\r])([\s\S]+)[\n\r]{2}(?:DIAGNOSTISCHE VRAAGSTELLING:[\n\r])([\s\S]+)[\n\r]{2}(?:ONDERZOEKE?N?:[\n\r])((?:.+[\n\r]?)+)[\n\r]{2,}(?:TOEGEDIENDE MEDICATIE[\s\S]+toegediend:\s[\d.,]{0,4}\s(?:ml|mg|zakje|spuit)[\n\r]+)*([\s\S]+?)(?=[\r\n]*\*\* einde|$)"
 	_KWS_CopyReportToClipboard(selectReportBox := True)
+	Send {Down}
 	currentreportunclean := clipboard
 	clipboard := ""
 	
+	BlockInput, Mousemove   ; fragile sequence of events, therefore block mouse movement to prevent user interference.
+	BlockInput, Send
+	;; TODO: evt via "toon laatst gelijktijdig verslag". De titel veranderd dan naar "Dialoog"
 	_KWS_SelectReportBox("right")
 	Send {Down}					; klik pijltje naar beneden
 	Send {Down}
 	Send {Enter}	    				; selecteerd "neem laatste verslag over"
 	Sleep, 100					; geeft tijd om vorig verslag te laden, kan evt verhoogd of verlaagd worden (200 werkt sowieso)
+	BlockInput, Default
+	BlockInput, MouseMoveOff
  	try _KWS_CopyReportToClipboard(selectReportBox := False)
 	catch e {
+		_makeSplashText(title := "ERROR", text := "Geen laatste gelijkaardig verslag gevonden!", time := -3000)
 		sleep, 50
 		Send {Enter}
-		_makeSplashText(title := "ERROR", text := "Geen laatste gelijkaardig verslag gevonden!", time := -3000)
 		return
 	}
 
@@ -123,7 +127,7 @@ copyLastReport_KWS() {
 		compared := "In vergelijking met het voorgaande onderzoek van " . oldreportdate . ":" 
 	}
 
-	; zoekt naar het besluit, en als het het vind voegt het "vergelijking met" toe of veranderd eht de datum van "in vergelijking met"
+	; zoekt naar het besluit, en als het het vind voegt het "vergelijking met" toe of veranderd de datum van "in vergelijking met"
 	conclusielocatie := RegExMatch(oldreportcontent, "(BESLUIT|CONCLUSIE).*[\n\r]", conclusieText)
 	if (conclusielocatie) {
 		RegExMatch(oldreportcontent, "(?:ergel(?:ij|e)k|opzichte|vgl |tov ).{5,55}?(?<date>\d+[-\/.]\d+[-\/.]\d+)",conclcompare, conclusielocatie - 5)
@@ -137,7 +141,7 @@ copyLastReport_KWS() {
 		currentreportheader .= "`n"
 	}
 	if (InStr(currentreporttype, "RX thorax")) {
-		oldreportcontent := cleanreport(oldreportcontent)
+		oldreportcontent := cleanreport(oldreportcontent) ;; automatisch maakt het verslag proper als het een RX thorax is.
 	}
 	oldreportcontent := RegExReplace(oldreportcontent, "im)[\ \t]*supervis.*$", "") ; verwijder supervisie.
 	_KWS_PasteToReport(currentreportheader . "`n" . compared . "`n`n" . oldreportcontent)
@@ -263,15 +267,12 @@ openEAD_KWS(input := "") {
 		return
 	}
 	clipboard := ead1
-	if WinExist("Startscherm (") {
+	if WinExist("KWS ahk_exe javaw.exe") {
 		WinActivate
 		Send, ^+z ; Hotkey voor zoek patient
 		Sleep, 400
-		if WinExist("Zoek pat") {
-			WinActivate
-			Send, ^v
-			Send, {Enter}
-		}
+		Send, ^v
+		Send, {Enter}
 	}
 	return
 }
@@ -332,6 +333,43 @@ pedAbdGuiClose:
 	return
 }
 
+pressOKButton() { ;; not really used, might be used in the future.
+	CoordMode "Pixel"
+	MouseGetPos, mouseX, mouseY
+	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\okButton.png
+	if (ErrorLevel = 2)
+		_makeSplashText(title := "Error", text := "Something went wrong when looking for enter field", time := -2000)
+	else if (ErrorLevel = 1)
+		return
+	else {
+		MouseClick, %mousebutton%, FoundX+5, FoundY+5
+		MouseMove, mouseX, mouseY
+	}
+}
+
+;; WORK IN PROGRESS
+aanvaarderMode() {
+	Gui, aanvaardGUI:+LastFound
+	GuiHWND := WinExist()
+	
+	Gui, aanvaardGUI:Add , Text  ,        , Aanvaardmodus
+	Gui, aanvaardGUI:Add , Button, Default, OK
+	Gui, aanvaardGUI:Show, , Aanvaardmodus
+
+	Suspend, on
+	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
+	WinActivate, KWS
+	return
+	;-------
+	aanvaardGUIButtonOK:
+	aanvaardGUIEscape:
+	aanvaardGUIClose:
+		Suspend, Off
+	return
+}
+
+
+
 MoveLineUp() {
 	clipboard := ""
 	Send, {End}
@@ -378,7 +416,7 @@ _KWS_CopyReportToClipboard(selectReportBox := True) {
 	clipboard := ""             			; maakt het clipboard leeg 
 	Send, ^a                    			; select all
 	Send, ^c                    			; copy
-	ClipWait, 1                 			; wacht tot er data in het clipboard is
+	ClipWait, 0,3                 			; wacht tot er data in het clipboard is
 	if (ErrorLevel)             			; als NOT, is er data in clipboard
 		throw Exception("Could not copy data to clipboard!", -1)                 				; STOPT als geen data in clipboard
 }
@@ -386,6 +424,7 @@ _KWS_CopyReportToClipboard(selectReportBox := True) {
 _KWS_SelectReportBox(mousebutton := "left") {
 	;; assumes KWS already active
 	CoordMode "Pixel"
+	MouseClick, left, 0, 0,,, U, R ;; zorgt dat als de muis ingeduwd was dat er geen error komt
 	MouseGetPos, mouseX, mouseY
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\bevindingenLabel.png
 	if (ErrorLevel = 2)
@@ -410,6 +449,7 @@ _KWS_PasteToReport(text, overwrite := true) {
 		}
 		Send, ^v 
 		Sleep 50
+		;; TODO !!! Werkt niet meer.... evt via findwindow??
 		if WinExist("Foutboodschap JavaKWS") { ; Fixes "could not access clipboard"
 			WinActivate
 			SendInput, {Enter}
