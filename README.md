@@ -26,9 +26,9 @@ Om het script automatisch te laten opstarten met de computer, volg deze stappen:
 -->
 
 ## Hotkeys veranderden
-TODO
-
 De hotkeys zijn gedefinieerd in `AutohotkeyU64.ahk`. Zie de [Autohotkey tutorial](https://www.autohotkey.com/docs/Tutorial.htm#s2) voor een korte handleiding hoe deze te veranderen.
+
+`Shift Lock` is veranderd naar start/stop opnemen van de speechkit (F8): dit is een veel ergonomischere knop voor de linkerhand, die dan gewoon op de middelste rij van het toetsenbord kan liggen. Om `Shift Lock`aan of uit te zetten kan je de `rechter ctrl` knop gebruiken. 
 
 ## Mogelijke functies
 Functienaam | Standaard Hotkey | Beschrijving 
