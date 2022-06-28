@@ -14,41 +14,40 @@ init_this_file() { 				; called automatically when the script starts
 	initKWSHandler()
 }
 
+;==================================================================
+; Hier start de code voor de hotkeys. Gebruik de handleiding op https://github.com/CVanmarcke/KWS-helper en op https://autohotkey.com/docs/Hotkeys.htm om deze aan te passen.
+; =================================================================
+
+
 ;; Deze hotkeys zijn globale hotkeys, niet gelimiteerd tot KWS/PACS
 #If
-F11::test()  ; testscriptje
-F12::Run, %A_AHKPath% "%A_ScriptDir%\aview.ahk" ; eigen testscriptje
 :X:openlastpt::openLastPtInLog_KWS()
-^Down::MoveLineDown()
-^Up::MoveLineUp()
+^Down::MoveLineDown() ; Ctrl+pijltje omhoog
+^Up::MoveLineUp() ; Ctrl+pijltje omlaag
+CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
+RCtrl::CapsLock
 
-
-;; Hotkeys gelimiteerd tot KWS patientscherm
+;; Hotkeys die enkel werken als het KWS patientscherm in focus is
 #If WinActive("KWS ahk_exe javaw.exe")
-^b::^c				; maakt van ctrl-b gewoon ctrl-c; de originele functie van ctrl-b was uitloggen, en was te dicht tegen ctrl-c
-^k::deleteLine()		; verwijderd de hele lijn (VIM style).
+^b::^c				; maakt van ctrl-b gewoon ctrl-c; de originele functie van ctrl-b was uitloggen, en was te dicht tegen ctrl-c waardoor ik er soms perongeluk op duwde. Dit zet dit uit.
 ^d::deleteLine()
-^o::Send {Down} {Home} {Enter} {Up}
 F7::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
-~^c Up::clipboardcleaner() ; Haalt automatisch "uit ongevalideerd verslag" weg.
-^Enter::pressOKButton()
+~^c Up::clipboardcleaner() ; Haalt automatisch "uit ongevalideerd verslag" weg als je copy-pasted
 ::tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-GUI.ahk" ; Work in progress, beta versie werkt wel al
 :X:wervelfx::heightLossGui()
 :X:hoogteverlies::heightLossGUI()
-:X:pedabdomen::pedAbdomenTemplate()
+:X:pedabdomen::pedAbdomenTemplate() ; De datum van EAM nummer halen werkt nog niet correct, nog eens bekijken.
 
-;; Hotkeys gelimiteerd tot PACS of patientscherm KWS.
+;; Hotkeys die enkel werken als PACS of patientscherm KWS in focys is.
 #If WinActive("KWS ahk_exe javaw.exe") or (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")))
 F7::copyLastReport_KWS()
 F9::cleanReport_KWS() 
 
-; Autoscroller (in Enterprise en IMPAX)
+; Autoscroller (in Enterprise en IMPAX) is gemaakt door johannes. Cfr handleiding.
 #if WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")
-$Ã©::auto_scroll(-1, "&", "Ã©", "Space")
-$&::auto_scroll(1, "&", "Ã©", "Space")
-NumpadDiv::scrollDown() 
-NumpadMult::scrollUp()
+$é::auto_scroll(-1, "&", "é", "Space")
+$&::auto_scroll(1, "&", "é", "Space")
 
 ; Allows windowing in IMPAX with the numpad keys
 #If WinActive("ahk_exe impax-client-main.exe")
@@ -57,75 +56,12 @@ Numpad2::F3
 Numpad3::F4
 Numpad4::F5
 Numpad5::F6
-XButton2::F4
-XButton1::F7
+Numpad6::F7
 
-; personal settings
-#If WinActive("Diagnostic Desktop") or WinActive("KWS")
-XButton2::Numpad3
-XButton1::Numpad6
-
-#If WinActive("ahk_exe EXCEL.EXE") or WinActive("Notepad++")
-^o::openEAD_KWS()
-
-#If WinActive("GVIM")
-Capslock::Esc
-
-#If Winactive("ahk_exe emacs.exe")
-Capslock::Ctrl
-RCtrl::Capslock
-
-test() {
-	;;Controlclick, x500 y506, KWS ;; werkt
-	WinGetPos, vWinX, vWinY,,, A
-	SetControlDelay -1
-	CoordMode, Pixel, Window
-	CoordMode, Mouse, Window
-
-	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\eadnrLabel.png
-	;; Mouseclick, left, FoundX+50, FoundY+10
-
-	;; MouseClick, left, mouseX, mouseY
-	;; Controlclick, % "x" -vWinX+mouseX " y" -vWinY+mouseY+23, A ,,,1, NA Pos
-	Controlclick, % "x" -vWinX+FoundX+70 " y" -vWinY+FoundY+8+23 , A ,,,, NA Pos
-	;; ead := _getEAD(returnMouse := false) 
-	;; MsgBox, %ead%
-	;; _makeSplashText(title := "ead", ead , time := -2000)
-}
-
-scrollUp() {
-	global sleepTime
-	if (sleepTime = "") {
-		sleepTime := 30
-	}
-	While GetKeyState("NumpadMult","P") {
-		Send {wheelup 1}
-		Sleep sleepTime
-		if GetKeyState("NumpadAdd","P") {
-			sleepTime := sleepTime * 0.9
-		} else if GetKeyState("NumpadSub","P") {
-			sleepTime := sleepTime / 0.9
-		}
-	}
-	return
-}
-scrollDown() {
-	global sleepTime
-	if (sleepTime = "") {
-		sleepTime := 30
-	}
-	While GetKeyState("NumpadDiv","P") {
-		Send {wheeldown 1}
-		Sleep sleepTime
-		if GetKeyState("NumpadAdd","P") {
-			sleepTime := sleepTime * 0.9
-		} else if GetKeyState("NumpadSub","P") {
-			sleepTime := sleepTime / 0.9
-		}
-	}
-	return
-}
-
+;============================================
+; Keybindings voor de philips speechdevice
+; Kan wat complex zijn, je mag altijd zelf wat experimenteren. Bottom line is dat codes voor de knoppen vanonder staan, en je gewoon bij de switch-statement een lijn bij moet voegen of veranderderen afhankdelijk wat je wil.
+; ===========================================
 PassHotkey(keypressed) { 
 	; Filter last 4 numbers of Keypressed to account for variants (however picked up and release will not be able to be differentiated.
 	keypressed := SubStr(keypressed, StrLen(keypressed)-3)
@@ -142,36 +78,24 @@ PassHotkey(keypressed) {
 	If WinActive("KWS ahk_exe javaw.exe") {
 		Switch keypressed {
 			Case "0020":		; EOL
-			saveAndClose_KWS()
+				saveAndClose_KWS()
 			Case "0080":		; -i-
-			copyLastReport_KWS()
+				copyLastReport_KWS()
 			Case "0040":		; INS/OVR
-			validateAndClose_KWS()
-			;	Case "0004":		; Play/Pause
-			;		Send {BackSpace}
+				validateAndClose_KWS()
 			Case "0200":		; F1
-			copyLastReport_KWS()
+				copyLastReport_KWS()
 			Case "0400":		; F2
-			closeWithoutSaving()
+				closeWithoutSaving()
 			Case "0800":		; F3
-			cleanReport_KWS()
+				cleanReport_KWS()
 			Case "1000":		; F4
-			Send ^{F8}	
-			;	Case "2000":		; Back button
-			;		MsgBox, back button 
-			;	Case "0000":		; picked up
-			;		MsgBox, picked up
-			;	Case "0001":		; Put down
-			;		MsgBox, put down
-			;	Case "0000":		; Released
-			;		;do nothing, release
-			;	Case keypressed:
-			;		MsgBox, unknown key: %keypressed%
+				Send ^{F8}	
 		}
 	} else if (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe"))){
 		Switch keypressed {
 			Case "0020":		; EOL
-			saveAndClose_KWS()
+				saveAndClose_KWS()
 			Case "0080":		; -i-
 				copyLastReport_KWS()
 			Case "0040":		; INS/OVR
@@ -189,8 +113,6 @@ PassHotkey(keypressed) {
 		}
 	}
 }
-
-
 
 /*
 ; Key codes (last 4 digits) of the Philips Speech device
