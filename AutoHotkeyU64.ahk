@@ -4,7 +4,6 @@
 
 #Include KWSHandler.ahk
 #Include SpeechDetector.ahk
-#Include toExcel.ahk
 #Include AHKHID.ahk
 
 init_this_file() { 				; called automatically when the script starts
@@ -46,8 +45,8 @@ F9::cleanReport_KWS()
 
 ; Autoscroller (in Enterprise en IMPAX)
 #if WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")
-$é::auto_scroll(-1, "&", "é", "Space")
-$&::auto_scroll(1, "&", "é", "Space")
+$Ã©::auto_scroll(-1, "&", "Ã©", "Space")
+$&::auto_scroll(1, "&", "Ã©", "Space")
 NumpadDiv::scrollDown() 
 NumpadMult::scrollUp()
 
