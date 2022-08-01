@@ -23,6 +23,11 @@ initKWSHandler() {
 	global logfile
 	logfile := "logfile.csv"
 
+	;;clean teams: tmp folder, cache folder, old logs file
+	;; heel veel: Service Worker/CacheStorage/.... (momenteel 66 mb)
+	;; Cache: 19.6 mb
+	;; staan allemaal in P:\uzlsystem\AppData\Microsoft\Teams
+
 	;; indien blockinput true is, zullen de volgende knoppen geblokkeerd worden:
 	global blockinput
 	blockinput := false
@@ -30,6 +35,7 @@ initKWSHandler() {
 	Hotkey, If, blockinput = true
 	Hotkey, Enter, _blockInputHelper
 	Hotkey, RButton, _blockInputHelper
+	Hotkey, LButton, _blockInputHelper
 }
 
 ;=================================================
@@ -43,7 +49,7 @@ cleanreport(inputtext) {
 	}
 	sleep, 50
 	inputtext := StrReplace(inputtext, "bekend", "gekend", CaseSensitive := false)
-	inputtext := StrReplace(inputtext, "in het kader van de gekende", "gekende") 		
+	inputtext := StrReplace(inputtext, ": in het kader van de gekende", ": gekende") 		
 	inputtext := StrReplace(inputtext, "in het kader van", "door") 		
 	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose") 		
 	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie") 		
@@ -57,7 +63,8 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "longtrauma", "longtrama") 	
 	inputtext := RegExReplace(inputtext, "[KkCc]a[mn] configuratie", """cam"" configuratie")
 	;; inputtext := StrReplace(inputtext, "bewaarde", "intacte") 
-	inputtext := StrReplace(inputtext, "partiële beeld", "partiëel in beeld") 
+	inputtext := StrReplace(inputtext, "partiÃ«le beeld", "partiÃ«el in beeld") 
+	inputtext := StrReplace(inputtext, "plaatsen schroef", "plaat en schroef") 
 	inputtext := StrReplace(inputtext, "segment VIII", "segment 8")
 	inputtext := StrReplace(inputtext, "segment VII", "segment 7")
 	inputtext := StrReplace(inputtext, "segment VI", "segment 6", CaseSensitive := true) 		
@@ -73,19 +80,19 @@ cleanreport(inputtext) {
 
 	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.+)\/ ?(?=\R|$)", "  . $1") ;; Alle zinnen met / op einde krijgen " . " er voor
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
-	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
+	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\Â°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
 	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 					; converts to uppercase after ., newline or newline -
 	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
-
-	inputtext := RegExReplace(inputtext, "(?<=[\-\/])[DT](?=[1-9](?:[0-2]|[\ \:]))", "Th") ; Corrects -T10 of /D10 naar -Th10
-	inputtext := RegExReplace(inputtext, "(?<=\ )[DT](?=[1-9][0-2]?[\-\/])", "Th") ; Corrects T10- naar Th10
+	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
+	;;inputtext := RegExReplace(inputtext, "(?<=[\-\/])[DT](?=[1-9](?:[0-2]|[\ \:]))", "Th") ; Corrects -T10 of /D10 naar -Th10
+	;;inputtext := RegExReplace(inputtext, "(?<=\ )[DT](?=[1-9][0-2]?[\-\/])", "Th") ; Corrects T10- naar Th10
 	;;inputtext := RegExReplace(inputtext, "([CThD]\d{1,2}[\/-])[TD](?=\d{1,2})", "$1Th") 			; corrects T1/X to Th1 TODO: werkt niet T11-L3
 	;;inputtext := RegExReplace(inputtext, "[TD](?=\d{1,2}[\/-][ThDL]{1,2}\d{1,2})", "Th") 			; corrects X/T1 to Th1
 	inputtext := RegExReplace(inputtext, "((?:C|Th|L|S)\d{1,2})\/((?:C|Th|L|S)\d{1,2})", "$1-$2") 	; corrects L1/L2 to L1-L2
 	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3") 			; corrects d/m/y tot d-m-y
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n") 											; replaces triple+ newline with double
-	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\"")(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Reserve|Naar [lr])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
-	inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1à$2") 						; maakt à als a tussen 2 getallen.
+	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\"")(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
+	inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1Ã $2") 						; maakt Ã  als a tussen 2 getallen.
 	inputtext := RegExReplace(inputtext, "(\-\.) {2,}", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
 	return inputtext
 }
@@ -100,8 +107,8 @@ cleanReport_KWS() {
 
 copyLastReport_KWS() {
 	RegexQuerry := "(?<header>(?:Leuven|Pellenberg)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).+)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
-	_BlockUserInput(True)
 	_KWS_CopyReportToClipboard(selectReportBox := True)
+	_BlockUserInput(True)
 	Send {Down} ;; deselecteert de inhoud
 	currentreportunclean := clipboard
 	clipboard := ""
@@ -110,11 +117,11 @@ copyLastReport_KWS() {
 	Send {Down}					; klik pijltje naar beneden
 	Send {Down}
 	Send {Enter}	    				; selecteerd "neem laatste verslag over"
-	Sleep, 300					; geeft tijd om vorig verslag te laden, kan evt verhoogd of verlaagd worden (400 werkt sowieso)
+	Sleep, 400					; geeft tijd om vorig verslag te laden, kan evt verhoogd of verlaagd worden (400 werkt sowieso)
 	_BlockUserInput(false)
  	try _KWS_CopyReportToClipboard(selectReportBox := False)
 	catch e {
-		_makeSplashText(title := "ERROR", text := "Probleem met het voorgaande verslag te kopiëren!", time := -3000)
+		_makeSplashText(title := "ERROR", text := "Probleem met het voorgaande verslag te kopiÃ«ren!", time := -3000)
 		_log("Catch clause regel 113, poging tot _KWS_copyreporttoclipboard")
 		_log("clipboard: `n" . clipboard)
 		Send {Enter}
@@ -144,7 +151,7 @@ copyLastReport_KWS() {
 	if (oldreportcontent = "") {
 		_log("Catch clause regel 143, error bij regexmatch")
 		_log("old report: `n" . oldreportunclean)
-		_makeSplashText(title := "ERROR", text := "Er is iets mis gegaan met het vorige verslag over te nemen of te interpreteren, sluit de patient en probeer opnieuw.", time := -2000)
+		_makeSplashText(title := "ERROR", text := "Probleem met REGEX van het clipboard van het vorige verslag: sluit de patient en probeer opnieuw.", time := -2000)
 		Send, ^z
 		Send, ^z
 		Send ^{F8}					; Initieer dictee (ctrl F8)
@@ -200,28 +207,11 @@ validateAndClose_KWS() {
 	MouseMove, mouseX, mouseY
 	_log(ead, "Gevalideerd en gesloten")
 	_makeSplashText(title := "Gevalideerd", text := "Gevalideerd.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
-	sleep, 2000
-	;; Zoekt in Enterprise naar de discard knop voor als er metingen zijn.
-	;; TODO: werkt nog niet altijd, evt nog enterprise actief maken?
-	if Winexist("ahk_class SunAwtDialog ahk_exe javaw.exe", , "Diagnostic") {
-		Winactivate
-		ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\discardButton.png
-		if (ErrorLevel = 0) {
-			MouseGetPos, mouseX, mouseY
-			MouseClick, left, FoundX+5, FoundY+5
-			MouseMove, mouseX, mouseY
-			return
-		}
-		;; MsgBox, Discardbutton not found
-	}
-	return
 }
 
 saveAndClose_KWS() {
 	global splashExists
 	WinActivate, KWS ahk_exe javaw.exe 
-;; 	if WinExist("KWS ahk_exe javaw.exe")
-;; 		WinActivate 
 	if (splashExists == "" or splashExists == False) {
 		_makeSplashText("Save function", "Press save button again to close.", -3000, doublePressMode := True)
 		Send, ^s
@@ -241,7 +231,7 @@ saveAndClose_KWS() {
 		if (ErrorLevel = 2) {
 			_makeSplashText(title := "Save function", text := "Something went wrong looking for the close button", time := -2000)
 		} else if (ErrorLevel = 1) {
-			_makeSplashText(title := "Save function", text := "Try again, report was not saved close button not found", time := -2000)
+			_makeSplashText(title := "Save function", text := "Try again, close button not found", time := -2000)
 			Send, ^s
 		}
 		MouseClick, left, FoundX + 3, FoundY + 3
@@ -260,11 +250,12 @@ closeWithoutSaving() {
 		_makeSplashText(title := "Save function", text := "Try again, report was not saved close button not found", time := -2000)
 		Send, ^s
 	}
+	_BlockUserInput(True)
 	MouseClick, left, FoundX + 3, FoundY + 3
 	sleep, 100
 	Send {Enter}
 	MouseMove, mouseX, mouseY
-	_BlockUserInput(True)
+	_BlockUserInput(false)
 }
 
 heightLossGUI() {
@@ -329,24 +320,28 @@ openLastPtInLog_KWS() {
 
 pedAbdomenTemplate() { ; Gemaakt door Johannes Devos, aangepast en opgekuist door CV.
 	;; ptdata := _KWS_GetDemographicDataPatient()
-	birthdate := _getBirthDate(returnMouse := false)
-	naam := "test" ; ptdata[5]
-	Year := SubStr(birthdate, 7)
-	Month := SubStr(birthdate, 4, 2)
-	day := SubStr(birthdate, 1, 2)
+	result := ""
+	birthdate := _getBirthDate(returnMouse := true)
+	birthdate := RegExReplace(birthdate, "(\d{2}).(\d{2}).(\d{4})", "$3$2$1") 											; replaces triple+ newline with double
+	FormatTime, now, ,yyyyMMddHHmmss 
+	;; age := CalcAge(birthdate . "000000", now)
+	age := _CalcAge(birthdate, now)
+	year := age[1]
+	months := age[2]
+	days := age[3]
 	global milt, linkerNier, lever, rechterNier
 
 	Gui, pedAbdGui:+LastFound
 	GuiHWND := WinExist()
-	Gui, pedAbdGui:Add, Text, x2 y-1 w140 h20 , Patiëntennaam: 
+	Gui, pedAbdGui:Add, Text, x2 y-1 w140 h20 , PatiÃ«ntennaam: 
 	Gui, pedAbdGui:Add, Text, x2 y19 w140 h20 , Leeftijd:
 	Gui, pedAbdGui:Add, Text, x42 y39 w100 h20 , Jaar:
 	Gui, pedAbdGui:Add, Text, x42 y59 w100 h20 , Maand:
 	Gui, pedAbdGui:Add, Text, x42 y79 w100 h20 , Dag:
-	Gui, pedAbdGui:Add, Text, x142 y-1 w230 h20 , %naam% 
-	Gui, pedAbdGui:Add, Text, x142 y39 w230 h20 , %Year%
-	Gui, pedAbdGui:Add, Text, x142 y59 w230 h20 , %Month%
-	Gui, pedAbdGui:Add, Text, x142 y79 w230 h20 , %day%
+	Gui, pedAbdGui:Add, Text, x142 y-1 w230 h20 , 
+	Gui, pedAbdGui:Add, Text, x142 y39 w230 h20 , % age[1]
+	Gui, pedAbdGui:Add, Text, x142 y59 w230 h20 , % age[2]
+	Gui, pedAbdGui:Add, Text, x142 y79 w230 h20 , % age[3]
 	Gui, pedAbdGui:Add, Text, x2 y109 w130 h20 , Miltspan (mm):
 	Gui, pedAbdGui:Add, Text, x2 y129 w130 h20 , Linkernier (mm):
 	Gui, pedAbdGui:Add, Text, x2 y149 w130 h20 , Leverspan (mm):
@@ -359,11 +354,12 @@ pedAbdomenTemplate() { ; Gemaakt door Johannes Devos, aangepast en opgekuist doo
 	Gui, pedAbdGui:Show, x759 y391 h236 w379, Echografie Pediatrie Afmetingen
 	WinWaitClose, ahk_id %GuiHWND%  		; waiting for gui to close
 	WinActivate, KWS ahk_exe javaw.exe 
-	return _KWS_PasteToReport(result, false)       	; returning value
+	if (result != "")
+		_KWS_PasteToReport(result, false)       	; returning value
+	return 
 ; --------
 pedAbdGuiButtonOK:
 	Gui, Submit
-	age := [Year, Month, day]
 	result := _makePedReport(age, milt, linkernier, lever, rechternier)
 	Gui, pedAbdGui:Destroy
 	return
@@ -394,16 +390,17 @@ aanvaarderMode() {
 	Gui, aanvaardGUI:+LastFound +AlwaysOnTop +Owner
 	GuiHWND := WinExist()
 	Gui, aanvaardGUI:Add , Text  ,        , Aanvaardmodus
+	Gui, aanvaardGui:Add , Text , , h - j - l - p
 	Gui, aanvaardGUI:Add , Button, Default, OK
 	Gui, aanvaardGUI:Show, , Aanvaardmodus
 	;; suspend on
 	#ifWinExist Aanvaardmodus
 	Hotkey, IfWinExist, Aanvaardmodus
 	Hotkey, ^Enter, pressOKButton
+	Hotkey, ^h, _pressAanvaardOption
 	Hotkey, ^j, _pressAanvaardOption
-	Hotkey, ^k, _pressAanvaardOption
 	Hotkey, ^l, _pressAanvaardOption
-	Hotkey, ^m, _pressAanvaardOption
+	Hotkey, ^p, _pressAanvaardOption
 	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
 	WinActivate, KWS ahk_exe javaw.exe 
 	return
@@ -454,19 +451,21 @@ deleteLine() {
 ; --------------------------------------
 
 _KWS_CopyReportToClipboard(selectReportBox := True) {
-	if WinExist("KWS ahk_exe javaw.exe")
-		WinActivate 
-	else
-		throw Exception("KWS is not open!", -1)
+	_BlockUserInput(true)
+	If (not WinActive("KWS ahk_exe javaw.exe")) {
+		if WinExist("KWS ahk_exe javaw.exe")
+			WinActivate 
+		else
+			throw Exception("KWS is not open!", -1)
+	}
 	if (selectReportBox) {
 		_KWS_SelectReportBox()
 	}
 	clipboard := ""             			; maakt het clipboard leeg 
-	_BlockUserInput(true)
 	Send, ^a                    			; select all
 	Send, ^c                    			; copy
 	_BlockUserInput(false)
-	ClipWait, 0,3                 			; wacht tot er data in het clipboard is
+	ClipWait, 1                 			; wacht tot er data in het clipboard is
 	if (ErrorLevel)             			; als NOT, is er data in clipboard
 		throw Exception("Could not copy data to clipboard!", -1)                 				; STOPT als geen data in clipboard
 }
@@ -488,6 +487,7 @@ _KWS_SelectReportBox(mousebutton := "left") {
 
 _KWS_PasteToReport(text, overwrite := true) {
 	If WinActive("KWS ahk_exe javaw.exe") {
+		_BlockUserInput(True)
 		tempclip := clipboard
 		clipboard := ""  
 		clipboard := text           	; maakt het clipboard leeg 
@@ -506,6 +506,7 @@ _KWS_PasteToReport(text, overwrite := true) {
 			_KWS_PasteToReport(text, overwrite)
 		}
 		clipboard := tempclip
+		_BlockUserInput(false)
 		return
 	}
 	if WinExist("KWS ahk_exe javaw.exe")
@@ -551,13 +552,13 @@ _pressAanvaardOption() {
 		return
 	else {
 		FoundY := FoundY+5
-		if (GetKeyState("j","P")) {
+		if (GetKeyState("h","P")) { ;; zonder
 			FoundX := FoundX + 80
-		} else if (GetKeyState("k","P")) {
+		} else if (GetKeyState("j","P")) { ;; Met
 			FoundX := FoundX + 165
-		} else if (GetKeyState("l","P")) {
+		} else if (GetKeyState("l","P")) { ;; Zonder/met
 			FoundX := FoundX + 250
-		} else if (GetKeyState("m","P")) {
+		} else if (GetKeyState("p","P")) { ;; textvak
 			FoundX := FoundX + 250
 			FoundY := FoundY + 200
 		}
@@ -590,19 +591,18 @@ _getBirthDate(returnMouse := false) {
 	if (returnMouse) {
 		MouseGetPos, mouseX, mouseY
 	}
-	WinGetTitle, VensterTitel, A
 	clipboard := temp
 	clipboard := ""
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\eadnrLabel.png
 	_BlockUserInput(True)
 	Mouseclick, left, FoundX-25, FoundY+10
-	_BlockUserInput(false)
 	Clipwait, 1
 	date := SubStr(clipboard, 2)
 	clipboard := temp
 	if (returnMouse) {
 		MouseMove, mouseX, mouseY
 	}
+	_BlockUserInput(false)
 	return date
 }
 
@@ -631,7 +631,7 @@ _calcHeightLoss(h1, h2) {
 	return [absolute, percentage]
 }
 
-auto_scroll(richting := 1, decreaseKey := "&", increaseKey := "é", directionKey := "Space", pauseKey := """"){ ; Automatisch scrollen. Versnel & vertraag. Gemaakt door Johannes Devos
+auto_scroll(richting := 1, decreaseKey := "&", increaseKey := "Ã©", directionKey := "Space", pauseKey := """"){ ; Automatisch scrollen. Versnel & vertraag. Gemaakt door Johannes Devos
 	Suspend, On
 	; Hotkey, If
 	; try Hotkey, %decreaseKey%, Off
@@ -685,11 +685,6 @@ auto_scroll(richting := 1, decreaseKey := "&", increaseKey := "é", directionKey 
 
 _auto_scroll_down_helper(ih, char){
   ih.Stop()
-}
-
-_controlClick(coordX, coordY, mousebutton := "left") {
-	WinGetPos, vWinX, vWinY,,, A
-	Controlclick, % "x" -vWinX+coordX " y" -vWinY+coordY+23 , A ,,,1, NA Pos
 }
 
 _log(str, extrastr*) {
@@ -862,14 +857,17 @@ _makePedReport(age, Milt, LinkerNier, Lever, RechterNier) { ; Gemaakt door Johan
 		Result[4] := (Lever - Gemiddelde_Lever[11])/SD_Lever[11]
 	}
 	SetFormat, Float, 0.1
-	Verslag := "Normale ligging van de retroperitoneale grote vaten.`nNormale ligging van de organen.`n`nLeverspan: " . Lever/10 . " cm (SD: " . Result[4] . ").`nHomogeen leverparenchym met normale reflectiviteit.`nNormale portahoofdstam en intrahepatische portatakken.`nNormale hepatische venen met normale hepatofugale flow.`nNormale hepatopetale portale flow.`nNormale flow in de a. hepatica.`nGeen gedilateerde intrahepatische of extrahepatische galwegen aangetoond.`nNormale galblaas.`nNormale pancreas. Geen visualisatie van de ductus van Wirsung.`nMilt: " . Milt/10 . " cm (SD: " . Result[3] . ").`nNormale milt.`n`nNormale bijnieren en bijnierloges.`nLinkernier: " . Linkernier/10 . " cm (SD: " . Result[1] . ").`nRechternier: " . Rechternier/10 . " cm (SD: " . Result[2] . ").`nNormale reflectiviteit van het nierparenchym met corticomedullaire differentiatie.`nGeen hydro-ureteronefrose.`nNormale blaasvulling.`nNormale aflijning en dikte van de blaaswand.`n`nNormale ligging van de A. en V. Mesenterica Superior.`nGeen adenopathieën aangetoond.`nNormale darmwanden.`n###Normaal terminale ileum.`n###Normale appendix.`n`nCONCLUSIE:`n###`n`nGECOMMUNICEERDE DRINGENDE BEVINDINGEN:`n"
+	Verslag := "Normale ligging van de retroperitoneale grote vaten.`nNormale ligging van de organen.`n`nLeverspan: " . Lever/10 . " cm (SD: " . Result[4] . ").`nHomogeen leverparenchym met normale reflectiviteit.`nNormale portahoofdstam en intrahepatische portatakken.`nNormale hepatische venen met normale hepatofugale flow.`nNormale hepatopetale portale flow.`nNormale flow in de a. hepatica.`nGeen gedilateerde intrahepatische of extrahepatische galwegen aangetoond.`nNormale galblaas.`nNormale pancreas. Geen visualisatie van de ductus van Wirsung.`nMilt: " . Milt/10 . " cm (SD: " . Result[3] . ").`nNormale milt.`n`nNormale bijnieren en bijnierloges.`nLinkernier: " . Linkernier/10 . " cm (SD: " . Result[1] . ").`nRechternier: " . Rechternier/10 . " cm (SD: " . Result[2] . ").`nNormale reflectiviteit van het nierparenchym met corticomedullaire differentiatie.`nGeen hydro-ureteronefrose.`nNormale blaasvulling.`nNormale aflijning en dikte van de blaaswand.`n`nNormale ligging van de A. en V. Mesenterica Superior.`nGeen adenopathieÃ«n aangetoond.`nNormale darmwanden.`n###Normaal terminale ileum.`n###Normale appendix.`n`nCONCLUSIE:`n###`n`nGECOMMUNICEERDE DRINGENDE BEVINDINGEN:`n"
 	return Verslag
 }
 
 _CalcAge(FromDay,ToDay) {   ;Age calculation function
 	FromDay := substr(FromDay,1,8)
 	ToDay := Substr(ToDay,1,8)
-	Global Years,Months,Days
+	Years := 0
+	Months := 0
+	Days := 0
+	;; Global Years,Months,Days
 	; If born on February 29
 	If SubStr(FromDay,5,4) = 0229 and Mod(SubStr(ToDay,1,4), 4) != 0 and SubStr(ToDay,5,4) = 0228
 		PlusOne = 1
