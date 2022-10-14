@@ -21,16 +21,17 @@ init_this_file() { 				; called automatically when the script starts
 
 ;; Deze hotkeys zijn globale hotkeys, niet gelimiteerd tot KWS/PACS
 #If
-:X:openlastpt::openLastPtInLog_KWS()
 ^Down::MoveLineDown() ; Ctrl+pijltje omhoog
 ^Up::MoveLineUp() ; Ctrl+pijltje omlaag
 CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
-RCtrl::CapsLock
+^Ctrl::CapsLock
+:X:openlastpt::openLastPtInLog_KWS()
 
 ;; Hotkeys die enkel werken als het KWS patientscherm in focus is
 #If WinActive("KWS ahk_exe javaw.exe")
 ^b::^c				; maakt van ctrl-b gewoon ctrl-c; de originele functie van ctrl-b was uitloggen, en was te dicht tegen ctrl-c waardoor ik er soms perongeluk op duwde. Dit zet dit uit.
 ^d::deleteLine()
+^e::KWStoExcel()
 F7::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
 ~^c Up::clipboardcleaner() ; Haalt automatisch "uit ongevalideerd verslag" weg als je copy-pasted
