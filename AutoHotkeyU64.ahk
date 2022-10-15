@@ -30,10 +30,12 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 ;; Hotkeys die enkel werken als het KWS patientscherm in focus is
 #If WinActive("KWS ahk_exe javaw.exe")
 ^b::^c				; maakt van ctrl-b gewoon ctrl-c; de originele functie van ctrl-b was uitloggen, en was te dicht tegen ctrl-c waardoor ik er soms perongeluk op duwde. Dit zet dit uit.
-^d::deleteLine()
+!d::deleteLine()
 ^e::KWStoExcel()
 F7::copyLastReport_KWS()
+^g::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
+!c::cleanReport_KWS()		; verslag cleaner
 ~^c Up::clipboardcleaner() ; Haalt automatisch "uit ongevalideerd verslag" weg als je copy-pasted
 ::tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-GUI.ahk" ; Work in progress, beta versie werkt wel al
 :X:wervelfx::heightLossGui()
