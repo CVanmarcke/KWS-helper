@@ -1,18 +1,21 @@
-; ******************************************************
+; ****************************************************** 
 ;	Dit bestand bevat de eigenlijke functies, die worden opgeroepen door autohotkey.
 ;
 ; 	Handleiding: zie readme bestand	of https://github.com/CVanmarcke/KWS-helper
-;
+;								
 ; 	Auteur: Cedric Vanmarcke
 ;
-;	Voor vragen: cedric.vanmarcke@uzleuven.be
-; 	Bij fouten, graag het vorige verslag, huidige verslag
-;		en resultaat doorsturen naar mijn email.
-;
+;	Voor vragen: cedric.vanmarcke@uzleuven.be	
+; 	Bij fouten, graag het vorige verslag, huidige verslag 		
+;		en resultaat doorsturen naar mijn email.	
+;		
 ;****************************************************************
 
 ; CALLABLE FUNCTIONS
 ; --------------------------------------
+
+; TODO: Excel \n er uit filteren. op te volgen veranderen met dropdown
+
 
 initKWSHandler() {
 	SetWorkingDir %A_ScriptDir%
@@ -21,10 +24,7 @@ initKWSHandler() {
 	Coordmode, Mouse
 
 	global logfile
-	global excelSavePath
 	logfile := "logfile.csv"
-	if excelSavePath = ""
-		excelSavePath := "cases.xlsx"
 
 	;; Verwijderd de Teams cache folder: die neemt soms meer dan een GB aan data in zonder reden.
 	FileRemoveDir, P:\uzlsystem\AppData\Microsoft\Teams\Service Worker\CacheStorage, 1
@@ -47,53 +47,54 @@ initKWSHandler() {
 cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "m)^\: ", ". ")				; replaces : if at the front of the sentence with .
 	inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")				; replaces case insensitive besluit/conclusie door upper
+	inputtext := RegExReplace(inputtext, "im)^punt ", ". ")	; corrigeert speech fout dat het punt typt ipv punt (enkel in het begin van de zin)
 	if (RegExMatch(inputtext, "m)^\. ?.+(?:\R|$)") OR RegExMatch(inputtext, "m)^.+# ?.?(?:\R|$)")) { 			; only executes if there is ". " or "#" in the script
 		inputtext := _sorttext(inputtext) ; zet alle zinnen met een punt vooraan, onder het verslag.
 	}
 	sleep, 50
 	inputtext := StrReplace(inputtext, "bekend", "gekend", CaseSensitive := false)
-	inputtext := StrReplace(inputtext, ": in het kader van de gekende", ": gekende")
-	inputtext := StrReplace(inputtext, "in het kader van", "door")
+	inputtext := StrReplace(inputtext, ": in het kader van de gekende", ": gekende") 		
+	inputtext := StrReplace(inputtext, "in het kader van", "door") 		
 	inputtext := StrReplace(inputtext, "ongewijzigd", "onveranderd", CaseSensitive := false)
-	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose")
-	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie")
-	inputtext := StrReplace(inputtext, "normale doorgankelijkheid van de", "normaal doorgankelijke")
-	inputtext := StrReplace(inputtext, "pig katheter", "PIC katheter")
-	inputtext := StrReplace(inputtext, "flair ", "FLAIR ", CaseSensitive := false)
-	inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", CaseSensitive := false)
+	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose") 		
+	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie") 		
+	inputtext := StrReplace(inputtext, "normale doorgankelijkheid van de", "normaal doorgankelijke") 		
+	inputtext := StrReplace(inputtext, "pig katheter", "PIC katheter") 	
+	inputtext := StrReplace(inputtext, "flair ", "FLAIR ", CaseSensitive := false) 	
+	inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", CaseSensitive := false) 	
 	inputtext := StrReplace(inputtext, "tbc", "TBC")
-	inputtext := StrReplace(inputtext, "EKG", "ECG", CaseSensitive := false)
-	inputtext := StrReplace(inputtext, "ecg", "ECG", CaseSensitive := false)
-	inputtext := StrReplace(inputtext, " hili", " hila")
-	inputtext := StrReplace(inputtext, "longtrauma", "longtrama")
-	inputtext := StrReplace(inputtext, "op niveau van", "aan")
+	inputtext := StrReplace(inputtext, "EKG", "ECG", CaseSensitive := false)		
+	inputtext := StrReplace(inputtext, "ecg", "ECG", CaseSensitive := false)		
+	inputtext := StrReplace(inputtext, " hili", " hila") 	
+	inputtext := StrReplace(inputtext, "longtrauma", "longtrama") 	
+	inputtext := StrReplace(inputtext, "op niveau van", "aan") 	
 	inputtext := RegExReplace(inputtext, "[KkCc]a[mn] configuratie", """cam"" configuratie")
-	;; inputtext := StrReplace(inputtext, "bewaarde", "intacte")
-	inputtext := StrReplace(inputtext, "partiële beeld", "partiëel in beeld")
-	inputtext := StrReplace(inputtext, "plaatsen schroef", "plaat en schroef")
-	inputtext := StrReplace(inputtext, "rx", "RX", CaseSensitive := false)
+	;; inputtext := StrReplace(inputtext, "bewaarde", "intacte") 
+	inputtext := StrReplace(inputtext, "partiële beeld", "partiëel in beeld") 
+	inputtext := StrReplace(inputtext, "plaatsen schroef", "plaat en schroef") 
+	inputtext := StrReplace(inputtext, "rx", "RX", CaseSensitive := false) 		
 	inputtext := StrReplace(inputtext, "segment VIII", "segment 8")
 	inputtext := StrReplace(inputtext, "segment VII", "segment 7")
-	inputtext := StrReplace(inputtext, "segment VI", "segment 6", CaseSensitive := true)
-	inputtext := StrReplace(inputtext, "segment IV", "segment 4")
-	inputtext := RegExReplace(inputtext, "segment V(?=[ ,\.])", "segment 5")
-	inputtext := StrReplace(inputtext, "segment III", "segment 3")
-	inputtext := StrReplace(inputtext, "segment II", "segment 2")
-	inputtext := RegExReplace(inputtext, "segment I(?=[ ,\.])", "segment 1")
+	inputtext := StrReplace(inputtext, "segment VI", "segment 6", CaseSensitive := true) 		
+	inputtext := StrReplace(inputtext, "segment IV", "segment 4") 
+	inputtext := RegExReplace(inputtext, "segment V(?=[ ,\.])", "segment 5") 	
+	inputtext := StrReplace(inputtext, "segment III", "segment 3") 		
+	inputtext := StrReplace(inputtext, "segment II", "segment 2") 	
+	inputtext := RegExReplace(inputtext, "segment I(?=[ ,\.])", "segment 1") 	
 	inputtext := RegExReplace(inputtext, "(\d )n?o?r?maal( \d)", "$1x$2") 	; Corrigeert een veel gemaakte fout van de speech
 
        ;; mammo:
 	inputtext := RegExReplace(inputtext, "(eefseltype(?:ring)?)\:? ([a-d])", "$1 $U2") 	; zet het weefseltype in hoofdletters
 
 	inputtext := RegExReplace(inputtext, "[\r\n]GECOMMUNICEERDE DRINGENDE BEVINDINGEN:[\n\r]?$", "") 	; verwijderd die zin
-	inputtext := RegExReplace(inputtext, "im)^Vergelijking met ", "Vergeleken met ")
-	; inputtext := RegExReplace(inputtext, "i)gekende?", "\#\#\#")
+	inputtext := RegExReplace(inputtext, "im)^Vergelijking met ", "Vergeleken met ")		
+	; inputtext := RegExReplace(inputtext, "i)gekende?", "\#\#\#")				
 	inputtext := RegExReplace(inputtext, "im)[\ \t]*supervis.*$", "") ; verwijderd supervisie.
 
 	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.+)\/ ?(?=\R|$)", "  . $1") ;; Alle zinnen met / op einde krijgen " . " er voor
 	inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2") 				; corrigeert WOord naar Woord
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
-	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\Â°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
+	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
 	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 					; converts to uppercase after ., newline or newline -
 	inputtext := RegExReplace(inputtext, "(\w)([\:\.])(\w)", "$1$2 $3")					; makes sure there is a space after a colon or point...
 	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
@@ -108,9 +109,9 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n") 											; replaces triple+ newline with double
 	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\"")(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS)", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
 	inputtext := RegExReplace(inputtext, "(CONCLUSIE:[\n\r\R])\-\ (.+)(?:[\n\r\R]|$)(?!-)", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten. WERKT NOG NIET
-	inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1à$2") 						; maakt  als a tussen 2 getallen.
+	inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1à$2") 						; maakt à als a tussen 2 getallen.
 	inputtext := RegExReplace(inputtext, "([\-\.]) {2,}(?=[\R\n\r\w])", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
-	inputtext := RegExReplace(inputtext, "\ +, \ +", ", ")  ; verwijdert te veel spaties rond een komma
+	inputtext := RegExReplace(inputtext, "\ +, \ +", ", ")  ; verwijdert te veel spaties rond een komma 
 	return inputtext
 }
 
@@ -120,7 +121,7 @@ cleanReport_KWS() {
 	catch e {
 		return
 	}
-	RegExMatch(clipboard, RegexQuerry, report)
+	RegExMatch(clipboard, RegexQuerry, report)	
 	if (not reportheader = "")
 		_KWS_PasteToReport(reportheader . "`n" . cleanreport(reportcontent))
 }
@@ -140,11 +141,12 @@ mergeReport(currentreportunclean, oldreportunclean) {
 		return ""
 	}
 	;; Veranderd de datum in een reeds bestaande vergelijking, of voegt de vergelijktekst toe indien die nog niet aanwezig was.
-	if (oldreportcomparedwith && oldreportcompdate) {
+	;; if (oldreportcomparedwith && oldreportcompdate) {
+	if (oldreportcomparedwith) {
 		compared := StrReplace(oldreportcomparedwith, oldreportcompdate, oldreportdate)
 		oldreportcontent :=  StrReplace(oldreportcontent, oldreportcompdate, oldreportdate)
 	} else {
-		compared := "In vergelijking met het voorgaande onderzoek van " . oldreportdate . ":"
+		compared := "In vergelijking met het voorgaande onderzoek van " . oldreportdate . ":" 
 	}
 
 	; zoekt naar het besluit, en als het het vindt voegt het "vergelijking met" toe of veranderdt het de datum van "in vergelijking met"
@@ -195,7 +197,7 @@ copyLastReport_KWS() {
 			return
 		}
 	}
-	MouseClick, left, FoundX+10, FoundY+10
+	MouseClick, left, FoundX+10, FoundY+10 
 	sleep, 300
 
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\laatstVerslagHeader.png
@@ -221,7 +223,7 @@ copyLastReport_KWS() {
 		_makeSplashText(title := "ERROR", text := "Fout: het voorgaande verslag zijn ingevoerde beelden!", time := -2000)
 		_BlockUserInput(false)
 		return
-	}
+	} 
 	mergedReport := mergeReport(currentreportunclean, oldreportunclean)
 	If (not mergedReport = "") ;; Checkt dat het effectief gelukt is om samen te voegen
 		_KWS_PasteToReport(mergedReport, true)
@@ -282,8 +284,8 @@ selectLastReport_KWS() {
 			MouseMove, mouseX, mouseY
 		}
 		return
-	}
-
+	} 
+	 
 	oldreportunclean := clipboard			; zet variabele gelijk aan clipboard
 	clipboard := ""             			; maakt het clipboard leeg
 	RegExMatch(oldreportunclean, RegexQuerry, oldreport)
@@ -303,7 +305,7 @@ selectLastReport_KWS() {
 		compared := StrReplace(oldreportcomparedwith, oldreportcompdate, oldreportdate)
 		oldreportcontent :=  StrReplace(oldreportcontent, oldreportcompdate, oldreportdate)
 	} else {
-		compared := "In vergelijking met het voorgaande onderzoek van " . oldreportdate . ":"
+		compared := "In vergelijking met het voorgaande onderzoek van " . oldreportdate . ":" 
 	}
 
 	; zoekt naar het besluit, en als het het vindt voegt het "vergelijking met" toe of veranderdt het de datum van "in vergelijking met"
@@ -355,7 +357,7 @@ onveranderdMetVorigVerslag() {
 			return
 		}
 	}
-	MouseClick, left, FoundX+10, FoundY+10
+	MouseClick, left, FoundX+10, FoundY+10 
 	sleep, 300
 
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\laatstVerslagHeader.png
@@ -379,7 +381,7 @@ onveranderdMetVorigVerslag() {
 		_makeSplashText(title := "ERROR", text := "Fout: het voorgaande verslag zijn ingevoerde beelden!", time := -2000)
 		_BlockUserInput(false)
 		return
-	}
+	} 
 
 	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
 
@@ -391,7 +393,7 @@ onveranderdMetVorigVerslag() {
 		compared := StrReplace(oldreportcomparedwith, oldreportcompdate, oldreportdate)
 		oldreportcontent :=  StrReplace(oldreportcontent, oldreportcompdate, oldreportdate)
 	} else {
-		compared := "In vergelijking met het voorgaande onderzoek van " . oldreportdate . ":"
+		compared := "In vergelijking met het voorgaande onderzoek van " . oldreportdate . ":" 
 	}
 	if (SubStr(currentreportheader, StrLen(currentreportheader)) != "`n") { ; Fix dat soms de "compare" tegen de onderzoeken wordt gezet. eventueel te fixen in de REGEX of gewoon extra newlines hier vanonder en dan de overschot newlines wegdoen
 		currentreportheader .= "`n"
@@ -414,15 +416,15 @@ validateAndClose_KWS() {
 		_makeSplashText("Validate function", "Press the button again to validate and close.", time := -3000, doublePressMode := True)
 		Send, ^s
 		return
-	}
+	} 
 	_destroySplash()
-	WinActivate, KWS ahk_exe javaw.exe
+	WinActivate, KWS ahk_exe javaw.exe 
 	MouseGetPos, mouseX, mouseY
 	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\valideersluit.png
 	if (ErrorLevel >= 1) {
 		_makeSplashText("ERROR valideerfunctie", "ERROR: valideerknop niet gevonden, of er is iets mis gegaan met het zoeken.", -2000)
 		return
-	}
+	} 
 	ead := _getEAD()
 	MouseClick, left, FoundX+5, FoundY+5
 	MouseMove, mouseX, mouseY
@@ -432,7 +434,7 @@ validateAndClose_KWS() {
 
 saveAndClose_KWS() {
 	global splashExists
-	WinActivate, KWS ahk_exe javaw.exe
+	WinActivate, KWS ahk_exe javaw.exe 
 	if (splashExists == "" or splashExists == False) {
 		_makeSplashText("Save function", "Press save button again to close.", -3000, doublePressMode := True)
 		Send, ^s
@@ -484,14 +486,14 @@ heightLossGUI() {
 	Global Height2
 	Gui, heightLoss:+LastFound
 	GuiHWND := WinExist()
-
+	
 	Gui, heightLoss:Add , Text  ,        , Height collapsed and normal vertebra
 	Gui, heightLoss:Add , Edit  , vHeight1,
 	Gui, heightLoss:Add , Edit  , vHeight2,
 	Gui, heightLoss:Add , Button, Default, OK
 	Gui, heightLoss:Show, , Vertebral height loss calculator
 	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
-	WinActivate, KWS ahk_exe javaw.exe
+	WinActivate, KWS ahk_exe javaw.exe 
 	sleep, 50
 	return _KWS_PasteToReport(result, false)               	;--returning value
 	;-------
@@ -512,7 +514,7 @@ heightLossGUI() {
 
 openEAD_KWS(input := "") {
 	; if no EAD number provided, tries to get it from clipboard or get it from selected text
-	if (RegExMatch(input, "\D(\d{8})\D", ead) == 0 and RegExMatch(clipboard, "\D(\d{8})\D", ead) == 0) {
+	if (RegExMatch(input, "\D(\d{8})\D", ead) == 0 and RegExMatch(clipboard, "\D(\d{8})\D", ead) == 0) { 
 		Clipboard := ""
 		Send, ^c
 		ClipWait, 1
@@ -545,7 +547,7 @@ pedAbdomenTemplate() {
 	result := ""
 	birthdate := _getBirthDate(returnMouse := true)
 	birthdate := RegExReplace(birthdate, "(\d{2}).(\d{2}).(\d{4})", "$3$2$1") 											; replaces triple+ newline with double
-	FormatTime, now, ,yyyyMMddHHmmss
+	FormatTime, now, ,yyyyMMddHHmmss 
 	;; age := CalcAge(birthdate . "000000", now)
 	age := _CalcAge(birthdate, now)
 	year := age[1]
@@ -555,12 +557,12 @@ pedAbdomenTemplate() {
 
 	Gui, pedAbdGui:+LastFound
 	GuiHWND := WinExist()
-	Gui, pedAbdGui:Add, Text, x2 y-1 w140 h20 , Patiëntennaam:
+	Gui, pedAbdGui:Add, Text, x2 y-1 w140 h20 , Patiëntennaam: 
 	Gui, pedAbdGui:Add, Text, x2 y19 w140 h20 , Leeftijd:
 	Gui, pedAbdGui:Add, Text, x42 y39 w100 h20 , Jaar:
 	Gui, pedAbdGui:Add, Text, x42 y59 w100 h20 , Maand:
 	Gui, pedAbdGui:Add, Text, x42 y79 w100 h20 , Dag:
-	Gui, pedAbdGui:Add, Text, x142 y-1 w230 h20 ,
+	Gui, pedAbdGui:Add, Text, x142 y-1 w230 h20 , 
 	Gui, pedAbdGui:Add, Text, x142 y39 w230 h20 , % age[1]
 	Gui, pedAbdGui:Add, Text, x142 y59 w230 h20 , % age[2]
 	Gui, pedAbdGui:Add, Text, x142 y79 w230 h20 , % age[3]
@@ -575,10 +577,10 @@ pedAbdomenTemplate() {
 	Gui, pedAbdGui:Add, Button, x2 y199 w370 h30 Default, OK
 	Gui, pedAbdGui:Show, x759 y391 h236 w379, Echografie Pediatrie Afmetingen
 	WinWaitClose, ahk_id %GuiHWND%  		; waiting for gui to close
-	WinActivate, KWS ahk_exe javaw.exe
+	WinActivate, KWS ahk_exe javaw.exe 
 	if (result != "")
 		_KWS_PasteToReport(result, false)       	; returning value
-	return
+	return 
 ; --------
 pedAbdGuiButtonOK:
 	Gui, Submit
@@ -625,7 +627,7 @@ aanvaarderMode() {
 	Hotkey, ^l, _pressAanvaardOption
 	Hotkey, ^p, _pressAanvaardOption
 	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
-	WinActivate, KWS ahk_exe javaw.exe
+	WinActivate, KWS ahk_exe javaw.exe 
 	return
 	;-------
 	aanvaardGUIButtonOK:
@@ -636,8 +638,7 @@ aanvaarderMode() {
 	return
 }
 
-KWStoExcel() {
-	global excelSavePath
+KWStoExcel(excelSavePath) {
 	global ExcComment
 	global ExcKlinInl
 	global ExcDiagnVraag
@@ -699,7 +700,7 @@ KWStoExcel() {
 	Gui, ExcelGUI:Add, DropDownList, xp+70 yp+0 w130 R1 vExcCategorySelect R8 Choose%indexCategory%, % categoryList
 	Gui, ExcelGUI:Add, Edit, x10    yp+30            R1 vExcOnderzoek, % reportonderzoek
 	Gui, ExcelGUI:Add, Text, x10    yp+40 w130 R2 , Comment
-	Gui, ExcelGUI:Add, Edit, xp+140 yp+0  w190 R2 vExcComment,
+	Gui, ExcelGUI:Add, Edit, xp+140 yp+0  w190 R2 vExcComment, 
 	Gui, ExcelGUI:Add, Text, xp-140 yp+40 w130 R2 , Klin. inlichtingen
 	Gui, ExcelGUI:Add, Edit, xp+140 yp+0  w190 R2 vExcKlinInl, %reportklinlicht%
 	Gui, ExcelGUI:Add, Text, xp-140 yp+40 w130 R2 , Diagn. vraagstelling
@@ -726,11 +727,11 @@ KWStoExcel() {
 	XL.Application.ActiveSheet.range("F"lastCell).value := ExcOnderzoek
 	XL.Application.ActiveSheet.range("G"lastCell).value := ExcKlinInl
 	XL.Application.ActiveSheet.range("H"lastCell).value := ExcDiagnVraag
-	XL.Application.ActiveSheet.range("I"lastCell).value := ExcTags
+	XL.Application.ActiveSheet.range("I"lastCell).value := ExcTags       
 	_makeSplashText(title := "Saved to excel", text := ead . " is saved to excel", time := -1500)
 	Gui, ExcelGUI:Destroy
 		return
-
+		
 	ExcCancelButton:
 	ExcelGUIGuiEscape:
 	ExcelGUIGuiClose:
@@ -804,9 +805,9 @@ IndentLine(direction) {
 
 
 deleteLine() {
-	Send, {Home}
-	Send, +{Down}
-	Send, {Backspace}
+	Send, {End}
+	Send, +{Home}
+	Send, {Backspace}{Backspace}
 }
 
 yankLine() {
@@ -822,14 +823,14 @@ _KWS_CopyReportToClipboard(selectReportBox := True) {
 	_BlockUserInput(true)
 	If (not WinActive("KWS ahk_exe javaw.exe")) {
 		if WinExist("KWS ahk_exe javaw.exe")
-			WinActivate
+			WinActivate 
 		else
 			throw Exception("KWS is not open!", -1)
 	}
 	if (selectReportBox) {
 		_KWS_SelectReportBox()
 	}
-	clipboard := ""             			; maakt het clipboard leeg
+	clipboard := ""             			; maakt het clipboard leeg 
 	Send, ^a                    			; select all
 	Send, ^c                    			; copy
 	_BlockUserInput(false)
@@ -856,20 +857,21 @@ _KWS_PasteToReport(text, overwrite := true) {
 	If WinActive("KWS ahk_exe javaw.exe") {
 		_BlockUserInput(True)
 		tempclip := clipboard
-		clipboard := ""
-		clipboard := text           	; maakt het clipboard leeg
+		clipboard := ""  
+		clipboard := text           	; maakt het clipboard leeg 
 		ClipWait, 1			; wacht tot er data in het clipboard is
 		if (overwrite) {
 			Send, ^a
+			sleep 50
 		}
-		Send, ^v
+		Send, ^v 
 		Sleep 50
 		;; TODO !!! Werkt niet meer.... evt via findwindow??
 		if WinExist("Foutboodschap JavaKWS") { ; Fixes "could not access clipboard"
 			WinActivate
 			SendInput, {Enter}
 			Sleep, 50
-			WinActivate, KWS ahk_exe javaw.exe
+			WinActivate, KWS ahk_exe javaw.exe 
 			_KWS_PasteToReport(text, overwrite)
 		}
 		clipboard := tempclip
@@ -877,7 +879,7 @@ _KWS_PasteToReport(text, overwrite := true) {
 		return
 	}
 	if WinExist("KWS ahk_exe javaw.exe")
-		WinActivate
+		WinActivate 
 	else
 		throw Exception("KWS is not open!", -1)
 	_KWS_SelectReportBox()
@@ -1007,7 +1009,7 @@ auto_scroll(richting := 1, decreaseKey := "&", increaseKey := "é", directionKey
 	MouseGetPos,,,windowUnderCursor
 	WinGet, temp, ProcessName, ahk_id %windowUnderCursor%
 	If (temp = "impax-client-main.exe" OR temp = "syngo.Common.Container.exe" OR temp = "javaw.exe" OR temp = "javawClinapps.exe"){
-		keys := "{" . decreaseKey  . "}{" . increaseKey . "}{" . directionKey . "}{" . pauseKey . "}"
+		keys := "{" . decreaseKey  . "}{" . increaseKey . "}{" . directionKey . "}{" . pauseKey . "}" 
 		hook := InputHook("L0", keys)
 		hook.VisibleNonText := false
 		hook.Start()
@@ -1131,15 +1133,15 @@ findAndReplaceGUI() {
 	repGuiHWND := WinExist()
 	Gui, repGUI:Margin, 10, 10
 	Gui, repGUI:Add, Text, w130 , Find
-	Gui, repGUI:Add, Edit, w500 R2 gupdateRepGUI vfindText,
+	Gui, repGUI:Add, Edit, w500 R2 gupdateRepGUI vfindText, 
 	Gui, repGUI:Add, Text, w130 , Replace
-	Gui, repGUI:Add, Edit, w500 R2 gupdateRepGUI vreplaceText,
+	Gui, repGUI:Add, Edit, w500 R2 gupdateRepGUI vreplaceText, 
 	Gui, repGUI:Add, Button, gReplaceButton, Replace!
 	Gui, repGUI:Add, Checkbox, yp+5 xp+65 vRegexToggle checked gupdateRepGUI, Enable regex
 ;; TODO
 	Gui, repGUI:Add, Checkbox, yp+0	xp+90 vIgnoreCaseFlag checked gupdateRepGUI, IgnoreCase
 	Gui, repGUI:Add, Checkbox, yp+0	xp+90 vMultilineFlag  checked gupdateRepGUI, Multiline-mode
-	Gui, repGUI:Add, Checkbox, yp+0	xp+90 vSinglelineFlag gupdateRepGUI, Singleline
+	Gui, repGUI:Add, Checkbox, yp+0	xp+90 vSinglelineFlag gupdateRepGUI, Singleline 
 	Gui, repGUI:Add, Checkbox, yp+0	xp+70 vUngreadyFlag   gupdateRepGUI, Ungready
 	Gui, repGUI:Add, ActiveX, vrepTextBox x10 w500 h400, htmlfile
 	repTextBox.write(_getHTMLReplaceBox(originalText, "", "", False))
@@ -1231,7 +1233,7 @@ _getHTMLReplaceBox(haystack, needle, replacement, regextoggle := True, flag := "
 		replacedText := StrReplace(haystack, needle, "<span class=""red"">" . needle . "</span><span class=""replacement"">" . replacement . "</span>")
 	}
 	return StrReplace(html, "INSERTLOCATION", "<pre>" . replacedText . "</pre>")
-}
+}	
 
 _findreplaceConstructRegexFlags(ignoreCase := 1, multilineMode := 1, singleLineMode := 0, ungreedy := 0) {
 	flag := ""
@@ -1244,6 +1246,7 @@ _findreplaceConstructRegexFlags(ignoreCase := 1, multilineMode := 1, singleLineM
 }
 
 _makePedReport(age, Milt, LinkerNier, Lever, RechterNier) { ; Gemaakt door Johannes Devos, aangepast
+	;; TODO: toch nog iets mis met de standaardeviaties
 	Gemiddelde_Nieren := [4.48, 5.28, 6.15, 6.23, 6.65, 7.36, 7.36, 7.87, 8.09, 7.83, 8.33, 8.9, 9.2, 9.17, 9.6, 10.42, 9.79, 10.05, 10.93, 10.04, 10.53, 10.81]
 	SD_Nieren := [0.31, 0.66, 0.67, 0.63, 0.54, 0.54, 0.64, 0.5, 0.54, 0.72, 0.51, 0.88, 0.9, 0.82, 0.64, 0.87, 0.75, 0.62, 0.76, 0.86, 0.29, 1.13]
 	Gemiddelde_Milt := [53, 59, 63, 70, 75, 84, 85, 86, 97, 101, 101]

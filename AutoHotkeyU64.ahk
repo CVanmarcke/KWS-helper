@@ -11,6 +11,9 @@ init_this_file() { 				; called automatically when the script starts
 	SendMode Input  			; Recommended for new scripts due to its superior speed and reliability.
 	SetWorkingDir %A_ScriptDir%
 	SetTitleMatchMode, 1 		; evt met regex (https://www.autohotkey.com/docs/commands/SetTitleMatchMode.htm)
+	global excelSavePath
+	excelSavePath := "cases.xlsx"
+
 	initKWSHandler()
 }
 
@@ -23,34 +26,38 @@ init_this_file() { 				; called automatically when the script starts
 #If
 ^Down::MoveLineDown() ; Ctrl+pijltje omhoog
 ^Up::MoveLineUp() ; Ctrl+pijltje omlaag
-CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
-^Ctrl::CapsLock
 :X:openlastpt::openLastPtInLog_KWS()
 
 ;; Hotkeys die enkel werken als het KWS patientscherm in focus is
 #If WinActive("KWS ahk_exe javaw.exe")
 ^b::^c				; maakt van ctrl-b gewoon ctrl-c; de originele functie van ctrl-b was uitloggen, en was te dicht tegen ctrl-c waardoor ik er soms perongeluk op duwde. Dit zet dit uit.
+^e::KWStoExcel(excelSavePath)
 !d::deleteLine()
-^e::KWStoExcel()
 F7::copyLastReport_KWS()
-^g::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
-!c::cleanReport_KWS()		; verslag cleaner
-~^c Up::clipboardcleaner() ; Haalt automatisch "uit ongevalideerd verslag" weg als je copy-pasted
 ::tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-GUI.ahk" ; Work in progress, beta versie werkt wel al
 :X:wervelfx::heightLossGui()
 :X:hoogteverlies::heightLossGUI()
-:X:pedabdomen::pedAbdomenTemplate() ; De datum van EAM nummer halen werkt nog niet correct, nog eens bekijken.
+:X:pedabdomen::pedAbdomenTemplate() ; zou moeten werken
 
-;; Hotkeys die enkel werken als PACS of patientscherm KWS in focys is.
+;; Hotkeys die enkel werken als PACS of patientscherm KWS in focus is.
 #If WinActive("KWS ahk_exe javaw.exe") or (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")))
+CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
+^Ctrl::CapsLock   ; om toch nog capslock te gebruiken moet je Ctrl + capslock induwen
 F7::copyLastReport_KWS()
 F9::cleanReport_KWS() 
+!v::validateAndClose_KWS() ; Alt-v
+!s::saveAndClose_KWS()     ; Alt-s
+^s::saveAndClose_KWS()     ; Ctrl-s
+!c::cleanReport_KWS()      ; Alt-c
+!r::copyLastReport_KWS()   ; Alt-r
+!g::onveranderdMetVorigVerslag()   ; Alt-g
+!x::Send {Backspace}       ; Alt-x
 
 ; Autoscroller (in Enterprise en IMPAX) is gemaakt door johannes. Cfr handleiding.
 #if WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")
-$é::auto_scroll(-1, "&", "é", "Space")
-$&::auto_scroll(1, "&", "é", "Space")
+$^é::auto_scroll(-1, "&", "é", "Space")
+$^&::auto_scroll(1, "&", "é", "Space")
 
 ; Allows windowing in IMPAX with the numpad keys
 #If WinActive("ahk_exe impax-client-main.exe")
