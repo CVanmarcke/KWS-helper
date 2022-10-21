@@ -14,7 +14,8 @@
 ; CALLABLE FUNCTIONS
 ; --------------------------------------
 
-; TODO: Excel \n er uit filteren. op te volgen veranderen met dropdown
+; TODO: Excel: op te volgen veranderen met dropdown en datum
+; TODO: pedabdomen nog eens testen of de stddev kloppen.
 
 
 initKWSHandler() {
@@ -96,7 +97,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
 	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
 	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 					; converts to uppercase after ., newline or newline -
-	inputtext := RegExReplace(inputtext, "(\w)([\:\.])(\w)", "$1$2 $3")					; makes sure there is a space after a colon or point...
+	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")					; makes sure there is a space after a colon or point...
 	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
 	;;inputtext := RegExReplace(inputtext, "(?<=[\-\/])[DT](?=[1-9](?:[0-2]|[\ \:]))", "Th") ; Corrects -T10 of /D10 naar -Th10
@@ -109,7 +110,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n") 											; replaces triple+ newline with double
 	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\"")(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS)", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
 	inputtext := RegExReplace(inputtext, "(CONCLUSIE:[\n\r\R])\-\ (.+)(?:[\n\r\R]|$)(?!-)", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten. WERKT NOG NIET
-	inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1à$2") 						; maakt à als a tussen 2 getallen.
+	;;inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1Ã$2") 						; maakt Ã  als a tussen 2 getallen.
 	inputtext := RegExReplace(inputtext, "([\-\.]) {2,}(?=[\R\n\r\w])", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
 	inputtext := RegExReplace(inputtext, "\ +, \ +", ", ")  ; verwijdert te veel spaties rond een komma 
 	return inputtext
@@ -514,12 +515,14 @@ heightLossGUI() {
 
 openEAD_KWS(input := "") {
 	; if no EAD number provided, tries to get it from clipboard or get it from selected text
-	if (RegExMatch(input, "\D(\d{8})\D", ead) == 0 and RegExMatch(clipboard, "\D(\d{8})\D", ead) == 0) { 
-		Clipboard := ""
+	if (RegExMatch(input, "[^1-9]?(\d{8})[^1-9]?", ead) == 0) {
+		tempclip := clipboard
+		clipboard := ""
 		Send, ^c
 		ClipWait, 1
-		if (RegExMatch(clipboard, "\D(\d{8})\D", ead))
+		if (RegExMatch(clipboard, "[^1-9]?(\d{8})[^1-9]?", ead))
 			openEAD_KWS(ead1)
+		clipboard := tempclip
 		return
 	}
 	clipboard := ead1
@@ -530,7 +533,6 @@ openEAD_KWS(input := "") {
 		Send, ^v
 		Send, {Enter}
 	}
-	return
 }
 
 openLastPtInLog_KWS() {
@@ -542,11 +544,11 @@ openLastPtInLog_KWS() {
 }
 
 pedAbdomenTemplate() {
-	;; Gemaakt door Johannes Devos, aangepast en opgekuist door CV.
+	;; Gemaakt door Johannes Devos, aangepast door CV.
 	;; ptdata := _KWS_GetDemographicDataPatient()
 	result := ""
 	birthdate := _getBirthDate(returnMouse := true)
-	birthdate := RegExReplace(birthdate, "(\d{2}).(\d{2}).(\d{4})", "$3$2$1") 											; replaces triple+ newline with double
+	birthdate := RegExReplace(birthdate, "(\d{2}).(\d{2}).(\d{4})", "$3$2$1")
 	FormatTime, now, ,yyyyMMddHHmmss 
 	;; age := CalcAge(birthdate . "000000", now)
 	age := _CalcAge(birthdate, now)
@@ -610,7 +612,7 @@ pressOKButton() {
 	}
 }
 
-;; WORK IN PROGRESS
+;; TODO WORK IN PROGRESS
 aanvaarderMode() {
 	Gui, aanvaardGUI:+LastFound +AlwaysOnTop +Owner
 	GuiHWND := WinExist()
@@ -650,7 +652,7 @@ KWStoExcel(excelSavePath) {
 
 	_BlockUserInput(True)
 	_KWS_CopyReportToClipboard()
-	RegexQuery := "(?:Leuven|Pellenberg)[\s\S]+(?<datum>\d{2}-\d{2}-\d{4})[\s\S]+(?:KLINISCHE INLICHTINGEN:[\n\r]+)(?<klinlicht>[\s\S]+)[\n\r]{2,}(?:DIAGNOSTISCHE VRAAGSTELLING:[\n\r]+)(?<diagvraag>[\s\S]+)[\n\r]{2,}(?:ONDERZOEKE?N?:[\n\r]+)(?<onderzoek>(?:.+\R?)+)\R{2,}(?:[\s\S]+)"
+	RegexQuery := "(?:Leuven|Pellenberg)[\s\S]+(?<datum>\d{2}-\d{2}-\d{4})[\s\S]+(?:KLINISCHE INLICHTINGEN:[\n\r]+)(?<klinlicht>[\s\S]+)[\n\r]{2,}(?:DIAGNOSTISCHE VRAAGSTELLING:[\n\r]+)(?<diagvraag>[\s\S]+)[\n\r]{2,}(?:ONDERZOEKE?N?:[\n\r]+)(?<onderzoek>(?:.+\R{0,1}?)+)\R{2,}(?:[\s\S]+)"
 	RegExMatch(clipboard, RegexQuery, report)
 	ead := _getEAD()
 	_BlockUserInput(false)
@@ -661,8 +663,8 @@ KWStoExcel(excelSavePath) {
 			WinWait, ahk_exe EXCEL.EXE
 		}
 	} else {
-		MsgBox, Not found, making excel file
 		WinWait, ahk_exe EXCEL.EXE
+		MsgBox, Excel file niet gevonden! Maak een nieuw excel bestand in dezelfde folder als dit script met de naam %excelSavePath%`nEr zal nu geprobeerd een te maken (niet getest)...
 		XL := ComObjCreate("Excel.Application")
 		XL.Workbooks.Add
 		XL.ActiveWorkbook.SaveAs(excelSavePath)
@@ -671,7 +673,7 @@ KWStoExcel(excelSavePath) {
 	categoryList := "|neuro|thorax|abdomen|spine|MSK|NKO|mammo"
 	indexCategory := 1
 	category := ""
-	if RegExMatch(reportonderzoek, "i)hersenen|schedel|hypophyse") {
+	if RegExMatch(reportonderzoek, "i)hersen|schedel|hypophyse") {
 		indexCategory := 2
 		category := "neuro"
 	} else if RegExMatch(reportonderzoek, "i)abdomen") {
@@ -683,21 +685,24 @@ KWStoExcel(excelSavePath) {
 	} else if RegExMatch(reportonderzoek, "i)wervel") {
 		indexCategory := 5
 		category := "spine"
-	} else if RegExMatch(reportonderzoek, "i)knie|schouder|heup|arm|been") {
+	} else if RegExMatch(reportonderzoek, "i)knie|schouder|heup|arm|been|pols") {
 		indexCategory := 6
 		category := "MSK"
 	} else if RegExMatch(reportonderzoek, "i)oor|hals") {
 		indexCategory := 7
 		category := "NKO"
 	} else if RegExMatch(reportonderzoek, "i)mammo|borst") {
-		indexCategory := 7
+		indexCategory := 8
 		category := "mammo"
+	} else if RegExMatch(reportonderzoek, "i)nier|blaas|prostaat|gyna|vrouw") {
+		indexCategory := 9
+		category := "urogen"
 	}
 	Gui, ExcelGUI:+LastFound
 	ExcelGuiHWND := WinExist()
 	Gui, ExcelGUI:Add, Text, x10 y10 w60 h30, % reportdatum
 	Gui, ExcelGUI:Add, Text, xp+70 yp+0 w60 h30, % ead
-	Gui, ExcelGUI:Add, DropDownList, xp+70 yp+0 w130 R1 vExcCategorySelect R8 Choose%indexCategory%, % categoryList
+	Gui, ExcelGUI:Add, DropDownList, xp+70 yp+0 w130 R1 vExcCategorySelect R9 Choose%indexCategory%, % categoryList
 	Gui, ExcelGUI:Add, Edit, x10    yp+30            R1 vExcOnderzoek, % reportonderzoek
 	Gui, ExcelGUI:Add, Text, x10    yp+40 w130 R2 , Comment
 	Gui, ExcelGUI:Add, Edit, xp+140 yp+0  w190 R2 vExcComment, 
@@ -707,7 +712,8 @@ KWStoExcel(excelSavePath) {
 	Gui, ExcelGUI:Add, Edit, xp+140 yp+0  w190 R2 vExcDiagnVraag, %reportdiagvraag%
 	Gui, ExcelGUI:Add, Text, xp-140 yp+40 w130 R2 , Tags
 	Gui, ExcelGUI:Add, Edit, xp+140 yp+0  w190 R2 vExcTags ,
-	Gui, ExcelGUI:Add, CheckBox, x10  yp+40    R1 vOpTeVolgen, Op te volgen
+	Gui, ExcelGUI:Add, Text, xp-140 yp+40 w130 R2 , Op te volgen?
+	Gui, ExcelGUI:Add, DropDownList, xp+140 yp+0 w190 R5 vOpTeVolgen Choose1, |Over 1 dag|Over 1 week|Over 1 maand|Op te volgen
 	Gui, ExcelGUI:Add, Button, x10    yp+40 w130 h20 Default, OK
 	Gui, ExcelGUI:Add, Button, xp+140 yp+0 w130 h20 gExcCancelButton, Cancel
 	Gui, ExcelGUI:Show, x360 y233, Save to excel script
@@ -719,15 +725,25 @@ KWStoExcel(excelSavePath) {
 	Gui, ExcelGUI:Submit
 	lastCell := excelFindLastCell(XL).row + 1
 
+	if (InStr(OpTeVolgen, "Over")) { ;; This function finds the future date to follow up on
+		FutureDate := A_Now
+		Switch
+		{
+			case InStr(OpTeVolgen, "day"):   EnvAdd, FutureDate, 1, days
+			case InStr(OpTeVolgen, "week"):  EnvAdd, FutureDate, 7, days
+			case InStr(OpTeVolgen, "month"): EnvAdd, FutureDate, 31, days
+		}
+		FormatTime, opTeVolgen, %FutureDate%, yyy-MM-dd
+	}
 	XL.Application.ActiveSheet.range("A"lastCell).value := ead
 	XL.Application.ActiveSheet.range("B"lastCell).value := reportdatum
 	XL.Application.ActiveSheet.range("C"lastCell).value := ExcCategorySelect
 	XL.Application.ActiveSheet.range("D"lastCell).value := ExcComment
-	XL.Application.ActiveSheet.range("E"lastCell).value := OpTeVolgen
-	XL.Application.ActiveSheet.range("F"lastCell).value := ExcOnderzoek
-	XL.Application.ActiveSheet.range("G"lastCell).value := ExcKlinInl
-	XL.Application.ActiveSheet.range("H"lastCell).value := ExcDiagnVraag
-	XL.Application.ActiveSheet.range("I"lastCell).value := ExcTags       
+	XL.Application.ActiveSheet.range("E"lastCell).value := opTeVolgen
+	XL.Application.ActiveSheet.range("F"lastCell).value := RegExReplace(ExcOnderzoek, "\.?[\r\n]", ". ")
+	XL.Application.ActiveSheet.range("G"lastCell).value := RegExReplace(ExcKlinInl, "\.?[\r\n]", ". ")
+	XL.Application.ActiveSheet.range("H"lastCell).value := RegExReplace(ExcDiagnVraag, "\.?[\r\n]", ". ")
+	XL.Application.ActiveSheet.range("I"lastCell).value := ExcTags
 	_makeSplashText(title := "Saved to excel", text := ead . " is saved to excel", time := -1500)
 	Gui, ExcelGUI:Destroy
 		return
@@ -747,6 +763,7 @@ excelFindLastCell(objExcel, sheet := 1) {
 	lastCol := objExcel.Sheets(sheet).Cells.Find("*", , , , xlByColumns, xlPrevious).Column
 	return {row: lastRow, column: lastCol}
 }
+
 
 ObjIndexOf(obj, item, case_sensitive:=false) {
 	for i, val in obj {
@@ -807,7 +824,7 @@ IndentLine(direction) {
 deleteLine() {
 	Send, {End}
 	Send, +{Home}
-	Send, {Backspace}{Backspace}
+	Send, {Delete}{Delete}
 }
 
 yankLine() {
@@ -866,7 +883,6 @@ _KWS_PasteToReport(text, overwrite := true) {
 		}
 		Send, ^v 
 		Sleep 50
-		;; TODO !!! Werkt niet meer.... evt via findwindow??
 		if WinExist("Foutboodschap JavaKWS") { ; Fixes "could not access clipboard"
 			WinActivate
 			SendInput, {Enter}
@@ -1138,7 +1154,6 @@ findAndReplaceGUI() {
 	Gui, repGUI:Add, Edit, w500 R2 gupdateRepGUI vreplaceText, 
 	Gui, repGUI:Add, Button, gReplaceButton, Replace!
 	Gui, repGUI:Add, Checkbox, yp+5 xp+65 vRegexToggle checked gupdateRepGUI, Enable regex
-;; TODO
 	Gui, repGUI:Add, Checkbox, yp+0	xp+90 vIgnoreCaseFlag checked gupdateRepGUI, IgnoreCase
 	Gui, repGUI:Add, Checkbox, yp+0	xp+90 vMultilineFlag  checked gupdateRepGUI, Multiline-mode
 	Gui, repGUI:Add, Checkbox, yp+0	xp+90 vSinglelineFlag gupdateRepGUI, Singleline 
@@ -1246,7 +1261,7 @@ _findreplaceConstructRegexFlags(ignoreCase := 1, multilineMode := 1, singleLineM
 }
 
 _makePedReport(age, Milt, LinkerNier, Lever, RechterNier) { ; Gemaakt door Johannes Devos, aangepast
-	;; TODO: toch nog iets mis met de standaardeviaties
+	;; TODO: toch nog iets mis met de standaardeviaties? Controleren.
 	Gemiddelde_Nieren := [4.48, 5.28, 6.15, 6.23, 6.65, 7.36, 7.36, 7.87, 8.09, 7.83, 8.33, 8.9, 9.2, 9.17, 9.6, 10.42, 9.79, 10.05, 10.93, 10.04, 10.53, 10.81]
 	SD_Nieren := [0.31, 0.66, 0.67, 0.63, 0.54, 0.54, 0.64, 0.5, 0.54, 0.72, 0.51, 0.88, 0.9, 0.82, 0.64, 0.87, 0.75, 0.62, 0.76, 0.86, 0.29, 1.13]
 	Gemiddelde_Milt := [53, 59, 63, 70, 75, 84, 85, 86, 97, 101, 101]
