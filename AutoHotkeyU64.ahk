@@ -12,7 +12,7 @@ init_this_file() { 				; called automatically when the script starts
 	SetWorkingDir %A_ScriptDir%
 	SetTitleMatchMode, 1 		; evt met regex (https://www.autohotkey.com/docs/commands/SetTitleMatchMode.htm)
 	global excelSavePath
-	excelSavePath := "cases.xlsx"
+	excelSavePath := A_ScriptDir . "\cases.xlsx"
 
 	initKWSHandler()
 }
@@ -40,7 +40,7 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 !SC003::MoveLineDown()
 F7::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
-::tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-GUI.ahk" ; WIP, beta versie werkt wel
+:X:tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-GUI.ahk" ; WIP, beta versie werkt wel
 :X:wervelfx::heightLossGui()
 :X:hoogteverlies::heightLossGUI()
 :X:pedabdomen::pedAbdomenTemplate() ; zou moeten werken
@@ -58,7 +58,7 @@ F9::cleanReport_KWS()
 
 ; Autoscroller (in Enterprise en IMPAX) is gemaakt door johannes. Cfr handleiding.
 #if WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")
-;; $SC003::auto_scroll(-1, "&", "é", "Space") ;; SC003 = é. From https://www.autohotkey.com/boards/viewtopic.php?t=17547
+;; $SC003::auto_scroll(-1, "&", "é", "Space") ;; SC003 = Ã©. From https://www.autohotkey.com/boards/viewtopic.php?t=17547
 ;; $^&::auto_scroll(1, "&", "é", "Space")
 
 #If WinActive("ahk_exe EXCEL.EXE") or WinActive("Google Spreadsheets - Google Chrome")

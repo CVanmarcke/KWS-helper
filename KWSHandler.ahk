@@ -28,6 +28,9 @@ initKWSHandler() {
 	;; Verwijderd de Teams cache folder: die neemt soms meer dan een GB aan data in zonder reden.
 	FileRemoveDir, P:\uzlsystem\AppData\Microsoft\Teams\Service Worker\CacheStorage, 1
 
+
+	_makeSplashText(title := "KWS-helper", text := "Started KWS-helper", time := -3000)
+
 	;; indien blockinput true is, zullen de volgende knoppen geblokkeerd worden:
 	global blockinput
 	blockinput := false

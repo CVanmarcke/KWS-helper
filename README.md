@@ -98,10 +98,10 @@ Enkele functies zijn oa:
 - een hoofdletter achter elk punt.
 - fixt dat sommige streepjes vervangen worden door een vraagteken.
 - maakt de layout ordelijk:
-  - een - voor elke zin.
-  - zinnen die beginen met een punt worden onderaan in het verslag gezet (nevenbevinding). Hetzelfde met zinnen die eindigen met een hekje (`#`)
+  - zet een `-` voor elke zin.
+  - zinnen die beginen met een punt worden onderaan in het verslag gezet (nevenbevinding). Hetzelfde met zinnen die eindigen met een hekje (`#`).
   - zinnen die eindigen met en slash (`/`) worden geindenteerd (`  . `).
-  - elke zin met `*` vooran wordt in hoofdletters gezet.
+  - elke zin met `*` vooraan wordt in hoofdletters gezet.
 - corrigeert enkele woorden:
   - "pig katheter" -> PIC katheter
   - flair, tbc, ecg -> FLAIR, TBC, ECG
