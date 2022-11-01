@@ -14,9 +14,7 @@
 ; CALLABLE FUNCTIONS
 ; --------------------------------------
 
-; TODO: Excel: op te volgen veranderen met dropdown en datum
 ; TODO: pedabdomen nog eens testen of de stddev kloppen.
-
 
 initKWSHandler() {
 	SetWorkingDir %A_ScriptDir%
@@ -46,10 +44,11 @@ initKWSHandler() {
 ; Als er een bepaalde aanpassing je niet aanstaat, kan je die lijn verwijderen.
 ;=================================================
 cleanreport(inputtext) {
-	inputtext := RegExReplace(inputtext, "m)^\: ", ". ")				; replaces : if at the front of the sentence with .
+	inputtext := RegExReplace(inputtext, "m)^\: ", ". ")				; replaces : if at the front of the sentence with (speechfout).
 	inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")				; replaces case insensitive besluit/conclusie door upper
 	inputtext := RegExReplace(inputtext, "im)^punt ", ". ")	; corrigeert speech fout dat het punt typt ipv punt (enkel in het begin van de zin)
-	if (RegExMatch(inputtext, "m)^\. ?.+(?:\R|$)") OR RegExMatch(inputtext, "m)^.+# ?.?(?:\R|$)")) { 			; only executes if there is ". " or "#" in the script
+	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.+)\/ ?(?=\R|$)", "  . $1")                          ;; Alle zinnen met / op einde krijgen " . " er voor
+	if (RegExMatch(inputtext, "m)^\. ?.+(?:\R|$)") OR RegExMatch(inputtext, "m)^.+# ?.?(?:\R|$)")) { 	; only executes if there is ". " or "#" in the script
 		inputtext := _sorttext(inputtext) ; zet alle zinnen met een punt vooraan, onder het verslag.
 	}
 	sleep, 50
@@ -57,8 +56,8 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, ": in het kader van de gekende", ": gekende") 		
 	inputtext := StrReplace(inputtext, "in het kader van", "door") 		
 	inputtext := StrReplace(inputtext, "ongewijzigd", "onveranderd", CaseSensitive := false)
-	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose") 		
-	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie") 		
+	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose") 		 ;; frequente speech fout
+	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie") 		;; frequente speech fout
 	inputtext := StrReplace(inputtext, "normale doorgankelijkheid van de", "normaal doorgankelijke") 		
 	inputtext := StrReplace(inputtext, "pig katheter", "PIC katheter") 	
 	inputtext := StrReplace(inputtext, "flair ", "FLAIR ", CaseSensitive := false) 	
@@ -92,12 +91,11 @@ cleanreport(inputtext) {
 	; inputtext := RegExReplace(inputtext, "i)gekende?", "\#\#\#")				
 	inputtext := RegExReplace(inputtext, "im)[\ \t]*supervis.*$", "") ; verwijderd supervisie.
 
-	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.+)\/ ?(?=\R|$)", "  . $1") ;; Alle zinnen met / op einde krijgen " . " er voor
 	inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2") 				; corrigeert WOord naar Woord
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
 	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
 	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 					; converts to uppercase after ., newline or newline -
-	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")					; makes sure there is a space after a colon or point...
+	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")					; makes sure there is a space after a colon or point (if not number)...
 	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
 	;;inputtext := RegExReplace(inputtext, "(?<=[\-\/])[DT](?=[1-9](?:[0-2]|[\ \:]))", "Th") ; Corrects -T10 of /D10 naar -Th10
@@ -113,6 +111,7 @@ cleanreport(inputtext) {
 	;;inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1Ã$2") 						; maakt Ã  als a tussen 2 getallen.
 	inputtext := RegExReplace(inputtext, "([\-\.]) {2,}(?=[\R\n\r\w])", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
 	inputtext := RegExReplace(inputtext, "\ +, \ +", ", ")  ; verwijdert te veel spaties rond een komma 
+	inputtext := RegExReplace(inputtext, "\x{2013}", "-")  ; veranderd het unicode streepje (– aka \x{2013}) naar een ASCII streepje. Nog niet getest.
 	return inputtext
 }
 
@@ -448,21 +447,21 @@ saveAndClose_KWS() {
 	} else if (ErrorLevel = 1) {
 		_makeSplashText(title := "Save function", text := "Try again, report was not saved", time := -2000)
 		Send, ^s
-	} else {
-		MouseGetPos, mouseX, mouseY
-		ead := _getEAD(False)
-		ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\crossActive.png
-		if (ErrorLevel = 2) {
-			_makeSplashText(title := "Save function", text := "Something went wrong looking for the close button", time := -2000)
-		} else if (ErrorLevel = 1) {
-			_makeSplashText(title := "Save function", text := "Try again, close button not found", time := -2000)
-			Send, ^s
-		}
-		MouseClick, left, FoundX + 3, FoundY + 3
-		MouseMove, mouseX, mouseY
-		_log(ead, "Opgeslagen en gesloten")
-		_makeSplashText(title := "Opgeslagen", text := "Opgeslagen.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
+		return
+	} 
+	MouseGetPos, mouseX, mouseY
+	ead := _getEAD(False)
+	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\crossActive.png
+	if (ErrorLevel = 2) {
+		_makeSplashText(title := "Save function", text := "Something went wrong looking for the close button", time := -2000)
+	} else if (ErrorLevel = 1) {
+		_makeSplashText(title := "Save function", text := "Try again, close button not found", time := -2000)
+		Send, ^s
 	}
+	MouseClick, left, FoundX + 3, FoundY + 3
+	MouseMove, mouseX, mouseY
+	_log(ead, "Opgeslagen en gesloten")
+	_makeSplashText(title := "Opgeslagen", text := "Opgeslagen.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
 }
 
 closeWithoutSaving() {
@@ -513,25 +512,27 @@ heightLossGUI() {
 	return
 }
 
-openEAD_KWS(input := "") {
-	; if no EAD number provided, tries to get it from clipboard or get it from selected text
-	if (RegExMatch(input, "[^1-9]?(\d{8})[^1-9]?", ead) == 0) {
-		tempclip := clipboard
-		clipboard := ""
+openEAD_KWS(ead := "") {
+	tempclip := clipboard
+	clipboard := ""
+	if (ead = "") {
 		Send, ^c
 		ClipWait, 1
-		if (RegExMatch(clipboard, "[^1-9]?(\d{8})[^1-9]?", ead))
-			openEAD_KWS(ead1)
+		if (RegExMatch(clipboard, "[^1-9]?(\d{8})[^1-9]?", matchEAD)) {
+			openEAD_KWS(matchEAD1)
+		}
 		clipboard := tempclip
 		return
 	}
-	clipboard := ead1
+	clipboard := ead
+	ClipWait, 1
 	if WinExist("KWS ahk_exe javaw.exe") {
 		WinActivate
 		Send, ^+z ; Hotkey voor zoek patient
 		Sleep, 400
 		Send, ^v
 		Send, {Enter}
+		clipboard := tempclip
 	}
 }
 
@@ -539,8 +540,11 @@ openLastPtInLog_KWS() {
 	global logfile
 	Loop, read, %logfile%
 		lastline := A_loopreadline
-	openEAD_KWS(lastline)
-	return
+	if (RegExMatch(lastline, "[^1-9]?(\d{8})[^1-9]?", matchEAD)) {
+		;; MsgBox, %lastline% en %matchEAD1%
+		sleep, 50 ;; needed for some reason ....
+		openEAD_KWS(matchEAD1)
+	}
 }
 
 pedAbdomenTemplate() {
@@ -670,7 +674,7 @@ KWStoExcel(excelSavePath) {
 		XL.ActiveWorkbook.SaveAs(excelSavePath)
 	}
 	;; XL := ComObjGet(excelSavePath) ;; looks for excel
-	categoryList := "|neuro|thorax|abdomen|spine|MSK|NKO|mammo"
+	categoryList := "|neuro|thorax|abdomen|spine|MSK|NKO|mammo|urogen|vasc"
 	indexCategory := 1
 	category := ""
 	if RegExMatch(reportonderzoek, "i)hersen|schedel|hypophyse") {
@@ -697,12 +701,15 @@ KWStoExcel(excelSavePath) {
 	} else if RegExMatch(reportonderzoek, "i)nier|blaas|prostaat|gyna|vrouw") {
 		indexCategory := 9
 		category := "urogen"
+	} else if RegExMatch(reportonderzoek, "i)vascul") {
+		indexCategory := 10
+		category := "vasc"
 	}
 	Gui, ExcelGUI:+LastFound
 	ExcelGuiHWND := WinExist()
 	Gui, ExcelGUI:Add, Text, x10 y10 w60 h30, % reportdatum
 	Gui, ExcelGUI:Add, Text, xp+70 yp+0 w60 h30, % ead
-	Gui, ExcelGUI:Add, DropDownList, xp+70 yp+0 w130 R1 vExcCategorySelect R9 Choose%indexCategory%, % categoryList
+	Gui, ExcelGUI:Add, DropDownList, xp+70 yp+0 w130 R1 vExcCategorySelect R10 Choose%indexCategory%, % categoryList
 	Gui, ExcelGUI:Add, Edit, x10    yp+30            R1 vExcOnderzoek, % reportonderzoek
 	Gui, ExcelGUI:Add, Text, x10    yp+40 w130 R2 , Comment
 	Gui, ExcelGUI:Add, Edit, xp+140 yp+0  w190 R2 vExcComment, 

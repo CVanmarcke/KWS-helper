@@ -88,19 +88,51 @@ Knop | functie
 
 ## Voorbeelden
 
+### Report opkuisen
+De functie `cleanReport_KWS()` (gebonden aan de knop `Alt-c`,`F9` of `F3 (Philips microfoon)`) maakt automatisch het verslag ordelijk, corrigeert frequente fouten, en zet de puntjes op de i.
+
+Enkele functies zijn oa:
+
+- zet een kleine letter achter een dubbelpunt ipv een hoofdletter (speech fout).
+- een punt op het einde van elke zin.
+- een hoofdletter achter elk punt.
+- fixt dat sommige streepjes vervangen worden door een vraagteken.
+- maakt de layout ordelijk:
+  - een - voor elke zin.
+  - zinnen die beginen met een punt worden onderaan in het verslag gezet (nevenbevinding). Hetzelfde met zinnen die eindigen met een hekje (`#`)
+  - zinnen die eindigen met en slash (`/`) worden geindenteerd (`  . `).
+  - elke zin met `*` vooran wordt in hoofdletters gezet.
+- corrigeert enkele woorden:
+  - "pig katheter" -> PIC katheter
+  - flair, tbc, ecg -> FLAIR, TBC, ECG
+  - hili -> hila
+  - bekend -> gekend
+  - segment I tot VIII -> segment 1 tot 8
+  - fascikels graag -> Fazekas graad
+
 ### KWS to excel
 ![KWS to excel example](images/KWS-to-excel-example.jpg)
+
 Standaard shortcut is `Ctrl-e`
-Het EAD, datum, subdiscipline, klinische inlichtingen, en diagnostische vraagstelling worden automatisch ingevuld.
+
+Het EAD, de datum, subdiscipline, klinische inlichtingen, en diagnostische vraagstelling worden automatisch ingevuld.
+
 De locatie van het excel bestand kan veranderd worden in het bestand `AutohotkeyU64.ahk`.
-Kan vervolgens in Excel gecombineerd worden `OpenEADKWS()`(standaard shortcut is `Ctrl-o`) om snel de patient opnieuw te openen
+
+Kan vervolgens in Excel gecombineerd worden met `OpenEADKWS()`(standaard shortcut is `Ctrl-o`) om snel de patient opnieuw te openen
+
+### TIRADS calculator
+Typ `tiradsnodule` in het verslag. Een popup zal verschijnen waarin je de TIRADS score kan berekenen, met automatisch een gestructureerde tekst om in het verslag te plakken.
+
+TODO: voorbeeldje
+
+### Pediatrie Abdomen
+Typ `pedabdomen` in het verslag.
+
+Het script zal automatisch de standaarddeviaties berekenen op basis van de leeftijd, en het verslag in KWS plakken.
 
 ### Find and replace
 ![Find and replace example](images/Find-and-replace-example.jpg)
-
-### TIRADS calculator
-
-### Pediatrie Abdomen
 
 ### Height Loss Gui
 
