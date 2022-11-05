@@ -6,11 +6,11 @@
 #Include SpeechDetector.ahk
 #Include AHKHID.ahk
 
-init_this_file() { 				; called automatically when the script starts
+init_this_file() {				; called automatically when the script starts
 	static _ := init_this_file()
-	SendMode Input  			; Recommended for new scripts due to its superior speed and reliability.
+	SendMode Input			; Recommended for new scripts due to its superior speed and reliability.
 	SetWorkingDir %A_ScriptDir%
-	SetTitleMatchMode, 1 		; evt met regex (https://www.autohotkey.com/docs/commands/SetTitleMatchMode.htm)
+	SetTitleMatchMode, 1		; evt met regex (https://www.autohotkey.com/docs/commands/SetTitleMatchMode.htm)
 	global excelSavePath
 	excelSavePath := A_ScriptDir . "\cases.xlsx"
 
@@ -37,7 +37,7 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 !d::deleteLine()
 !x::Send {Backspace}       ; Alt-x
 !&::MoveLineUp()
-!SC003::MoveLineDown()
+!SC003::MoveLineDown() ;; SC003 = é
 F7::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
 :X:tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-GUI.ahk" ; WIP, beta versie werkt wel
@@ -48,7 +48,7 @@ F9::cleanReport_KWS()		; verslag cleaner
 ;; Hotkeys die enkel werken als PACS of patientscherm KWS in focus is.
 #If WinActive("KWS ahk_exe javaw.exe") or (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")))
 F7::copyLastReport_KWS()
-F9::cleanReport_KWS() 
+F9::cleanReport_KWS()
 !v::validateAndClose_KWS() ; Alt-v
 !s::saveAndClose_KWS()     ; Alt-s
 ^s::saveAndClose_KWS()     ; Ctrl-s
@@ -58,7 +58,7 @@ F9::cleanReport_KWS()
 
 ; Autoscroller (in Enterprise en IMPAX) is gemaakt door johannes. Cfr handleiding.
 #if WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")
-;; $SC003::auto_scroll(-1, "&", "é", "Space") ;; SC003 = Ã©. From https://www.autohotkey.com/boards/viewtopic.php?t=17547
+;; $SC003::auto_scroll(-1, "&", "é", "Space") ;; SC003 = é. From https://www.autohotkey.com/boards/viewtopic.php?t=17547
 ;; $^&::auto_scroll(1, "&", "é", "Space")
 
 #If WinActive("ahk_exe EXCEL.EXE") or WinActive("Google Spreadsheets - Google Chrome")
@@ -77,18 +77,20 @@ Numpad6::F7
 ; Keybindings voor de philips speechdevice
 ; Kan wat complex zijn, je mag altijd zelf wat experimenteren. Bottom line is dat codes voor de knoppen vanonder staan, en je gewoon bij de switch-statement een lijn bij moet voegen of veranderderen afhankdelijk wat je wil.
 ; ===========================================
-PassHotkey(keypressed) { 
-	; Filter last 4 numbers of Keypressed to account for variants (however picked up and release will not be able to be differentiated.
+PassHotkey(keypressed) {
+	;; only use last 4 numbers of keypressed
+	;; 2 versies van philips speech devices, waarbij de laatste 4 digits van de code hetzelfde zijn.
+	;; de "picked up" en "key release" kunnen zo wel niet onderscheiden worden
 	keypressed := SubStr(keypressed, StrLen(keypressed)-3)
 	Switch Keypressed {
-		Case "0010": 	; back button
-		MoveLineUp()
+		Case "0010":	; back button
+			MoveLineUp()
 		Case "0008":	; forward button
-		MoveLineDown() 
+			MoveLineDown()
 		Case "0004":		; Play/Pause
-		Send {BackSpace}
+			Send {BackSpace}
 		Case "0000":
-		Send {Ctrl Up}
+			Send {Ctrl Up}
 	}
 	If WinActive("KWS ahk_exe javaw.exe") {
 		Switch keypressed {
@@ -105,7 +107,7 @@ PassHotkey(keypressed) {
 			Case "0800":		; F3
 				cleanReport_KWS()
 			Case "1000":		; F4
-				Send ^{F8}	
+				Send ^{F8}
 		}
 	} else if (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe"))){
 		Switch keypressed {
@@ -131,7 +133,7 @@ PassHotkey(keypressed) {
 
 /*
 ; Key codes (last 4 digits) of the Philips Speech device
-0020 	; EOL
+0020	; EOL
 0080	; -i-
 0040	; INS
 0010	; Back
