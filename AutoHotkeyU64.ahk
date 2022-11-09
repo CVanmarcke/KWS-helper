@@ -44,6 +44,8 @@ F9::cleanReport_KWS()		; verslag cleaner
 :X:wervelfx::heightLossGui()
 :X:hoogteverlies::heightLossGUI()
 :X:pedabdomen::pedAbdomenTemplate() ; zou moeten werken
+:X:calcRI::RIcalculatorGUI()
+:X:RIcalc::RIcalculatorGUI()
 
 ;; Hotkeys die enkel werken als PACS of patientscherm KWS in focus is.
 #If WinActive("KWS ahk_exe javaw.exe") or (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")))

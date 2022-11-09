@@ -15,6 +15,7 @@
 ; --------------------------------------
 
 ; TODO: pedabdomen nog eens testen of de stddev kloppen.
+; TODO: RI calc
 
 initKWSHandler() {
 	SetWorkingDir %A_ScriptDir%
@@ -27,7 +28,6 @@ initKWSHandler() {
 
 	;; Verwijderd de Teams cache folder: die neemt soms meer dan een GB aan data in zonder reden.
 	FileRemoveDir, P:\uzlsystem\AppData\Microsoft\Teams\Service Worker\CacheStorage, 1
-
 
 	_makeSplashText(title := "KWS-helper", text := "Started KWS-helper", time := -3000)
 
@@ -56,6 +56,7 @@ cleanreport(inputtext) {
 	}
 	sleep, 50
 	inputtext := StrReplace(inputtext, "bekend", "gekend", CaseSensitive := false)
+	inputtext := StrReplace(inputtext, "formaliteit", "voor maligniteit")
 	inputtext := StrReplace(inputtext, ": in het kader van de gekende", ": gekende") 		
 	inputtext := StrReplace(inputtext, "in het kader van", "door") 		
 	inputtext := StrReplace(inputtext, "ongewijzigd", "onveranderd", CaseSensitive := false)
@@ -212,7 +213,7 @@ copyLastReport_KWS() {
 	MouseClick, left, FoundX+100, FoundY+200
 	sleep, 100
 	Send, ^a
-	Send, ^c
+	Send, {Ctrl down}c{Ctrl up} ;; zou ook reliablity verhogen
 	Clipwait, 1
 	oldreportunclean := clipboard			; zet variabele gelijk aan clipboard
 
@@ -371,7 +372,7 @@ onveranderdMetVorigVerslag() {
 	}
 	MouseClick, left, FoundX+100, FoundY+200
 	Send, ^a
-	Send, ^c
+	Send, {Ctrl down}c{Ctrl up} ;; zou ook reliablity verhogen
 	Clipwait, 1
 	oldreportunclean := clipboard			; zet variabele gelijk aan clipboard
 	clipboard := ""
@@ -515,27 +516,53 @@ heightLossGUI() {
 	return
 }
 
+RIcalculatorGUI() {
+	Global vel1
+	Global vel2
+	Gui, RIcalc:+LastFound
+	GuiHWND := WinExist()
+
+	Gui, RIcalc:Add , Text  ,        , Calculate RI from PSV and EDV
+	Gui, RIcalc:Add , Edit  , vvel1,
+	Gui, RIcalc:Add , Edit  , vvel2,
+	Gui, RIcalc:Add , Button, Default, OK
+	Gui, RIcalc:Show, , RI calculator
+	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
+	WinActivate, KWS ahk_exe javaw.exe
+	sleep, 50
+	return _KWS_PasteToReport(result, false)               	;--returning value
+	;-------
+	RIcalcButtonOK:
+	  GuiControlGet, v1, , vel1
+	  GuiControlGet, v2, , vel2
+	  RI := _calcRI(v1, v2)
+	  result := "PSV: " . Max(v1, v2) . " cm/s; RI " . RI[1]
+	  Gui, RIcalc:Destroy
+	return
+	;-------
+	RIcalcGuiEscape:
+	RIcalcGuiClose:
+	  result := ""
+	  Gui, RIcalc:Destroy
+	return
+}
 openEAD_KWS(ead := "") {
-	tempclip := clipboard
-	clipboard := ""
-	if (ead = "") {
-		Send, ^c
-		ClipWait, 1
-		if (RegExMatch(clipboard, "[^1-9]?(\d{8})[^1-9]?", matchEAD)) {
-			openEAD_KWS(matchEAD1)
-		}
-		clipboard := tempclip
-		return
-	}
-	clipboard := ead
-	ClipWait, 1
-	if WinExist("KWS ahk_exe javaw.exe") {
-		WinActivate
+	if RegExMatch(ead, "[^1-9]?(\d{8})[^1-9]?", matchEAD) {
+		clipboard := ""
+		sleep 100 ;; 100 werkt dacht ik
+		clipboard := matchEAD1
+		clipWait, 1
+		WinActivate, KWS ahk_exe javaw.exe
 		Send, ^+z ; Hotkey voor zoek patient
 		Sleep, 400
-		Send, ^v
+		Send, {Ctrl down}v{Ctrl up}
 		Send, {Enter}
-		clipboard := tempclip
+	} else if (ead = "") {
+		clipboard := ""
+		sleep 100 ;; 150 werkt, te zien of lager werk
+		Send, {Ctrl down}c{Ctrl up} ;; zou ook reliablity verhogen
+		ClipWait, 1
+		openEAD_KWS(clipboard)
 	}
 }
 
@@ -695,7 +722,7 @@ KWStoExcel(excelSavePath) {
 	} else if RegExMatch(reportonderzoek, "i)knie|schouder|heup|arm|been|pols") {
 		indexCategory := 6
 		category := "MSK"
-	} else if RegExMatch(reportonderzoek, "i)oor|hals") {
+	} else if RegExMatch(reportonderzoek, "i)oor|hals|rots|schild|speeksel") {
 		indexCategory := 7
 		category := "NKO"
 	} else if RegExMatch(reportonderzoek, "i)mammo|borst") {
@@ -859,7 +886,7 @@ _KWS_CopyReportToClipboard(selectReportBox := True) {
 	}
 	clipboard := ""             			; maakt het clipboard leeg 
 	Send, ^a                    			; select all
-	Send, ^c                    			; copy
+	Send, {Ctrl down}c{Ctrl up} ;; zou ook reliablity verhogen
 	_BlockUserInput(false)
 	ClipWait, 1                 			; wacht tot er data in het clipboard is
 	if (ErrorLevel)             			; als NOT, is er data in clipboard
@@ -1020,6 +1047,12 @@ _destroySplash() {
 	Gui, splashGui:Destroy
 }
 
+_calcRI(v1, v2) {
+	absolute := Round((Max(v1,v2) - Min(v1,v2)) / Max(v1,v2), 2)
+	percentage := Round(((Max(v1,v2) - Min(v1,v2)) / Max(v1,v2)) * 100, 1)
+	return [absolute, percentage]
+}
+
 _calcHeightLoss(h1, h2) {
 	absolute := Max(h1,h2) - Min(h1,h2)
 	percentage := Round((1 - (Min(h1,h2) / Max(h1,h2))) * 100)
@@ -1143,7 +1176,7 @@ _MouseIsOver(vWinTitle:="", vWinText:="", vExcludeTitle:="", vExcludeText:="") {
 findAndReplaceGUI() {
 	WinGet, active_id, ID, A ;; gets the window where the script was activated
 	clipboard := ""
-	Send, ^c
+	Send, {Ctrl down}c{Ctrl up} ;; zou ook reliablity verhogen
 	ClipWait, 1
 	originalText := clipboard
 	global repTextBox
