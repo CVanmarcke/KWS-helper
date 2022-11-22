@@ -3,7 +3,7 @@
 ;     		Luie radiologen TIRADS hulpje			*
 ;		TIRADS calculator + verslag maker 		*
 ;								*
-;**************************************************************** 
+;****************************************************************
 ;								*
 ; 	Auteur: Cedric Vanmarcke				*
 ; 								*
@@ -22,10 +22,10 @@ Gui, Add, DropDownList, xp+10 yp+20 w70 vSide gCheck, linker|rechter|isthmus
 Gui, Add, DropDownList, xp+80 w80 vLocation gCheck, bovenpool|middenpool|onderpool
 
 Gui, Add, GroupBox, x10 w300 R6, Characteristics
-Gui, Add, DropDownList, xp+10 yp+20 w250 vComposition gCheck Choose1, Cystisch (0 punten)|Spongiform (0 punten)|Gemengd cystisch en solide (1 punt)|solide of bijna volledig solid (2 punten)
-Gui, Add, DropDownList, w100 w250 vEchogenicity gCheck Choose1, Anechogeen (0 punten)|Hyperechogeen of isoechogeen (1 punt)|Hypoechogeen (2 punten)|Zeer hypoechogeen (3 punten)
-Gui, Add, DropDownList, w100 w250 vShape gCheck Choose1, Wider-than-tall (0 punten)|Taller-than-wide (3 punten)
-Gui, Add, DropDownList, w100 w250 vMargin gCheck Choose1, Scherp en glad (0 punten)|Wazig afgelijnd (0 punten)|Gelobuleerd of onregelmatig (2 punten)|Extra-thyroidale extensie (3 punten)
+Gui, Add, DropDownList, xp+10 yp+20 w250 vComposition gCheck Choose1, cystisch (0 punten)|spongiform (0 punten)|gemengd cystisch en solide (1 punt)|solide of bijna volledig solid (2 punten)
+Gui, Add, DropDownList, w100 w250 vEchogenicity gCheck Choose1, anechogeen (0 punten)|hyperechogeen of isoechogeen (1 punt)|hypoechogeen (2 punten)|zeer hypoechogeen (3 punten)
+Gui, Add, DropDownList, w100 w250 vShape gCheck Choose1, wider-than-tall (0 punten)|taller-than-wide (3 punten)
+Gui, Add, DropDownList, w100 w250 vMargin gCheck Choose1, scherp en glad (0 punten)|wazig afgelijnd (0 punten)|gelobuleerd of onregelmatig (2 punten)|extra-thyroidale extensie (3 punten)
 
 
 Gui, Add, GroupBox, x10 w300 r4, Echogenic Foci (check all that apply)
@@ -40,7 +40,7 @@ Gui, Add, Edit, xp+10 yp+20 w30 Number vSizeML gCheck,
 Gui, Add, Edit, xp+40 yp+0 w30 Number vSizeAP gCheck,
 Gui, Add, Edit, xp+40 yp+0 w30 Number vSizeCC gCheck,
 
-Gui, Add, Text, x20 yp+30 vTiradsGradeText HwndTiradsGradeText, TI-RADS grade: 0   
+Gui, Add, Text, x20 yp+30 vTiradsGradeText HwndTiradsGradeText, TI-RADS grade: 0
 
 ;; TODO: knop: add new nodule, wordt dan aan lijst toegevoegd en reset.
 Gui, Add, Button, x10 w145 h40 gAddNoduleButton, Add another nodule
@@ -103,8 +103,8 @@ return
 ButtonOK:
 clipboard := constructReport(NoduleList)
 if WinExist("KWS ahk_exe javaw.exe")
-	WinActivate 
-Send, ^v 
+	WinActivate
+Send, ^v
 ExitApp
 
 InsertButton:
@@ -112,8 +112,8 @@ Clipboard := ""
 clipboard := constructReport(NoduleList)
 ClipWait, 1
 if WinExist("KWS ahk_exe javaw.exe")
-	WinActivate 
-Send, ^v 
+	WinActivate
+Send, ^v
 ;; TODO: Aanpassen als filename veranderd
 Winactivate, TIRADSv2.ahk
 return
@@ -135,9 +135,9 @@ GuiControl,, Foci1, 0
 GuiControl,, Foci2, 0
 GuiControl,, Foci3, 0
 GuiControl,, Foci4, 0
-GuiControl,, SizeML, 
-GuiControl,, SizeAP, 
-GuiControl,, SizeCC, 
+GuiControl,, SizeML,
+GuiControl,, SizeAP,
+GuiControl,, SizeCC,
 Send, +{tab}
 GuiControl, Focus, Side
 return
@@ -166,9 +166,10 @@ if (Foci3)
 if (Foci4)
 	Description .= Possibilities[5,4]
 
+Tirads_sum := 0
 Pos := 1
-While Pos := RegExMatch(Description, "(\d+)", Match, Pos + StrLen(Match)) {
-	Tirads_sum += Match
+While Pos := RegExMatch(Description, "\((\d+)", Match, Pos + StrLen(Match)) {
+	Tirads_sum += Match1
 }
 
 Switch

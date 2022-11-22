@@ -43,11 +43,14 @@ findAndReplaceGUI() | `Ctrl-r` | Selecteer de tekst om een "find and replace" fu
 openLastPtInLog_KWS() | `openlastpt` | Typ de shortcut eender waar om de laatste patiënt gesloten via `validateAndClosePt_KWS` of `saveAndClosePt_KWS` opnieuw te openen. 
 pedAbdomenTemplate() | `pedabdomen` | Typ de shortcut om een venster te openen waar de lengte van de lever, milt en nieren in ingevuld kunnen worden, waarna automatisch een verslag met ingevulde standaarddeviaties geplakt zal worden. Origineel gemaakt door Johannes Devos.
 MoveLineUp() | `Alt-&` of `Ctrl-↑`<br />`rewind (speechkit)` | Verplaatst de huidige lijn één lijn naar boven (wisselt de huidige lijn met de lijn er net boven).
-MoveLineDown() | `Alt-é`, `Ctrl-↓`<br />`forward (speechkit)` | Verplaatst de huidige lijn één lijn naar onder (wisselt de huidige lijn met de lijn er net onder).
+MoveLineDown() | `Alt-é` of `Ctrl-↓`<br />`forward (speechkit)` | Verplaatst de huidige lijn één lijn naar onder (wisselt de huidige lijn met de lijn er net onder).
 deleteLine() | `Alt-d` of `Ctrl-d` | Verwijdert de huidige lijn. 
 auto_scroll() | `Ctrl-&` of `Ctrl-é` | Start automatisch met scrollen in het venster waar de muis in staat (Enterprise of IMPAX). Vertragen met `&` en versnellen met `é`, omkeren van richting met `space`. Gemaakt door Johannes Devos.
 KWStoExcel(padNaarExcelBestand) | `Ctrl-e` | Voegt de patientEAD, datum, onderzoekstype, ... automatisch toe aan een excel bestand. Handig om snel een casus bij te houden om op te volgen.
 openEAD_KWS() | `Ctrl-o` | In excel (of in Google Spreadsheet), open automatisch het geselecteerde EAD nummer in KWS.
+VolumeCalculator() | `volcalc`<br />`calcvol` | Typ de shortcut om automatisch het volume te berekenen van de hoogte, lengte en breedte.
+RIcalculatorGUI() | `ricalc`<br />`calcri` | Typ de shortcut om automatisch het volume te berekenen van de hoogte, lengte en breedte.
+TIRADS calculator (versie 2) | `tirads2` | Typ de shortcut om een tool te openen waarmee de TIRADS score van meerdere noduli can worden uitgerekend, en waarvan dan automatisch een verslag met conclusie kan worden gemaakt. [Voorbeeld hier](### TIRADS calculator)
 
 
 ## Speechkit knoppen
@@ -122,9 +125,9 @@ De locatie van het excel bestand kan veranderd worden in het bestand `Autohotkey
 Kan vervolgens in Excel gecombineerd worden met `OpenEADKWS()`(standaard shortcut is `Ctrl-o`) om snel de patient opnieuw te openen
 
 ### TIRADS calculator
-Typ `tiradsnodule` in het verslag. Een popup zal verschijnen waarin je de TIRADS score kan berekenen, met automatisch een gestructureerde tekst om in het verslag te plakken.
+Typ `tirads2` in het verslag (nota: er is ook een oudere versie die geopend kan worden met `tiradsnodule`). Een popup zal verschijnen waarin je de TIRADS score kan berekenen, met automatisch een gestructureerde tekst om in het verslag te plakken.
 
-TODO: voorbeeldje
+![TI-RADS nodule voorbeeld](images/TIRADS-nodule-example.jpg)
 
 ### Pediatrie Abdomen
 Typ `pedabdomen` in het verslag.
