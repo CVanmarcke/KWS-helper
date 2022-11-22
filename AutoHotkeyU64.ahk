@@ -41,6 +41,7 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 F7::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
 :X:tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-GUI.ahk" ; WIP, beta versie werkt wel
+:X:tirads2::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-v2.ahk"
 :X:wervelfx::heightLossGui()
 :X:hoogteverlies::heightLossGUI()
 :X:pedabdomen::pedAbdomenTemplate() ; zou moeten werken
