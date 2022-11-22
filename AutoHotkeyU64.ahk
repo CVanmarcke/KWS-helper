@@ -42,11 +42,13 @@ F7::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
 :X:tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-GUI.ahk" ; WIP, beta versie werkt wel
 :X:tirads2::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-v2.ahk"
+:X:pedabdomen::pedAbdomenTemplate()
 :X:wervelfx::heightLossGui()
 :X:hoogteverlies::heightLossGUI()
-:X:pedabdomen::pedAbdomenTemplate() ; zou moeten werken
 :X:calcRI::RIcalculatorGUI()
 :X:RIcalc::RIcalculatorGUI()
+:X:volcalc::VolumeCalculator()
+:X:calcvol::VolumeCalculator()
 
 ;; Hotkeys die enkel werken als PACS of patientscherm KWS in focus is.
 #If WinActive("KWS ahk_exe javaw.exe") or (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")))

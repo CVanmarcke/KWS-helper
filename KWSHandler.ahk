@@ -101,7 +101,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 					; converts to uppercase after ., newline or newline -
 	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")					; makes sure there is a space after a colon or point (if not number)...
 	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
-	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
+;;	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
 	;;inputtext := RegExReplace(inputtext, "(?<=[\-\/])[DT](?=[1-9](?:[0-2]|[\ \:]))", "Th") ; Corrects -T10 of /D10 naar -Th10
 	;;inputtext := RegExReplace(inputtext, "(?<=\ )[DT](?=[1-9][0-2]?[\-\/])", "Th") ; Corrects T10- naar Th10
 	;;inputtext := RegExReplace(inputtext, "([CThD]\d{1,2}[\/-])[TD](?=\d{1,2})", "$1Th") 			; corrects T1/X to Th1 TODO: werkt niet T11-L3
@@ -110,7 +110,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3") 			; corrects d/m/y tot d-m-y
 	inputtext := RegExReplace(inputtext, "([\n\r\.]) +(?=[\n\r])", "$1")  ; zorgt dat er geen spatie achter . of op nieuwe lijn komt
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n") 											; replaces triple+ newline with double
-	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\"")(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS)", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
+	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\"")(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
 	inputtext := RegExReplace(inputtext, "(CONCLUSIE:[\n\r\R])\-\ (.+)(?:[\n\r\R]|$)(?!-)", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten. WERKT NOG NIET
 	;;inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1Ã$2") 						; maakt Ã  als a tussen 2 getallen.
 	inputtext := RegExReplace(inputtext, "([\-\.]) {2,}(?=[\R\n\r\w])", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
@@ -516,6 +516,41 @@ heightLossGUI() {
 	return
 }
 
+
+VolumeCalculator() {
+	Global volX
+	Global volY
+	Global volZ
+	Gui, volCalc:+LastFound
+	GuiHWND := WinExist()
+	Gui, volCalc:Add , Text  ,        , X, Y and Z
+	Gui, volCalc:Add , Edit  , vvolX,
+	Gui, volCalc:Add , Edit  , vvolY,
+	Gui, volCalc:Add , Edit  , vvolZ,
+	Gui, volCalc:Add , Button, Default, OK
+	Gui, volCalc:Show, , Volume calculator
+	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
+	WinActivate, KWS ahk_exe javaw.exe
+	sleep, 50
+	return _KWS_PasteToReport(volume, false)               	;--returning value
+	;-------
+	volCalcButtonOK:
+	  GuiControlGet, x, , volX
+	  GuiControlGet, y, , volY
+	  GuiControlGet, z, , volZ
+	  volume := Round(x * y * z * 0.52, 1)
+	  ;MsgBox, %x% %y% %z% en volume: %volume%
+	  Gui, volCalc:Destroy
+	return
+	;-------
+	volCalcGuiEscape:
+	volCalcGuiClose:
+	  result := ""
+	  Gui, volCalc:Destroy
+	return
+}
+
+
 RIcalculatorGUI() {
 	Global vel1
 	Global vel2
@@ -578,8 +613,11 @@ openLastPtInLog_KWS() {
 }
 
 pedAbdomenTemplate() {
+	;; TODO: nieren SD werden niet gedaan bij eentje van 7d
 	;; Gemaakt door Johannes Devos, aangepast door CV.
 	;; ptdata := _KWS_GetDemographicDataPatient()
+	global age, milt, linkerNier, lever, rechterNier
+	global SDmilt, SDliNier, SDlever, SDreNier
 	result := ""
 	birthdate := _getBirthDate(returnMouse := true)
 	birthdate := RegExReplace(birthdate, "(\d{2}).(\d{2}).(\d{4})", "$3$2$1")
@@ -589,11 +627,9 @@ pedAbdomenTemplate() {
 	year := age[1]
 	months := age[2]
 	days := age[3]
-	global milt, linkerNier, lever, rechterNier
 
 	Gui, pedAbdGui:+LastFound
 	GuiHWND := WinExist()
-	Gui, pedAbdGui:Add, Text, x2 y-1 w140 h20 , Patiëntennaam: 
 	Gui, pedAbdGui:Add, Text, x2 y19 w140 h20 , Leeftijd:
 	Gui, pedAbdGui:Add, Text, x42 y39 w100 h20 , Jaar:
 	Gui, pedAbdGui:Add, Text, x42 y59 w100 h20 , Maand:
@@ -606,12 +642,16 @@ pedAbdomenTemplate() {
 	Gui, pedAbdGui:Add, Text, x2 y129 w130 h20 , Linkernier (mm):
 	Gui, pedAbdGui:Add, Text, x2 y149 w130 h20 , Leverspan (mm):
 	Gui, pedAbdGui:Add, Text, x2 y169 w130 h20 , Rechternier (mm):
-	Gui, pedAbdGui:Add, Edit, x132 y109 w100 h20 vmilt, 0
-	Gui, pedAbdGui:Add, Edit, x132 y129 w100 h20 vlinkerNier, 0
-	Gui, pedAbdGui:Add, Edit, x132 y149 w100 h20 vlever, 0
-	Gui, pedAbdGui:Add, Edit, x132 y169 w100 h20 vrechterNier, 0
-	Gui, pedAbdGui:Add, Button, x2 y199 w370 h30 Default, OK
-	Gui, pedAbdGui:Show, x759 y391 h236 w379, Echografie Pediatrie Afmetingen
+	Gui, pedAbdGui:Add, Edit, x132 y109 w100 h20 vmilt gpedAbdGuiRefresh, 0
+	Gui, pedAbdGui:Add, Edit, x132 y129 w100 h20 vlinkerNier gpedAbdGuiRefresh, 0
+	Gui, pedAbdGui:Add, Edit, x132 y149 w100 h20 vlever gpedAbdGuiRefresh, 0
+	Gui, pedAbdGui:Add, Edit, x132 y169 w100 h20 vrechterNier gpedAbdGuiRefresh, 0
+	Gui, pedAbdGui:Add, Text, x242 y109 w30 h20 vSDmilt hwndSDmilt, 0
+	Gui, pedAbdGui:Add, Text, x242 y129 w30 h20 vSDliNier hwndSDliNier, 0
+	Gui, pedAbdGui:Add, Text, x242 y149 w30 h20 vSDlever hwndSDlever, 0
+	Gui, pedAbdGui:Add, Text, x242 y169 w30 h20 vSDreNier hwndSDreNier, 0
+	Gui, pedAbdGui:Add, Button, x2 y199 w300 h30 Default, OK
+	Gui, pedAbdGui:Show, x759 y391 h236 w305, Echografie Pediatrie Afmetingen
 	WinWaitClose, ahk_id %GuiHWND%  		; waiting for gui to close
 	WinActivate, KWS ahk_exe javaw.exe 
 	if (result != "")
@@ -628,6 +668,17 @@ pedAbdGuiEscape:
 pedAbdGuiClose:
 	result := ""
 	Gui, pedAbdGui:Destroy
+	return
+pedAbdGuiRefresh:
+	GuiControlGet, milt
+	GuiControlGet, linkerNier
+	GuiControlGet, lever
+	GuiControlGet, rechterNier
+	SDs := _getStandardDevsPedAbd(age, milt, linkerNier, lever, rechterNier)
+	GuiControl, Text, %SDmilt%, % SDs[3]
+	GuiControl, Text, %SDliNier%, % SDs[1]
+	GuiControl, Text, %SDlever%, % SDs[4]
+	GuiControl, Text, %SDreNier%, % SDs[2]
 	return
 }
 
@@ -710,10 +761,10 @@ KWStoExcel(excelSavePath) {
 	if RegExMatch(reportonderzoek, "i)hersen|schedel|hypophyse") {
 		indexCategory := 2
 		category := "neuro"
-	} else if RegExMatch(reportonderzoek, "i)abdomen") {
+	} else if RegExMatch(reportonderzoek, "i)abdomen|lever|pancreas") {
 		indexCategory := 4
 		category := "abdomen"
-	} else if RegExMatch(reportonderzoek, "i)thorax|longen") {
+	} else if RegExMatch(reportonderzoek, "i)thorax|longen|embol") {
 		indexCategory := 3
 		category := "thorax"
 	} else if RegExMatch(reportonderzoek, "i)wervel") {
@@ -918,7 +969,7 @@ _KWS_PasteToReport(text, overwrite := true) {
 			Send, ^a
 			sleep 50
 		}
-		Send, ^v 
+		Send, {Ctrl down}v{Ctrl up} ;; zou ook reliablity verhogen
 		Sleep 50
 		if WinExist("Foutboodschap JavaKWS") { ; Fixes "could not access clipboard"
 			WinActivate
@@ -1304,6 +1355,13 @@ _findreplaceConstructRegexFlags(ignoreCase := 1, multilineMode := 1, singleLineM
 }
 
 _makePedReport(age, Milt, LinkerNier, Lever, RechterNier) { ; Gemaakt door Johannes Devos, aangepast
+	Result := _getStandardDevsPedAbd(age, Milt, LinkerNier, Lever, RechterNier)
+	SetFormat, Float, 0.1
+	Verslag := "Normale ligging van de retroperitoneale grote vaten.`nNormale ligging van de organen.`n`nLeverspan: " . Lever/10 . " cm (SD: " . Result[4] . ").`nHomogeen leverparenchym met normale reflectiviteit.`nNormale portahoofdstam en intrahepatische portatakken.`nNormale hepatische venen met normale hepatofugale flow.`nNormale hepatopetale portale flow.`nNormale flow in de a. hepatica.`nGeen gedilateerde intrahepatische of extrahepatische galwegen aangetoond.`nNormale galblaas.`nNormale pancreas. Geen visualisatie van de ductus van Wirsung.`nMilt: " . Milt/10 . " cm (SD: " . Result[3] . ").`nNormale milt.`n`nNormale bijnieren en bijnierloges.`nLinkernier: " . Linkernier/10 . " cm (SD: " . Result[1] . ").`nRechternier: " . Rechternier/10 . " cm (SD: " . Result[2] . ").`nNormale reflectiviteit van het nierparenchym met corticomedullaire differentiatie.`nGeen hydro-ureteronefrose.`nNormale blaasvulling.`nNormale aflijning en dikte van de blaaswand.`n`nNormale ligging van de A. en V. Mesenterica Superior.`nGeen adenopathieen aangetoond.`nNormale darmwanden.`n###Normaal terminale ileum.`n###Normale appendix.`n`nCONCLUSIE:`n###`n`nGECOMMUNICEERDE DRINGENDE BEVINDINGEN:`n"
+	return Verslag
+}
+
+_getStandardDevsPedAbd(age, Milt, LinkerNier, Lever, RechterNier) {
 	;; TODO: toch nog iets mis met de standaardeviaties? Controleren.
 	Gemiddelde_Nieren := [4.48, 5.28, 6.15, 6.23, 6.65, 7.36, 7.36, 7.87, 8.09, 7.83, 8.33, 8.9, 9.2, 9.17, 9.6, 10.42, 9.79, 10.05, 10.93, 10.04, 10.53, 10.81]
 	SD_Nieren := [0.31, 0.66, 0.67, 0.63, 0.54, 0.54, 0.64, 0.5, 0.54, 0.72, 0.51, 0.88, 0.9, 0.82, 0.64, 0.87, 0.75, 0.62, 0.76, 0.86, 0.29, 1.13]
@@ -1385,9 +1443,7 @@ _makePedReport(age, Milt, LinkerNier, Lever, RechterNier) { ; Gemaakt door Johan
 		Result[3] := (Milt - Gemiddelde_Milt[11])/SD_Milt[11]
 		Result[4] := (Lever - Gemiddelde_Lever[11])/SD_Lever[11]
 	}
-	SetFormat, Float, 0.1
-	Verslag := "Normale ligging van de retroperitoneale grote vaten.`nNormale ligging van de organen.`n`nLeverspan: " . Lever/10 . " cm (SD: " . Result[4] . ").`nHomogeen leverparenchym met normale reflectiviteit.`nNormale portahoofdstam en intrahepatische portatakken.`nNormale hepatische venen met normale hepatofugale flow.`nNormale hepatopetale portale flow.`nNormale flow in de a. hepatica.`nGeen gedilateerde intrahepatische of extrahepatische galwegen aangetoond.`nNormale galblaas.`nNormale pancreas. Geen visualisatie van de ductus van Wirsung.`nMilt: " . Milt/10 . " cm (SD: " . Result[3] . ").`nNormale milt.`n`nNormale bijnieren en bijnierloges.`nLinkernier: " . Linkernier/10 . " cm (SD: " . Result[1] . ").`nRechternier: " . Rechternier/10 . " cm (SD: " . Result[2] . ").`nNormale reflectiviteit van het nierparenchym met corticomedullaire differentiatie.`nGeen hydro-ureteronefrose.`nNormale blaasvulling.`nNormale aflijning en dikte van de blaaswand.`n`nNormale ligging van de A. en V. Mesenterica Superior.`nGeen adenopathieën aangetoond.`nNormale darmwanden.`n###Normaal terminale ileum.`n###Normale appendix.`n`nCONCLUSIE:`n###`n`nGECOMMUNICEERDE DRINGENDE BEVINDINGEN:`n"
-	return Verslag
+	return Result
 }
 
 _CalcAge(FromDay,ToDay) {   ;Age calculation function
