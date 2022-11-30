@@ -61,6 +61,13 @@ F9::cleanReport_KWS()
 !r::copyLastReport_KWS()   ; Alt-r
 !g::onveranderdMetVorigVerslag()   ; Alt-g
 
+#If WinActive("ahk_class SunAwtDialog ahk_exe javaw.exe") or WinActive("KWS ahk_exe javaw.exe")
+;; Wanneer "vdg", "vmg" of "vwk" worden getypt zal een datumvork worden ingevoerd
+;; Handig bij bijvoorbeeld het aanvaardingen scherm of querry's
+:X*b0:vdg::insertDatePeriod(0)
+:X*b0:vmg::insertDatePeriod(1)
+:X*b0:vwk::insertDatePeriod(7)
+
 ; Autoscroller (in Enterprise en IMPAX) is gemaakt door johannes. Cfr handleiding.
 #if WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")
 ;; $SC003::auto_scroll(-1, "&", "é", "Space") ;; SC003 = é. From https://www.autohotkey.com/boards/viewtopic.php?t=17547

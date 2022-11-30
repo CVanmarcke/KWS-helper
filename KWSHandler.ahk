@@ -921,6 +921,19 @@ yankLine() {
 	Send, ^c
 }
 
+insertDatePeriod(daysInFuture) {
+	Send, {Home} ;; zorgt dat de functie eender waar in het datumvak gestart kan worden
+	FormatTime, CurrentDateTime,, ddMMyyyy
+	SendInput %CurrentDateTime%0000
+	if (daysInFuture >= 0) {
+		FutureDate := A_Now
+		EnvAdd, FutureDate, %daysInFuture%, days
+		FormatTime, morgen, %FutureDate%, ddMMyyyy
+		Send, {tab}
+		SendInput %morgen%2359
+	}
+}
+
 ; HELPER FUNCTIONS
 ; --------------------------------------
 
