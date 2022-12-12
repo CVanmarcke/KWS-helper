@@ -15,7 +15,8 @@
 ; --------------------------------------
 
 ; TODO: pedabdomen nog eens testen of de stddev kloppen.
-; TODO: RI calc
+; TODO: functie om automatisch alle schermen voor spoed te openen.
+
 
 initKWSHandler() {
 	SetWorkingDir %A_ScriptDir%
@@ -67,8 +68,8 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "flair ", "FLAIR ", CaseSensitive := false) 	
 	inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", CaseSensitive := false) 	
 	inputtext := StrReplace(inputtext, "tbc", "TBC")
-	inputtext := StrReplace(inputtext, "EKG", "ECG", CaseSensitive := false)		
-	inputtext := StrReplace(inputtext, "ecg", "ECG", CaseSensitive := false)		
+	inputtext := StrReplace(inputtext, " EKG ", " ECG ", CaseSensitive := false)
+	inputtext := StrReplace(inputtext, " ecg ", " ECG ", CaseSensitive := false)
 	inputtext := StrReplace(inputtext, " hili", " hila") 	
 	inputtext := StrReplace(inputtext, "longtrauma", "longtrama") 	
 	inputtext := StrReplace(inputtext, "op niveau van", "aan") 	
@@ -95,6 +96,8 @@ cleanreport(inputtext) {
 	; inputtext := RegExReplace(inputtext, "i)gekende?", "\#\#\#")				
 	inputtext := RegExReplace(inputtext, "im)[\ \t]*supervis.*$", "") ; verwijderd supervisie.
 
+	inputtext := RegExReplace(inputtext, "m)[\ \t]+$", "")  ; zorgt dat er geen nutteloze spaties op het inde van de zin komen
+	;;; inputtext := RegExReplace(inputtext, "([\n\r\.]) +(?=[\n\r])", "$1")  ; zorgt dat er geen spatie achter . of op nieuwe lijn komt
 	inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2") 				; corrigeert WOord naar Woord
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
 	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
@@ -108,7 +111,6 @@ cleanreport(inputtext) {
 	;;inputtext := RegExReplace(inputtext, "[TD](?=\d{1,2}[\/-][ThDL]{1,2}\d{1,2})", "Th") 			; corrects X/T1 to Th1
 	inputtext := RegExReplace(inputtext, "((?:C|Th|L|S)\d{1,2})\/((?:C|Th|L|S)\d{1,2})", "$1-$2") 	; corrects L1/L2 to L1-L2
 	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3") 			; corrects d/m/y tot d-m-y
-	inputtext := RegExReplace(inputtext, "([\n\r\.]) +(?=[\n\r])", "$1")  ; zorgt dat er geen spatie achter . of op nieuwe lijn komt
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n") 											; replaces triple+ newline with double
 	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\"")(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
 	inputtext := RegExReplace(inputtext, "(CONCLUSIE:[\n\r\R])\-\ (.+)(?:[\n\r\R]|$)(?!-)", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten. WERKT NOG NIET
@@ -120,7 +122,7 @@ cleanreport(inputtext) {
 }
 
 cleanReport_KWS() {
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest)[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<content>[\s\S]+?)(?:\R*$|[\n\r]{2,}\*\* Eind)"
+	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<content>[\s\S]+?)(?:\R*$|[\n\r]{2,}\*\* Eind)"
  	try _KWS_CopyReportToClipboard(selectReportBox := True)
 	catch e {
 		return
@@ -132,7 +134,7 @@ cleanReport_KWS() {
 
 
 mergeReport(currentreportunclean, oldreportunclean) {
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
+	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
 
 	RegExMatch(currentreportunclean, RegexQuerry, currentreport)
 	RegExMatch(oldreportunclean, RegexQuerry, oldreport)
@@ -239,7 +241,7 @@ copyLastReport_KWS() {
 }
 
 selectLastReport_KWS() {
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
+	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
  	try _KWS_CopyReportToClipboard(selectReportBox := True)
 	catch e {
 		return
@@ -387,7 +389,7 @@ onveranderdMetVorigVerslag() {
 		return
 	} 
 
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
+	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
 
 	RegExMatch(currentreportunclean, RegexQuerry, currentreport)
 	RegExMatch(oldreportunclean, RegexQuerry, oldreport)
@@ -423,15 +425,8 @@ validateAndClose_KWS() {
 	} 
 	_destroySplash()
 	WinActivate, KWS ahk_exe javaw.exe 
-	MouseGetPos, mouseX, mouseY
-	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\valideersluit.png
-	if (ErrorLevel >= 1) {
-		_makeSplashText("ERROR valideerfunctie", "ERROR: valideerknop niet gevonden, of er is iets mis gegaan met het zoeken.", -2000)
-		return
-	} 
-	ead := _getEAD()
-	MouseClick, left, FoundX+5, FoundY+5
-	MouseMove, mouseX, mouseY
+	ead := _getEAD(true)
+	Send, {Ctrl down}{Shift down}v{Ctrl up}{Shift up} ;; KWS knop om te valideren
 	_log(ead, "Gevalideerd en gesloten")
 	_makeSplashText(title := "Gevalideerd", text := "Gevalideerd.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
 }
@@ -441,7 +436,7 @@ saveAndClose_KWS() {
 	WinActivate, KWS ahk_exe javaw.exe 
 	if (splashExists == "" or splashExists == False) {
 		_makeSplashText("Save function", "Press save button again to close.", -3000, doublePressMode := True)
-		Send, ^s
+		Send, {Ctrl down}s{Ctrl up}
 		return
 	}
 	_destroySplash()
@@ -453,35 +448,18 @@ saveAndClose_KWS() {
 		Send, ^s
 		return
 	} 
-	MouseGetPos, mouseX, mouseY
-	ead := _getEAD(False)
-	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\crossActive.png
-	if (ErrorLevel = 2) {
-		_makeSplashText(title := "Save function", text := "Something went wrong looking for the close button", time := -2000)
-	} else if (ErrorLevel = 1) {
-		_makeSplashText(title := "Save function", text := "Try again, close button not found", time := -2000)
-		Send, ^s
-	}
-	MouseClick, left, FoundX + 3, FoundY + 3
-	MouseMove, mouseX, mouseY
+	ead := _getEAD(true)
+
+	Send, {Ctrl down}{F4}{Ctrl up} ;; KWS knop om huidig formulier te sluiten
 	_log(ead, "Opgeslagen en gesloten")
 	_makeSplashText(title := "Opgeslagen", text := "Opgeslagen.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
 }
 
 closeWithoutSaving() {
-	MouseGetPos, mouseX, mouseY
-	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\crossActive.png
-	if (ErrorLevel = 2) {
-		_makeSplashText(title := "Save function", text := "Something went wrong looking for the close button", time := -2000)
-	} else if (ErrorLevel = 1) {
-		_makeSplashText(title := "Save function", text := "Try again, report was not saved close button not found", time := -2000)
-		Send, ^s
-	}
+	Send, {Ctrl down}{F4}{Ctrl up} ;; KWS knop om huidig formulier te sluiten
 	_BlockUserInput(True)
-	MouseClick, left, FoundX + 3, FoundY + 3
 	sleep, 100
 	Send {Enter}
-	MouseMove, mouseX, mouseY
 	_BlockUserInput(false)
 }
 
@@ -550,16 +528,67 @@ VolumeCalculator() {
 	return
 }
 
+VDTCalculator() {
+	Global diameter1, diameter2, date1, date2
+	Global VDTDays
+	Global VDTresult
+	FormatTime, currentdate, A_Now, yyy-MM-dd
+	Gui, VDTCalc:+LastFound
+	GuiHWND := WinExist()
+	Gui, VDTCalc:Add , Text, x60, Date (yyyy-MM-dd)
+	Gui, VDTCalc:Add , Text, xp+110 yp+0, Size (mm)
+	Gui, VDTCalc:Add , Text, x10 yp+20, Previous
+	Gui, VDTCalc:Add , Edit, x60 yp+0 w100 R1 vdate1 gVDTCalcGuiRefresh,
+	Gui, VDTCalc:Add , Edit, xp+110 yp+0 w70 R1 vdiameter1 gVDTCalcGuiRefresh number,
+	Gui, VDTCalc:Add , Text, x10 yp+25, Current
+	Gui, VDTCalc:Add , Edit, x60 yp+0 w100 R1 vdate2 gVDTCalcGuiRefresh, %currentdate%
+	Gui, VDTCalc:Add , Edit, xp+110 yp+0 w70 R1 vdiameter2 gVDTCalcGuiRefresh number,
+	Gui, VDTCalc:Add , Text, x60 yp+25 w100 vVDTDays hwndVDTDays, Days
+	Gui, VDTCalc:Add , Text, xp+110 yp+0 w70 vVDTresult hwndVDTresult, VDT
+	Gui, VDTCalc:Add , Button, x60 yp+25 w180 Default, OK
+	Gui, VDTCalc:Show, , Volume Doubling Time calculator
+	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
+	WinActivate, KWS ahk_exe javaw.exe
+	sleep, 50
+	return _KWS_PasteToReport(VDT, false)               	;--returning value
+	;-------
+	VDTCalcButtonOK:
+	  Gui, VDTCalc:Destroy
+	return
+	;-------
+	VDTCalcGuiEscape:
+	VDTCalcGuiClose:
+	  VDT := ""
+	  Gui, VDTCalc:Destroy
+	return
+VDTCalcGuiRefresh:
+	GuiControlGet, diameter1
+	GuiControlGet, diameter2
+	GuiControlGet, date1
+	GuiControlGet, date2
+	date1 := RegExReplace(date1, "(\d{4}).?(\d{2}).?(\d{2})", "$1$2$3")
+	date2 := RegExReplace(date2, "(\d{4}).?(\d{2}).?(\d{2})", "$1$2$3")
+	EnvSub, date2, % date1, Days
+	volume1 := Round(diameter1**3 * 0.52, 1)
+	volume2 := Round(diameter2**3 * 0.52, 1)
+	VDT := Round((ln(2) * date2)/(ln(volume2/volume1)), 0)
+	GuiControl, Text, %VDTDays%, % "Interval: " date2 " days"
+	GuiControl, Text, %VDTresult%, % "VDT: " VDT " days"
+	return
+}
+
 
 RIcalculatorGUI() {
 	Global vel1
 	Global vel2
+	Global RIresult
 	Gui, RIcalc:+LastFound
 	GuiHWND := WinExist()
 
 	Gui, RIcalc:Add , Text  ,        , Calculate RI from PSV and EDV
-	Gui, RIcalc:Add , Edit  , vvel1,
-	Gui, RIcalc:Add , Edit  , vvel2,
+	Gui, RIcalc:Add , Edit  , vvel1 gRIcalcRefresh,
+	Gui, RIcalc:Add , Edit  , vvel2 gRIcalcRefresh,
+	Gui, RIcalc:Add , Text, vRIresult hwndRIresult w100, RI:
 	Gui, RIcalc:Add , Button, Default, OK
 	Gui, RIcalc:Show, , RI calculator
 	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
@@ -568,9 +597,6 @@ RIcalculatorGUI() {
 	return _KWS_PasteToReport(result, false)               	;--returning value
 	;-------
 	RIcalcButtonOK:
-	  GuiControlGet, v1, , vel1
-	  GuiControlGet, v2, , vel2
-	  RI := _calcRI(v1, v2)
 	  result := "PSV: " . Max(v1, v2) . " cm/s; RI " . RI[1]
 	  Gui, RIcalc:Destroy
 	return
@@ -580,7 +606,14 @@ RIcalculatorGUI() {
 	  result := ""
 	  Gui, RIcalc:Destroy
 	return
+RIcalcRefresh:
+	  GuiControlGet, v1, , vel1
+	  GuiControlGet, v2, , vel2
+	  RI := _calcRI(v1, v2)
+	  GuiControl, Text, %RIresult%, % "RI: " RI[1] ""
+	  return
 }
+
 openEAD_KWS(ead := "") {
 	if RegExMatch(ead, "[^1-9]?(\d{8})[^1-9]?", matchEAD) {
 		clipboard := ""
@@ -755,36 +788,32 @@ KWStoExcel(excelSavePath) {
 		XL.ActiveWorkbook.SaveAs(excelSavePath)
 	}
 	;; XL := ComObjGet(excelSavePath) ;; looks for excel
-	categoryList := "|neuro|thorax|abdomen|spine|MSK|NKO|mammo|urogen|vasc"
+	categoryList := "|neuro|thorax|abdomen|spine|MSK|NKO|mammo|urogen|vasc|cardio"
 	indexCategory := 1
 	category := ""
-	if RegExMatch(reportonderzoek, "i)hersen|schedel|hypophyse") {
+	Switch
+	{
+		case RegExMatch(reportonderzoek, "i)hersen|schedel|hypophyse"):
 		indexCategory := 2
-		category := "neuro"
-	} else if RegExMatch(reportonderzoek, "i)abdomen|lever|pancreas") {
+		case RegExMatch(reportonderzoek, "i)abdomen|lever|pancreas"):
 		indexCategory := 4
-		category := "abdomen"
-	} else if RegExMatch(reportonderzoek, "i)thorax|longen|embol") {
+		case RegExMatch(reportonderzoek, "i)thorax|longen|embol"):
 		indexCategory := 3
-		category := "thorax"
-	} else if RegExMatch(reportonderzoek, "i)wervel") {
+		case RegExMatch(reportonderzoek, "i)wervel"):
 		indexCategory := 5
-		category := "spine"
-	} else if RegExMatch(reportonderzoek, "i)knie|schouder|heup|arm|been|pols") {
+		case RegExMatch(reportonderzoek, "i)knie|schouder|heup|arm|been|pols"):
 		indexCategory := 6
-		category := "MSK"
-	} else if RegExMatch(reportonderzoek, "i)oor|hals|rots|schild|speeksel") {
+		case RegExMatch(reportonderzoek, "i)oor|hals|rots|schild|speeksel"):
 		indexCategory := 7
-		category := "NKO"
-	} else if RegExMatch(reportonderzoek, "i)mammo|borst") {
+		case RegExMatch(reportonderzoek, "i)mammo|borst"):
 		indexCategory := 8
-		category := "mammo"
-	} else if RegExMatch(reportonderzoek, "i)nier|blaas|prostaat|gyna|vrouw") {
+		case RegExMatch(reportonderzoek, "i)nier|blaas|prostaat|gyna|vrouw|bekken"):
 		indexCategory := 9
-		category := "urogen"
-	} else if RegExMatch(reportonderzoek, "i)vascul") {
+		case RegExMatch(reportonderzoek, "i)vascul"):
 		indexCategory := 10
-		category := "vasc"
+		case RegExMatch(reportonderzoek, "i)hart|coronair"):
+		indexCategory := 11
+
 	}
 	Gui, ExcelGUI:+LastFound
 	ExcelGuiHWND := WinExist()
@@ -921,7 +950,7 @@ yankLine() {
 	Send, ^c
 }
 
-insertDatePeriod(daysInFuture) {
+insertDatePeriod(daysInFuture := 0) {
 	Send, {Home} ;; zorgt dat de functie eender waar in het datumvak gestart kan worden
 	FormatTime, CurrentDateTime,, ddMMyyyy
 	SendInput %CurrentDateTime%0000
@@ -931,6 +960,89 @@ insertDatePeriod(daysInFuture) {
 		FormatTime, morgen, %FutureDate%, ddMMyyyy
 		Send, {tab}
 		SendInput %morgen%2359
+		;; MsgBox, %morgen%2359
+	}
+}
+
+insertPastDatePeriod(daysInPast := 1) {
+	Send, {Home} ;; zorgt dat de functie eender waar in het datumvak gestart kan worden
+	daysInPast := -1 * Abs(daysInPast)
+	PastDate := A_Now
+	; EnvAdd, PastDate, %daysInPast%, days
+	Pastdate += daysInPast, Days
+	FormatTime, PastDate, %PastDate%, ddMMyyyy
+	SendInput %PastDate%0000
+	Send, {tab}
+	FormatTime, CurrentDateTime,, ddMMyyyy
+	SendInput %CurrentDateTime%0000
+}
+
+
+initKWSWindows() {
+	;; Uitvoeringswerklijst
+	Send, ^{Space}
+	sleep, 150
+	SendInput Uitvoeringswerklijst
+	sleep, 400
+	Send, {Enter}
+	winwait, Uitvoeringswerklijst parameters ahk_class SunAwtDialog,,3
+	if WinExist("Uitvoeringswerklijst parameters ahk_class SunAwtDialog") {
+		Winactivate
+		sleep, 450
+		Send, {Tab}
+		Send, e
+		sleep, 350
+		Send, {Enter}
+	}
+
+	;; receptieeenheid
+	Send, ^{Space}
+	sleep, 150
+	SendInput zet receptie eenheid
+	sleep, 450
+	Send, {Enter}
+	winwait, Kies een receptie eenheid ahk_class SunAwtDialog,,3
+	if WinExist("Kies een receptie eenheid ahk_class SunAwtDialog") {
+		Winactivate
+		sleep, 450
+		MouseGetPos, mouseX, mouseY
+		ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\EenheidLabel.png
+		if (ErrorLevel = 2)
+			_makeSplashText("Error", "Something went wrong when looking for the field", time := -2000)
+		else if (ErrorLevel = 1)
+			return
+		else {
+			MouseClick, %mousebutton%, FoundX+60, FoundY+5
+			MouseMove, mouseX, mouseY
+		}
+		SendInput 555
+		Send, {Enter}
+		sleep, 150
+		Send, {Tab}
+		sleep, 450
+		Send, {Enter}
+		sleep, 600
+	}
+
+	;; receptie lijst
+	Send, ^{Space}
+	sleep, 150
+	SendInput receptie werklijst hos
+	sleep, 400
+	Send, {Enter}
+	winwait, parameters voor receptiewerklijst ahk_class SunAwtDialog,,3
+	if WinExist("parameters voor receptiewerklijst ahk_class SunAwtDialog") {
+		Winactivate
+		sleep, 450
+		;; Send, {Down}
+		Send, {Tab}
+		Send, {Down}{Down}
+		Send, {Tab}
+		sleep, 150
+		insertDatePeriod(0)
+		sleep, 250
+		Send, {Enter}
+		sleep, 2200
 	}
 }
 
@@ -1054,7 +1166,6 @@ _pressAanvaardOption() {
 }
 
 _getEAD(returnMouse := false) {
-
 	if (returnMouse) {
 		MouseGetPos, mouseX, mouseY
 	}

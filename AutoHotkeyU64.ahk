@@ -49,6 +49,7 @@ F9::cleanReport_KWS()		; verslag cleaner
 :X:RIcalc::RIcalculatorGUI()
 :X:volcalc::VolumeCalculator()
 :X:calcvol::VolumeCalculator()
+:X:vdtcalc::VDTCalculator()
 
 ;; Hotkeys die enkel werken als PACS of patientscherm KWS in focus is.
 #If WinActive("KWS ahk_exe javaw.exe") or (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")))
@@ -67,6 +68,7 @@ F9::cleanReport_KWS()
 :X*b0:vdg::insertDatePeriod(0)
 :X*b0:vmg::insertDatePeriod(1)
 :X*b0:vwk::insertDatePeriod(7)
+;; :X*b0:gst::insertPastDatePeriod(1) ;; Gisteren: nog niet actief om verwarring te voorkomen want gst kan accidenteel wel veel geschreven worden
 
 ; Autoscroller (in Enterprise en IMPAX) is gemaakt door johannes. Cfr handleiding.
 #if WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")
