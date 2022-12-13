@@ -103,7 +103,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
 	inputtext := RegExReplace(inputtext, "m)(?<=\. |^- |^)(\w)", "$U1") 					; converts to uppercase after ., newline or newline -
 	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")					; makes sure there is a space after a colon or point (if not number)...
-	inputtext := RegExReplace(inputtext, "(?<=:)\ ?([A-Z][^A-Z])", " $L1")					; converts after : to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
+	inputtext := RegExReplace(inputtext, "(?<=[\:\;])\ ?([A-Z][^A-Z])", " $L1")					; converts after : or ; to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 ;;	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
 	;;inputtext := RegExReplace(inputtext, "(?<=[\-\/])[DT](?=[1-9](?:[0-2]|[\ \:]))", "Th") ; Corrects -T10 of /D10 naar -Th10
 	;;inputtext := RegExReplace(inputtext, "(?<=\ )[DT](?=[1-9][0-2]?[\-\/])", "Th") ; Corrects T10- naar Th10
@@ -730,32 +730,25 @@ pressOKButton() {
 	}
 }
 
-;; TODO WORK IN PROGRESS
-aanvaarderMode() {
-	Gui, aanvaardGUI:+LastFound +AlwaysOnTop +Owner
-	GuiHWND := WinExist()
-	Gui, aanvaardGUI:Add , Text  ,        , Aanvaardmodus
-	Gui, aanvaardGui:Add , Text , , h - j - l - p
-	Gui, aanvaardGUI:Add , Button, Default, OK
-	Gui, aanvaardGUI:Show, , Aanvaardmodus
-	;; suspend on
-	#ifWinExist Aanvaardmodus
-	Hotkey, IfWinExist, Aanvaardmodus
-	Hotkey, ^Enter, pressOKButton
-	Hotkey, ^h, _pressAanvaardOption
-	Hotkey, ^j, _pressAanvaardOption
-	Hotkey, ^l, _pressAanvaardOption
-	Hotkey, ^p, _pressAanvaardOption
-	WinWaitClose, ahk_id %GuiHWND%  		;--waiting for gui to close
-	WinActivate, KWS ahk_exe javaw.exe 
-	return
-	;-------
-	aanvaardGUIButtonOK:
-	aanvaardGUIEscape:
-	aanvaardGUIClose:
-		suspend off
-		Gui, aanvaardGUI:Destroy
-	return
+aanvaardOnderzoek(contrast := 2, opmerking := "") {
+	MouseGetPos, mouseX, mouseY
+	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\contrastLabel.png
+	If (ErrorLevel = 0) {
+		Switch contrast
+		{
+			Case 0: contrastX := FoundX + 80 ;; Zonder
+			Case 1: contrastX := FoundX + 165 ;; Met
+			Default: contrastX := FoundX + 250 ;; Zonder/Met
+		}
+		MouseClick, left, contrastX, FoundY
+		;; sleep, 100
+		LabelFieldX := FoundX + 250
+		LabelFieldY := FoundY + 200
+		MouseClick, Left, LabelFieldX, LabelFieldY
+		sleep, 100
+		SendInput, % opmerking
+		MouseMove, mouseX, mouseY
+	}
 }
 
 KWStoExcel(excelSavePath) {
@@ -1137,31 +1130,6 @@ _sorttext(inputtext) {
 		}
 		outputtext := inputtext . "`n" . StrReplace(StrReplace(dotlines, "#" , ""), ". - ", ". ") . "`n`n"
 		return outputtext
-	}
-}
-
-_pressAanvaardOption() {
-	suspend Permit
-	MouseGetPos, mouseX, mouseY
-	ImageSearch, FoundX, FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, images\contrastLabel.png
-	if (ErrorLevel = 2)
-		_makeSplashText(title := "Error", text := "Something went wrong when looking for enter field", time := -2000)
-	else if (ErrorLevel = 1)
-		return
-	else {
-		FoundY := FoundY+5
-		if (GetKeyState("h","P")) { ;; zonder
-			FoundX := FoundX + 80
-		} else if (GetKeyState("j","P")) { ;; Met
-			FoundX := FoundX + 165
-		} else if (GetKeyState("l","P")) { ;; Zonder/met
-			FoundX := FoundX + 250
-		} else if (GetKeyState("p","P")) { ;; textvak
-			FoundX := FoundX + 250
-			FoundY := FoundY + 200
-		}
-		MouseClick, left, FoundX, FoundY
-		MouseMove, mouseX, mouseY
 	}
 }
 

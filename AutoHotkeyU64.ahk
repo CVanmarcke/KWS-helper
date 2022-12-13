@@ -50,6 +50,8 @@ F9::cleanReport_KWS()		; verslag cleaner
 :X:volcalc::VolumeCalculator()
 :X:calcvol::VolumeCalculator()
 :X:vdtcalc::VDTCalculator()
+^NumpadAdd::aanvaardOnderzoek(1, "IV veneus {+} 3 PO") ; Met contrast en die tekst
+^NumpadSub::aanvaardOnderzoek(0, "") ; zonder contrast, geen tekst
 
 ;; Hotkeys die enkel werken als PACS of patientscherm KWS in focus is.
 #If WinActive("KWS ahk_exe javaw.exe") or (WinExist("KWS ahk_exe javaw.exe") and (WinActive("Diagnostic Desktop") or WinActive("ahk_exe impax-client-main.exe")))
@@ -65,6 +67,8 @@ F9::cleanReport_KWS()
 #If WinActive("ahk_class SunAwtDialog ahk_exe javaw.exe") or WinActive("KWS ahk_exe javaw.exe")
 ;; Wanneer "vdg", "vmg" of "vwk" worden getypt zal een datumvork worden ingevoerd
 ;; Handig bij bijvoorbeeld het aanvaardingen scherm of querry's
+^Enter::pressOKButton()
+^NumpadEnter::pressOKButton()
 :X*b0:vdg::insertDatePeriod(0)
 :X*b0:vmg::insertDatePeriod(1)
 :X*b0:vwk::insertDatePeriod(7)
