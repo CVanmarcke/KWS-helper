@@ -40,7 +40,7 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 !SC003::MoveLineDown() ;; SC003 = é
 F7::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
-:X:tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-GUI.ahk" ; WIP, beta versie werkt wel
+:X:tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-v2.ahk" ; WIP, beta versie werkt wel
 :X:tirads2::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-v2.ahk"
 :X:pedabdomen::pedAbdomenTemplate()
 :X:wervelfx::heightLossGui()
@@ -50,6 +50,7 @@ F9::cleanReport_KWS()		; verslag cleaner
 :X:volcalc::VolumeCalculator()
 :X:calcvol::VolumeCalculator()
 :X:vdtcalc::VDTCalculator()
+:X:calcvdt::VDTCalculator()
 ^NumpadAdd::aanvaardOnderzoek(1, "IV veneus {+} 3 PO") ; Met contrast en die tekst
 ^NumpadSub::aanvaardOnderzoek(0, "") ; zonder contrast, geen tekst
 
