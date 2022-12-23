@@ -42,6 +42,7 @@ F7::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
 :X:tiradsnodule::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-v2.ahk" ; WIP, beta versie werkt wel
 :X:tirads2::Run, %A_AHKPath% "%A_ScriptDir%\TIRADS-v2.ahk"
+:X:aanvaarder::Run, %A_AHKPath% "%A_ScriptDir%\aanvaardingen.ahk"
 :X:pedabdomen::pedAbdomenTemplate()
 :X:wervelfx::heightLossGui()
 :X:hoogteverlies::heightLossGUI()
