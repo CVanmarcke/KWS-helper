@@ -1,5 +1,5 @@
 #SingleInstance Force
-#include aanvaarder\Sift.ahk ; Sift library
+#include Sift.ahk ; Sift library
 
 SetTitleMatchMode, 1
 
