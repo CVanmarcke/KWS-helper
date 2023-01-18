@@ -1,10 +1,10 @@
-
+﻿
 ; CODE ADAPTED FROM https://www.autohotkey.com/board/topic/38015-ahkhid-an-ahk-implementation-of-the-hid-functions/
 ; Note: for this script to work, it must be one of the first to be included in the main script!
 ; Be carefull with labels in the main script (or includes other scripts), as this can cause interference and may casue this script to fail to work.
 
 ;Must be in auto-execute section
-#Include %A_ScriptDir%\AHKHID.ahk
+#Include "AHKHID.ahk"
 
 ; PHILIPS SPEECH DEVICE IDENTIFICATION:
 ; NOTE: 2 variants of devices, with same prod ID but other key codes (however last 4 digits are the same)
@@ -12,51 +12,59 @@ usagePage := 65440
 vendorID := 2321
 productID := 3100
  
-; Create GUI to receive messages
-Gui, handlerGUI:+LastFound +HwndhandlerGUI
-
-; Intercept WM_INPUT messages
 WM_INPUT := 0x00FF 
-OnMessage(WM_INPUT, "InputMsg")
+RIDEV_INPUTSINK     := 0x00000100   ;If set, this enables the caller to receive the input even when the caller is not in
+DI_HID_VENDORID             := 8    ;Vendor ID for the HID.
+DI_HID_PRODUCTID            := 12   ;Product ID for the HID. 
+II_DEVHANDLE        := 8    ;Handle to the device generating the raw input data.
+
+; Create GUI to receive messages
+handlerGUI := Gui()
+; handlerGUI.Opt("+LastFound +HwndhandlerGUI")
+handlerGUI.Opt("+LastFound")
+OnMessage WM_INPUT, InputMsg
+; Intercept WM_INPUT messages
 
 ; Register Remote Control with RIDEV_INPUTSINK (so that data is received even in the background)
 ; 65440 and 1 are the usage page and usage, and are unique to the philips device. Use AHKHID_listdevices and AHKHID_interceptdata to get the number of other devices.
 ; Lower down (in get Input Msg) the vendor and prod id should be entered.
-r := AHKHID_Register(usagePage, 1, handlerGUI, RIDEV_INPUTSINK)
+r := AHKHID_Register(usagePage, 1, handlerGUI.Hwnd, RIDEV_INPUTSINK)
 
-Return
+; Return ;; TODO: toegevoegd maar misschien breekt dit alles....
 
 funct_caller(funct, param) {			; this will call a the function funct with parameters ==> funct(param)
-	if ( IsFunc(funct) <> 0 )
-		ret_val := %funct%(param)
-	return
+	funct.call(param)
+	; if ( IsFunc(funct) != 0 )
+	; 	ret_val := %funct%(param)
+	; return
 }
 
-InputMsg(wParam, lParam) {
+InputMsg(wParam, lParam, msg, hwnd) {
+	;; MsgBox(wParam . " " . lParam . " " . msg . " " . hwnd)
+	; 1 905447557 255 40174758
 	Local devh, iKey, sLabel
-	Critical
+	Critical()
 	
 	;Get handle of device
 	devh := AHKHID_GetInputInfo(lParam, II_DEVHANDLE)
+	; MsgBox(devh . " " . AHKHID_GetDevInfo(devh, DI_HID_VENDORID, True) . " " . AHKHID_GetDevInfo(devh, DI_HID_PRODUCTID, True))
 
 	;Check for error
-	If (devh <> -1) ;Check that it is the philips device
+	If (devh != -1) ;Check that it is the philips device
 	And (AHKHID_GetDevInfo(devh, DI_HID_VENDORID, True) = 2321)
 	And (AHKHID_GetDevInfo(devh, DI_HID_PRODUCTID, True) = 3100) {
 
 		;Get data
-		iKey := AHKHID_GetInputData(lParam, uData)
-
+		iKey := AHKHID_GetInputData(lParam, &uData)
 		;Check for error
-		If (iKey <> -1) {
-			; udata = adress
+		If (iKey != -1) {
+			; udata = adress (buffer)
 			; iKey = len
-			keyTest := Bin2Hex(&uData, iKey)
-			; MsgBox, Text = %Text2%, Hex=%keyTest%, size of rawdate (nr bytes)=%iKey% en rawDATA=%uData% en integ=%integ%
-			output := "" . keyTest			; makes string out of Hex
-			keyBuffer(output)
+			keyCode := Bin2Hex(&uData, iKey)
+			; MsgBox(keyTest)
+			keyBuffer(keyCode)
 			; PassHotkey(output)			; if you dont want to use the buffer	
-			;log(output)
+			; _log(keyCode)
 		}
 	} 
 }
@@ -64,7 +72,7 @@ InputMsg(wParam, lParam) {
 keyBuffer(keypressed) {				; Some devices will fire the output twice very fast: this will prevent it from firing twice.
 	static preventKeypress := False
 	; exception if ending with 0000 (= release button, and pick up trigger): no buffer, otherwise it will conflict with a double press.
-	if  (SubStr(keypressed, StrLen(keypressed)-3) == "0000") { 
+	if (SubStr(keypressed, StrLen(keypressed)-3) == "5656") { 
 		PassHotkey(keypressed)
 		preventKeypress := False
 		return
@@ -73,19 +81,41 @@ keyBuffer(keypressed) {				; Some devices will fire the output twice very fast: 
 		preventKeypress := True
 		PassHotkey(keypressed)		; Must be declared somewhere, otherwise script wont work! (see below for example)
 	}
-	Sleep 50						; might have to play a bit with this value.
+	Sleep(50)						; might have to play a bit with this value.
 	preventKeypress := False
 }
 
-Bin2Hex(addr, len) {									; magic
-    VarSetCapacity(hex, len*(A_IsUnicode ? 2:1))
-    f := A_FormatInteger
-    SetFormat IntegerFast, H
-    Loop % len
-        hex .= SubStr(0x100 + NumGet(addr + A_Index-1, 0, "uchar"), -1)
-    SetFormat IntegerFast, % f
+Bin2Hex(&addr, len) {									; magic
+    VarSetStrCapacity(&hex, len*(1 ? 2:1)) ; V1toV2: if 'hex' is NOT a UTF-16 string, use 'hex := Buffer(len*(A_IsUnicode ? 2:1))'
+    ;; MsgBox(addr.ptr . " len " . addr.size . " len: " . len)
+    ; hex := Buffer(len*(2))
+; REMOVED:     f := A_FormatInteger
+; REMOVED:     SetFormat IntegerFast, H
+    Loop len
+        hex .= SubStr(0x100 + NumGet(addr.ptr + A_Index-1, 0, "uchar"), -2)
+        ; hex .= SubStr(0x100 + NumGet(addr + A_Index-1, 0, "uchar"), -2)
+; REMOVED:     SetFormat IntegerFast, % f
     return hex
 }
+
+/* new keycodes
+5688 EOL
+5684 i
+5620 Ins
+5672 Back
+5657 Rec
+5664 Fw
+5660 play
+5856 F1
+6056 F2
+6456 F3
+7256 F4
+5656 pickup/drop + release button
+8856 back button
+
+
+*/
+
 
 /*
 ; Key codes most Philips speech devices

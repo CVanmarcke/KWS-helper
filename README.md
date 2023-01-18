@@ -1,7 +1,9 @@
 # KWS-helper
 Collectie van Autohotkey scripts om de radiologie workflow te verbeteren.
 
-Werkt met de nieuwe versie van KWS (van 20-06-2022).
+Dit programma laat onder andere toe automatisch het vorige verslag over te nemen, je verslag automatisch op te kuisen (met correctie van speechfouten, automatische layout en sortering, hoofdletters enzovoort...), meerdere tools die helpen met verslagen maken (bijvoorbeeld TIRADS noduli beschrijven, standaard deviaties bepalen voor de organen van kinderen, volume berekening, hoogteverlies berekening, ...) en vele andere.
+
+Recent overgezet naar Autohotkey v2.0.2 voor een betere betrouwbaarheid; bij eventuele bugs graag een mailtje.
 
 ## Installatie
 1. Download de bestanden van deze repo [hier](https://github.com/CVanmarcke/KWS-helper/archive/refs/heads/main.zip), en pak deze uit ergens in een folder. 
@@ -49,6 +51,8 @@ auto_scroll() | `Ctrl-&` of `Ctrl-é` | Start automatisch met scrollen in het ve
 ### Calculators/Tools
 Functienaam | Standaard Hotkey | Beschrijving 
 --- | --- | --- 
+Aanvaarder tool | `aanvaarder`<br />`startaanv` | Start een programma om snel de juiste codes en contrast voor aanvaardingen in te voeren. Werkt het beste met MR neuro en NKO, maar kan ook gebruikt worden voor MR abdomen, CT abdomen, thorax, en uro. Dank aan Johannes Devos.
+openEAD_KWS() | `Ctrl-o` | In excel (of in Google Spreadsheet), open automatisch het geselecteerde EAD nummer in KWS.
 KWStoExcel(padNaarExcelBestand) | `Ctrl-e` | Voegt de patientEAD, datum, onderzoekstype, ... automatisch toe aan een excel bestand. Handig om snel een casus bij te houden om op te volgen.
 openEAD_KWS() | `Ctrl-o` | In excel (of in Google Spreadsheet), open automatisch het geselecteerde EAD nummer in KWS.
 pedAbdomenTemplate() | `pedabdomen` | Typ de shortcut om een venster te openen waar de lengte van de lever, milt en nieren in ingevuld kunnen worden, waarna automatisch een verslag met ingevulde standaarddeviaties geplakt zal worden. Origineel gemaakt door Johannes Devos.

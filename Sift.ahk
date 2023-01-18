@@ -1,4 +1,4 @@
-;{ Sift
+﻿;{ Sift
 ; Fanatic Guru
 ; 2015 04 30
 ; Version 1.00
@@ -83,9 +83,11 @@
 ;
 ; ===================================================================================================================================================
 ;
-Sift_Regex(ByRef Haystack, ByRef Needle, Options := "IN", Delimit := "`n")
-{
-	Sifted := {}
+Sift_Regex(&Haystack, &Needle := "", Options := "IN", Delimit := "`n") {
+	Haystack := IsSet(Haystack) ? Haystack : ""
+	Needle := IsSet(Needle) ? Needle : ""
+	;; Sifted := {}
+	Sifted := ""
 	if (Options = "IN")		
 		Needle_Temp := "\Q" Needle "\E"
 	else if (Options = "LEFT")
@@ -97,43 +99,40 @@ Sift_Regex(ByRef Haystack, ByRef Needle, Options := "IN", Delimit := "`n")
 	else if (Options = "REGEX")
 		Needle_Temp := Needle
 	else if (Options = "OC")
-		Needle_Temp := RegExReplace(Needle,"(.)","\Q$1\E.*")
+		Needle_Temp := RegExReplace(Needle, "(.)", "\Q$1\E.*")
 	else if (Options = "OW")
-		Needle_Temp := RegExReplace(Needle,"( )","\Q$1\E.*")
+		Needle_Temp := RegExReplace(Needle, "( )", "\Q$1\E.*")
 	else if (Options = "UW")
-		Loop, Parse, Needle, " "
+		Loop Parse, Needle, "`" `""
 			Needle_Temp .= "(?=.*\Q" A_LoopField "\E)"
 	else if (Options = "UC")
-		Loop, Parse, Needle
+		Loop Parse, Needle
 			Needle_Temp .= "(?=.*\Q" A_LoopField "\E)"
 
-	if Options is lower
+	if isLower(Options)
 		Needle_Temp := "i)" Needle_Temp
 	
-	if IsObject(Haystack)
-	{
+	if IsObject(Haystack) {
 		for key, Hay in Haystack
 			if RegExMatch(Hay, Needle_Temp)
 				Sifted.Insert(Hay)
-	}
-	else
-	{
-		Loop, Parse, Haystack, %Delimit%
+	} else {
+		Loop Parse, Haystack, Delimit
 			if RegExMatch(A_LoopField, Needle_Temp)
 				Sifted .= A_LoopField Delimit
-		Sifted := SubStr(Sifted,1,-1)
+		Sifted := SubStr(Sifted, 1, -1)
 	}
 	return Sifted
 }
 
-Sift_Ngram(ByRef Haystack, ByRef Needle, Delta := .7, ByRef Haystack_Matrix := false, n := 3, Format := "S`n" )
+Sift_Ngram(&Haystack, &Needle, Delta := .7, &Haystack_Matrix := false, n := 3, Format := "S`n" )
 {
 	if !IsObject(Haystack_Matrix)
 		Haystack_Matrix := Sift_Ngram_Matrix(Haystack, n)
 	Needle_Ngram := Sift_Ngram_Get(Needle, n)
 	if IsObject(Haystack)
 	{
-		Search_Results := {}
+		Search_Results := map()
 		for key, Hay_Ngram in Haystack_Matrix
 		{
 			Result := Sift_Ngram_Compare(Hay_Ngram, Needle_Ngram)
@@ -143,8 +142,8 @@ Sift_Ngram(ByRef Haystack, ByRef Needle, Delta := .7, ByRef Haystack_Matrix := f
 	}
 	else
 	{
-		Search_Results := {}
-		Loop, Parse, Haystack, `n, `r
+		Search_Results := map()
+		Loop Parse, Haystack, "`n", "`r"
 		{
 			Result := Sift_Ngram_Compare(Haystack_Matrix[A_Index], Needle_Ngram)
 			if !(Result < Delta)
@@ -153,26 +152,27 @@ Sift_Ngram(ByRef Haystack, ByRef Needle, Delta := .7, ByRef Haystack_Matrix := f
 	}
 	if (Format ~= "i)^S")
 		Sift_SortResults(Search_Results)
-	if RegExMatch(Format, "i)^(S|U)(.+)$", Match)
+	if RegExMatch(Format, "i)^(S|U)(.+)$", &Match)
 	{
 		for key, element in Search_Results
-			String_Results .= element.data Match2
-		return SubStr(String_Results,1,-StrLen(Match2))
+			String_Results .= element.data Match[2]
+		return SubStr(String_Results, 1, -StrLen(Match[2]))
 	}
 	else
 		return Search_Results
 }
 
-Sift_Ngram_Get(ByRef String, n := 3)
+Sift_Ngram_Get(&String, n := 3)
 {
 	Pos := 1, Grams := {}
-	Loop, % (1 + StrLen(String) - n)
-		gram := SubStr(String, A_Index, n), Grams[gram] ? Grams[gram] ++ : Grams[gram] := 1
+	Loop (1 + StrLen(String) - n)
+		gram := SubStr(String, (A_Index)<1 ? (A_Index)-1 : (A_Index), n), Grams[gram] ? Grams[gram] ++ : Grams[gram] := 1
 	return Grams
 } 
 
-Sift_Ngram_Compare(ByRef Hay, ByRef Needle)
+Sift_Ngram_Compare(&Hay, &Needle)
 {
+	Match := 0
 	for gram, Needle_Count in Needle
 	{
 		Needle_Total += Needle_Count
@@ -181,7 +181,7 @@ Sift_Ngram_Compare(ByRef Hay, ByRef Needle)
 	return Match / Needle_Total
 }
 
-Sift_Ngram_Matrix(ByRef Data, n := 3)
+Sift_Ngram_Matrix(&Data, n := 3)
 {
 	if IsObject(Data)
 	{
@@ -192,18 +192,18 @@ Sift_Ngram_Matrix(ByRef Data, n := 3)
 	else
 	{
 		Matrix := {}
-		Loop, Parse, Data, `n
+		Loop Parse, Data, "`n"
 			Matrix.Insert(Sift_Ngram_Get(A_LoopField, n))
 	}
 	return Matrix
 }
 
-Sift_SortResults(ByRef Data)
+Sift_SortResults(&Data)
 {
-	Data_Temp := {}
+	Data_Temp := map()
 	for key, element in Data
-		Data_Temp[element.Delta SubStr("0000000000" key, -9)] := element
-	Data := {}
+		Data_Temp[element.Delta SubStr("0000000000" key, -10)] := element
+	Data := map()
 	for key, element in Data_Temp
 		Data.InsertAt(1,element)
 	return

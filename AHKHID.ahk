@@ -1,4 +1,4 @@
-/*! TheGood
+﻿/*! TheGood
     AHKHID - An AHK implementation of the HID functions.
     Last updated: August 22nd, 2010
 
@@ -122,10 +122,11 @@ See Example 2 for an example on how to use it (although you need an HID device o
 */
 
 AHKHID_Included := True
-AHKHID_SetConstants:
+AHKHID_SetConstants()
 ;______________________________________
 ;Flags you can use in AHKHID_GetDevInfo
 ;http://msdn.microsoft.com/en-us/library/ms645581
+{ ; V1toV2: Added bracket
 DI_DEVTYPE                  := 4    ;Type of the device. See RIM_ constants.
 
 DI_MSE_ID                   := 8    ;ID for the mouse device.
@@ -268,33 +269,35 @@ RI_KEY_TERMSRV_SHADOW   := 0x10
 
 If Not AHKHID_Included
     Return
+} ; V1toV2: Added bracket before function
 
 AHKHID_UseConstants() {
     Global ;To make the constants global
     AHKHID_Included := False
-    Gosub, AHKHID_SetConstants
+    AHKHID_SetConstants()
 }
 
-AHKHID_Initialize(bRefresh = False) {
+AHKHID_Initialize(bRefresh := False) {
     Static uHIDList, bInitialized := False
     
     If bInitialized And Not bRefresh
         Return &uHIDList
     
     ;Get the device count
-    r := DllCall("GetRawInputDeviceList", "Ptr", 0, "UInt*", iCount, "UInt", A_PtrSize * 2)
+    r := DllCall("GetRawInputDeviceList", "Ptr", 0, "UInt*", &iCount, "UInt", A_PtrSize * 2)
     
     ;Check for error
     If (r = -1) Or ErrorLevel {
-        ErrorLevel = GetRawInputDeviceList call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        ErrorLevel := "GetRawInputDeviceList call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
         Return -1
     }
     
     ;Prep var
-    VarSetCapacity(uHIDList, iCount * (A_PtrSize * 2))
-    r := DllCall("GetRawInputDeviceList", "Ptr", &uHIDList, "UInt*", iCount, "UInt", A_PtrSize * 2)
+    ; VarSetStrCapacity(&uHIDList, iCount * (A_PtrSize * 2)) ; V1toV2: if 'uHIDList' is NOT a UTF-16 string, use 'uHIDList := Buffer(iCount * (A_PtrSize * 2))'
+    uHIDList := Buffer(iCount * (A_PtrSize * 2))
+    r := DllCall("GetRawInputDeviceList", "Ptr", uHIDList, "UInt*", &iCount, "UInt", A_PtrSize * 2)
     If (r = -1) Or ErrorLevel {
-        ErrorLevel = GetRawInputDeviceList call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        ErrorLevel := "GetRawInputDeviceList call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
         Return -1
     }
     
@@ -305,55 +308,56 @@ AHKHID_Initialize(bRefresh = False) {
 AHKHID_GetDevCount() {
     
     ;Get the device count
-    r := DllCall("GetRawInputDeviceList", "Ptr", 0, "UInt*", iCount, "UInt", A_PtrSize * 2)
+    r := DllCall("GetRawInputDeviceList", "Ptr", 0, "UInt*", &iCount, "UInt", A_PtrSize * 2)
     
     ;Check for error
     If (r = -1) Or ErrorLevel {
-        ErrorLevel = GetRawInputDeviceList call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        ErrorLevel := "GetRawInputDeviceList call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
         Return -1
     } Else Return iCount
 }
 
 AHKHID_GetDevHandle(i) {
-    Return NumGet(AHKHID_Initialize(), (i - 1) * (A_PtrSize * 2))
+    Return NumGet(AHKHID_Initialize(), (i - 1) * (A_PtrSize * 2), "UPtr")
 }
 
 AHKHID_GetDevIndex(Handle) {
-    Loop % AHKHID_GetDevCount()
-        If (NumGet(AHKHID_Initialize(), (A_Index - 1) * (A_PtrSize * 2)) = Handle)
+    Loop AHKHID_GetDevCount()
+        If (NumGet(AHKHID_Initialize(), (A_Index - 1) * (A_PtrSize * 2), "UPtr") = Handle)
             Return A_Index
     Return 0
 }
 
-AHKHID_GetDevType(i, IsHandle = False) {
+AHKHID_GetDevType(i, IsHandle := False) {
     Return Not IsHandle ? NumGet(AHKHID_Initialize(), ((i - 1) * (A_PtrSize * 2)) + A_PtrSize, "UInt")
     : NumGet(AHKHID_Initialize(), ((AHKHID_GetDevIndex(i) - 1) * (A_PtrSize * 2)) + A_PtrSize, "UInt")
 }
 
-AHKHID_GetDevName(i, IsHandle = False) {
+AHKHID_GetDevName(i, IsHandle := False) {
     
     ;Get index if i is handle
     h := IsHandle ? i : AHKHID_GetDevHandle(i)
     
     ;Get device name length.                                RIDI_DEVICENAME
-    r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x20000007, "Ptr", 0, "UInt*", iLength)
+    r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x20000007, "Ptr", 0, "UInt*", &iLength)
     If (r = -1) Or ErrorLevel {
-        ErrorLevel = GetRawInputDeviceInfo call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
         Return ""
     }
 	
     ;Get device name.
-    VarSetCapacity(s, (iLength + 1) * 2)                         ;RIDI_DEVICENAME
-    r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x20000007, "Str", s, "UInt*", iLength)
+    ; VarSetStrCapacity(&s, (iLength + 1) * 2)                         ;RIDI_DEVICENAME ; V1toV2: if 's' is NOT a UTF-16 string, use 's := Buffer((iLength + 1) * 2)'
+    s := Buffer((iLength + 1) * 2)
+    r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x20000007, "Str", s, "UInt*", &iLength)
     If (r = -1) Or ErrorLevel {
-        ErrorLevel = GetRawInputDeviceInfo call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
         Return ""
     }
     
     Return s
 }
 
-AHKHID_GetDevInfo(i, Flag, IsHandle = False) {
+AHKHID_GetDevInfo(i, Flag, IsHandle := False) {
     Static uInfo, iLastHandle := 0
     
     ;Get index if i is handle
@@ -361,22 +365,26 @@ AHKHID_GetDevInfo(i, Flag, IsHandle = False) {
     
     ;Check if the handle changed
     If (h = iLastHandle) ;It's the same device. No need to call again
-        Return NumGet(uInfo, Flag, AHKHID_NumIsShort(Flag) ? "UShort" : "UInt")
+        Return NumGet(uInfo, Flag, AHKHID_NumIsShort(&Flag) ? "UShort" : "UInt")
     Else {
         
+	    ; TODO zelf bij gezet
+	    iLength := IsSet(iLength) ? iLength : 0
         ;Get device info buffer size.                           RIDI_DEVICEINFO
-        r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x2000000b, "Ptr", 0, "UInt*", iLength)
-        If (r = -1) Or ErrorLevel {
-            ErrorLevel = GetRawInputDeviceInfo call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x2000000b, "Ptr", 0, "UInt*", &iLength)
+        If ((r = -1) Or not isSet(r)) {
+            ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	    MsgBox(Errorlevel)
             Return -1
         }
         
         ;Get device info
-        VarSetCapacity(uInfo, iLength)
-        NumPut(iLength, uInfo, 0, "UInt") ;Put length in struct RIDI_DEVICEINFO
-        r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x2000000b, "Ptr", &uInfo, "UInt*", iLength)
-        If (r = -1) Or ErrorLevel {
-            ErrorLevel = GetRawInputDeviceInfo call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        ; VarSetStrCapacity(&uInfo, iLength) ; V1toV2: if 'uInfo' is NOT a UTF-16 string, use 'uInfo := Buffer(iLength)'
+	uInfo := Buffer(iLength)
+        NumPut("UInt", iLength, uInfo, 0) ;Put length in struct RIDI_DEVICEINFO
+        r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x2000000b, "Ptr", uInfo, "UInt*", &iLength)
+        If (r = -1) Or not IsSet(r) {
+            ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
             Return -1
         }
         
@@ -384,13 +392,13 @@ AHKHID_GetDevInfo(i, Flag, IsHandle = False) {
         iLastHandle := h
         
         ;Retrieve data
-        Return NumGet(uInfo, Flag, AHKHID_NumIsShort(Flag) ? "UShort" : "UInt")
+        Return NumGet(uInfo, Flag, AHKHID_NumIsShort(&Flag) ? "UShort" : "UInt")
     }
     
     Return 0
 }
 
-AHKHID_AddRegister(UsagePage = False, Usage = False, Handle = False, Flags = 0) {
+AHKHID_AddRegister(UsagePage := False, Usage := False, Handle := False, Flags := 0) {
     Static uDev, iIndex := 0, iCount := 0
     
     ;Check if we just want the address
@@ -403,7 +411,8 @@ AHKHID_AddRegister(UsagePage = False, Usage = False, Handle = False, Flags = 0) 
     Else If UsagePage And Not (Usage Or Handle Or Flags) {
         iCount := UsagePage
         iIndex := 0
-        VarSetCapacity(uDev, iCount * (8 + A_PtrSize))
+        ; VarSetStrCapacity(&uDev, iCount * (8 + A_PtrSize)) ; V1toV2: if 'uDev' is NOT a UTF-16 string, use 'uDev := Buffer(iCount * (8 + A_PtrSize))'
+	uDev := Buffer(iCount * (8 + A_PtrSize))
         Return &uDev
     }
     
@@ -415,10 +424,10 @@ AHKHID_AddRegister(UsagePage = False, Usage = False, Handle = False, Flags = 0) 
     Handle := ((Flags & 0x00000001) Or (Flags & 0x00000010)) ? 0 : Handle
 
     ;Put in struct
-    NumPut(UsagePage, uDev, (iIndex * (8 + A_PtrSize)) + 0, "UShort")
-    NumPut(Usage,     uDev, (iIndex * (8 + A_PtrSize)) + 2, "UShort")
-    NumPut(Flags,     uDev, (iIndex * (8 + A_PtrSize)) + 4, "UInt")
-    NumPut(Handle,    uDev, (iIndex * (8 + A_PtrSize)) + 8, "Ptr")
+    NumPut("UShort", UsagePage, uDev, (iIndex * (8 + A_PtrSize)) + 0)
+    NumPut("UShort", Usage, uDev, (iIndex * (8 + A_PtrSize)) + 2)
+    NumPut("UInt", Flags, uDev, (iIndex * (8 + A_PtrSize)) + 4)
+    NumPut("Ptr", Handle, uDev, (iIndex * (8 + A_PtrSize)) + 8)
     
     ;Move to next slot
     iIndex += 1
@@ -426,7 +435,7 @@ AHKHID_AddRegister(UsagePage = False, Usage = False, Handle = False, Flags = 0) 
     Return &uDev
 }
 
-AHKHID_Register(UsagePage = False, Usage = False, Handle = False, Flags = 0) {
+AHKHID_Register(UsagePage := False, Usage := False, Handle := False, Flags := 0) {
     
     ;Check if we're using the AddRegister array or only a single struct
     If Not (UsagePage Or Usage Or Handle Or Flags) {
@@ -436,7 +445,7 @@ AHKHID_Register(UsagePage = False, Usage = False, Handle = False, Flags = 0) {
         
         ;Check for error
         If Not r {
-            ErrorLevel = RegisterRawInputDevices call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+            ErrorLevel := "RegisterRawInputDevices call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
             Return -1
         }
         
@@ -444,22 +453,25 @@ AHKHID_Register(UsagePage = False, Usage = False, Handle = False, Flags = 0) {
     } Else {
         
         ;Prep var
-        VarSetCapacity(uDev, (8 + A_PtrSize), 0)
+        uDev := Buffer((8 + A_PtrSize), 0) ; V1toV2: if 'uDev' is a UTF-16 string, use 'VarSetStrCapacity(&uDev, (8 + A_PtrSize))'
+	; VarSetStrCapacity(&uDev, (8 + A_PtrSize))
         
         ;Check if hwnd needs to be null. RIDEV_REMOVE, RIDEV_EXCLUDE
         Handle := ((Flags & 0x00000001) Or (Flags & 0x00000010)) ? 0 : Handle
+	Handle := Handle ? Integer(Handle) : 0 ;; omgezet naar nummer, weet niet of dit werkt....
         
-        NumPut(UsagePage, uDev, 0, "UShort")
-        NumPut(Usage,     uDev, 2, "UShort")
-        NumPut(Flags,     uDev, 4, "UInt")
-        NumPut(Handle,    uDev, 8, "Ptr")
+        NumPut("UShort", UsagePage, uDev, 0)
+        NumPut("UShort", Usage, uDev, 2)
+        NumPut("UInt", Flags, uDev, 4)
+        NumPut("Ptr", Handle, uDev, 8)
         
         ;Call
-        r := DllCall("RegisterRawInputDevices", "Ptr", &uDev, "UInt", 1, "UInt", 8 + A_PtrSize)
+        r := DllCall("RegisterRawInputDevices", "Ptr", uDev, "UInt", 1, "UInt", 8 + A_PtrSize)
         
         ;Check for error
-        If Not r Or ErrorLevel {
-            ErrorLevel = RegisterRawInputDevices call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        ;; If Not r Or ErrorLevel {
+        If Not r {
+            ErrorLevel := "RegisterRawInputDevices call failed.`nReturn value: " . r . "`n`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
             Return -1
         }
     }
@@ -467,25 +479,26 @@ AHKHID_Register(UsagePage = False, Usage = False, Handle = False, Flags = 0) {
     Return 0
 }
 
-AHKHID_GetRegisteredDevs(ByRef uDev) {
+AHKHID_GetRegisteredDevs(&uDev) {
     
     ;Get length
-    VarSetCapacity(iCount, 4, 0)
-    r := DllCall("GetRegisteredRawInputDevices", "Ptr", 0, "UInt*", iCount, "UInt", 8 + A_PtrSize)
+    iCount := Buffer(4, 0) ; V1toV2: if 'iCount' is a UTF-16 string, use 'VarSetStrCapacity(&iCount, 4)'
+    r := DllCall("GetRegisteredRawInputDevices", "Ptr", 0, "UInt*", &iCount, "UInt", 8 + A_PtrSize)
     If ErrorLevel {
-        ErrorLevel = GetRegisteredRawInputDevices call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        ErrorLevel := "GetRegisteredRawInputDevices call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
         Return -1
     }
     
     If (iCount > 0) {
         
         ;Prep var
-        VarSetCapacity(uDev, iCount * (8 + A_PtrSize))
+        ; VarSetStrCapacity(&uDev, iCount * (8 + A_PtrSize)) ; V1toV2: if 'uDev' is NOT a UTF-16 string, use 'uDev := Buffer(iCount * (8 + A_PtrSize))'
+	uDev := Buffer(iCount * (8 + A_PtrSize))
         
         ;Call
-        r := DllCall("GetRegisteredRawInputDevices", "Ptr", &uDev, "UInt*", iCount, "UInt", 8 + A_PtrSize)
-        If (r = -1) Or ErrorLevel {
-            ErrorLevel = GetRegisteredRawInputDevices call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        r := DllCall("GetRegisteredRawInputDevices", "Ptr", uDev, "UInt*", &iCount, "UInt", 8 + A_PtrSize)
+        If ((r = -1) Or not isSet(r)) {
+            ErrorLevel := "GetRegisteredRawInputDevices call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
             Return -1
         }
     }
@@ -498,26 +511,34 @@ AHKHID_GetInputInfo(InputHandle, Flag) {
     
     ;Check if it's the same handle
     If (InputHandle = iLastHandle) ;We can retrieve the data without having to call again
-        Return NumGet(uRawInput, Flag, AHKHID_NumIsShort(Flag) ? (AHKHID_NumIsSigned(Flag) ? "Short" : "UShort") : (AHKHID_NumIsSigned(Flag) ? "Int" : (Flag = 8 ? "Ptr" : "UInt")))
+        Return NumGet(uRawInput, Flag, AHKHID_NumIsShort(&Flag) ? (AHKHID_NumIsSigned(&Flag) ? "Short" : "UShort") : (AHKHID_NumIsSigned(&Flag) ? "Int" : (Flag = 8 ? "Ptr" : "UInt")))
     Else {    ;We need to get a fresh copy
         
+	    iSize := IsSet(iSize) ? iSize : 0 ;; TODO zelf er bij gezet, doet het iets?? Lijkt wel te werken!!
         ;Get raw data size                                           RID_INPUT
-        r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", 0, "UInt*", iSize, "UInt", 8 + A_PtrSize * 2)
-        If (r = -1) Or ErrorLevel {
-            ErrorLevel = GetRawInputData call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", 0, "UInt*", &iSize, "UInt", 8 + A_PtrSize * 2)
+        ; If (r = -1) Or ErrorLevel {
+        If (r = -1 or not IsSet(r))  {
+            ;ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+            MsgBox("GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError)
             Return -1
         }
         
         ;Prep var
-        VarSetCapacity(uRawInput, iSize)
-        
+        ; VarSetStrCapacity(&uRawInput, iSize) ; V1toV2: if 'uRawInput' is NOT a UTF-16 string, use 'uRawInput := Buffer(iSize)'
+	uRawInput := Buffer(iSize)
+	; MsgBox(uRawInput)
+        ; uRawInput  := uRawInput ? uRawInput : 0 ;; TODO zelf er bij gezet, doet het iets?? Lijkt wel te werken!!
         ;Get raw data                                                RID_INPUT
-        r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", &uRawInput, "UInt*", iSize, "UInt", 8 + A_PtrSize * 2)
-        If (r = -1) Or ErrorLevel {
-            ErrorLevel = GetRawInputData call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+        r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", uRawInput, "UInt*", &iSize, "UInt", 8 + A_PtrSize * 2)
+        ;; If (r = -1) Or ErrorLevel {
+        If (r = -1 or not IsSet(r))  {
+            ;; ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+             MsgBox("GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError)
             Return -1
-        } Else If (r <> iSize) {
-            ErrorLevel = GetRawInputData did not return the correct size.`nSize returned: %r%`nSize allocated: %iSize%
+        } Else If (r != iSize) {
+            ErrorLevel := "GetRawInputData did not return the correct size.`nSize returned: " . r . "`nSize allocated: " . iSize
+	    MsgBox(ErrorLevel)
             Return -1
         }
         
@@ -525,31 +546,33 @@ AHKHID_GetInputInfo(InputHandle, Flag) {
         iLastHandle := InputHandle
         
         ;Retrieve data
-        Return NumGet(uRawInput, Flag, AHKHID_NumIsShort(Flag) ? (AHKHID_NumIsSigned(Flag) ? "Short" : "UShort") : (AHKHID_NumIsSigned(Flag) ? "Int" : (Flag = 8 ? "Ptr" : "UInt")))
+        Return NumGet(uRawInput, Flag, AHKHID_NumIsShort(&Flag) ? (AHKHID_NumIsSigned(&Flag) ? "Short" : "UShort") : (AHKHID_NumIsSigned(&Flag) ? "Int" : (Flag = 8 ? "Ptr" : "UInt")))
     }
     
     Return 0
 }
 
-AHKHID_GetInputData(InputHandle, ByRef uData) {
+AHKHID_GetInputData(InputHandle, &uData) {
     
+	iSize := IsSet(iSize) ? iSize : 0 ;; TODO zelf er bij gezet, doet het iets?? Lijkt wel te werken!!
     ;Get raw data size                                           RID_INPUT
-    r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", 0, "UInt*", iSize, "UInt", 8 + A_PtrSize * 2)
-    If (r = -1) Or ErrorLevel {
-        ErrorLevel = GetRawInputData call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+    r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", 0, "UInt*", &iSize, "UInt", 8 + A_PtrSize * 2)
+    If (r = -1 or not IsSet(r)) {
+        ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
         Return -1
     }
     
     ;Prep var
-    VarSetCapacity(uRawInput, iSize)
+    ; VarSetStrCapacity(&uRawInput, iSize) ; V1toV2: if 'uRawInput' is NOT a UTF-16 string, use 'uRawInput := Buffer(iSize)'
+    uRawInput := Buffer(iSize)
     
     ;Get raw data                                                RID_INPUT
-    r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", &uRawInput, "UInt*", iSize, "UInt", 8 + A_PtrSize * 2)
-    If (r = -1) Or ErrorLevel {
-        ErrorLevel = GetRawInputData call failed.`nReturn value: %r%`nErrorLevel: %ErrorLevel%`nLine: %A_LineNumber%`nLast Error: %A_LastError%
+    r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", uRawInput, "UInt*", &iSize, "UInt", 8 + A_PtrSize * 2)
+    If (r = -1 or not IsSet(r)) {
+        ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
         Return -1
-    } Else If (r <> iSize) {
-        ErrorLevel = GetRawInputData did not return the correct size.`nSize returned: %r%`nSize allocated: %iSize%
+    } Else If (r != iSize) {
+        ErrorLevel := "GetRawInputData did not return the correct size.`nSize returned: " . r . "`nSize allocated: " . iSize
         Return -1
     }
     
@@ -557,17 +580,25 @@ AHKHID_GetInputData(InputHandle, ByRef uData) {
     iSize   := NumGet(uRawInput, 8 + A_PtrSize * 2 + 0, "UInt") ;ID_HID_SIZE
     iCount  := NumGet(uRawInput, 8 + A_PtrSize * 2 + 4, "UInt") ;ID_HID_COUNT
     
+    rawInputbin := NumGet(uRawInput, 8 + A_PtrSize * 2 + 8, "UInt") 
+
     ;Allocate memory
-    VarSetCapacity(uData, iSize * iCount)
-    
+    ; VarSetStrCapacity(&uData, iSize * iCount) ; V1toV2: if 'uData' is NOT a UTF-16 string, use 'uData := Buffer(iSize * iCount)'
+    uData := Buffer(iSize * iCount)
+    ;; UDATA gaat wss de integer zijn van de POINTER!!!!!!
+    ; udatapts := NumGet(uData, 8 + A_PtrSize * 2 + 8, "UInt")
+    ; MsgBox(udatapts)
+
+   ; MsgBox(uData.Ptr . "  " . rawInputbin . "sizeicount" . iSize * iCount)
     ;Copy bytes
-    DllCall("RtlMoveMemory", UInt, &uData, UInt, &uRawInput + 8 + A_PtrSize * 2 + 8, UInt, iSize * iCount)
+    ; DllCall("RtlMoveMemory", "UInt", uData, "UInt", uRawInput + 8 + A_PtrSize * 2 + 8, "UInt", iSize * iCount)
+    DllCall("RtlMoveMemory", "UInt", uData.Ptr , "UInt", uRawInput.Ptr + 8 + A_PtrSize * 2 + 8, "UInt", iSize * iCount)
     
     Return (iSize * iCount)
 }
 
 ;Internal use only
-AHKHID_NumIsShort(ByRef Flag) {
+AHKHID_NumIsShort(&Flag) {
     If (Flag & 0x0100) {
         Flag ^= 0x0100    ;Remove it
         Return True
@@ -575,9 +606,10 @@ AHKHID_NumIsShort(ByRef Flag) {
 }
 
 ;Internal use only
-AHKHID_NumIsSigned(ByRef Flag) {
+AHKHID_NumIsSigned(&Flag) {
     If (Flag & 0x1000) {
         Flag ^= 0x1000    ;Remove it
         Return True
     } Return False
 }
+
