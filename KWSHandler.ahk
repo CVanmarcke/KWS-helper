@@ -80,7 +80,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])III(?=[\/\-\s\.\,])", "3")
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])II(?=[\/\-\s\.\,])", "2")
 	inputtext := RegExReplace(inputtext, "segment I(?=[ ,\.])", "segment 1")
-	inputtext := RegExReplace(inputtext, "(?<=\d )n?o?r?maal(?= \d)", "x")		; Corrigeert een veel gemaakte fout van de speech
+	inputtext := RegExReplace(inputtext, "(?<=\d )n?o?r?maal(?= \d)", "x")	; Corrigeert een veel gemaakte fout van de speech
 	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra) (?=[\w\-])", "$1")	; peri centimetrisch -> pericentimetrisch
 
        ;; mammo:
@@ -103,10 +103,10 @@ cleanreport(inputtext) {
 	;;inputtext := RegExReplace(inputtext, "(?<=[\-\/])[DT](?=[1-9](?:[0-2]|[\ \:]))", "Th") ; Corrects -T10 of /D10 naar -Th10
 	;;inputtext := RegExReplace(inputtext, "(?<=\ )[DT](?=[1-9][0-2]?[\-\/])", "Th") ; Corrects T10- naar Th10
 	;;inputtext := RegExReplace(inputtext, "([CThD]\d{1,2}[\/-])[TD](?=\d{1,2})", "$1Th")			; corrects T1/X to Th1 TODO: werkt niet T11-L3
-	;;inputtext := RegExReplace(inputtext, "[TD](?=\d{1,2}[\/-][ThDL]{1,2}\d{1,2})", "Th")				; corrects X/T1 to Th1
+	;;inputtext := RegExReplace(inputtext, "[TD](?=\d{1,2}[\/-][ThDL]{1,2}\d{1,2})", "Th")			; corrects X/T1 to Th1
 	inputtext := RegExReplace(inputtext, "((?:C|Th|L|S)\d{1,2})\/((?:C|Th|L|S)\d{1,2})", "$1-$2")	; corrects L1/L2 to L1-L2
 	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3")			; corrects d/m/y tot d-m-y
-	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n")												; replaces triple+ newline with double
+	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n")											; replaces triple+ newline with double
 ;; TODO: checken of die [A-Z] ok is, want is toch met case insensitive gedaan...
 	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\`")(?![A-Z -]{5,}\:[\r\n]|CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
 	inputtext := RegExReplace(inputtext, "(CONCLUSIE:[\n\r\R])\-\ (.+)(?:[\n\r\R]|$)(?!-)", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten. WERKT NOG NIET
@@ -164,13 +164,13 @@ mergeReport(currentreportunclean, oldreportunclean) {
 		}
 	}
 	if (SubStr(currentreportheader, -1) != "`n") ; Fix dat soms de "compare" tegen de onderzoeken wordt gezet. eventueel te fixen in de REGEX of gewoon extra newlines hier vanonder en dan de overschot newlines wegdoen
+		MsgBox("Testnotification: adding newline")
 		currentreportheader := currentreportheader . "`n"
 	if (InStr(currentreport["type"], "RX thorax"))
 		oldreportcontent := cleanreport(oldreportcontent) ;; automatisch maakt het verslag proper als het een RX thorax is.
 	oldreportcontent := RegExReplace(oldreportcontent, "im)[\ \t]*supervis.*$", "") ; verwijder supervisie.
-	report := currentreportheader . "`n" . compared . "`n`n" . oldreportcontent
-	return report
-	;; return report[0]
+	; report := currentreportheader . "`n" . compared . "`n`n" . oldreportcontent
+	return currentreportheader . "" . compared . "`n`n" . oldreportcontent
 }
 
 
@@ -346,12 +346,15 @@ onveranderdMetVorigVerslag() {
 
 	MouseGetPos(&mouseX, &mouseY)
 	_BlockUserInput(True)
-	if (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\NieuweMededelingHeader.png")) {
+	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\NieuweMededelingHeader.png") ;; klikt eerst de mededeling weg als die er is
+	if (FoundX) {
 		MouseClick("left", FoundX+400, FoundY+15)
 		Sleep(50)
 	}
-	if (!ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\toonLaatstVerslagKnop.png")) {
-		if (!ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\toonLaatstVerslagKnopSelected.png")) {
+	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\toonLaatstVerslagKnop.png")
+	if (FoundX = "") {
+		ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\toonLaatstVerslagKnopSelected.png")
+		if (FoundX = "") {
 			_makeSplashText(title := "Error", text := "Geen vorig verslag aanwezig!", time := -2000)
 			MouseMove(mouseX, mouseY)
 			return
@@ -361,53 +364,55 @@ onveranderdMetVorigVerslag() {
 	Sleep(300)
 
 	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\laatstVerslagHeader.png")
-	if (ErrorLevel) {
+	if (FoundX = "") {
 		_makeSplashText(title := "Error", text := "Verslag popup niet gevonden!", time := -2000)
 		MouseMove(mouseX, mouseY)
 		return
 	}
 	MouseClick("left", FoundX+100, FoundY+200)
+	Sleep(100)
 	Send("^a")
 	Send("{Ctrl down}c{Ctrl up}") ;; zou ook reliablity verhogen
 	Errorlevel := !ClipWait(1)
 	oldreportunclean := A_Clipboard			; zet variabele gelijk aan clipboard
-	A_Clipboard := ""
 
-	ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\sluitLaatstVerslagKnop.png")
+	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\sluitLaatstVerslagKnop.png")
 	MouseClick("left", FoundX+5, FoundY+5)
+	Sleep(100)
 	MouseClick("left", FoundX+5, FoundY+650) ;; Selecteerd Textbox van KWS
 	Sleep(100) ;; even tijd geven
+	A_Clipboard := ""
 	if (RegExMatch(oldreportunclean, "m)^ingevoerde beelden$")) { ; undoes the whole operation
 		_makeSplashText(title := "ERROR", text := "Fout: het voorgaande verslag zijn ingevoerde beelden!", time := -2000)
 		_BlockUserInput(false)
 		return
 	}
 
+
 	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
 
-	RegExMatch(currentreportunclean, RegexQuerry, &currentreport)
-	RegExMatch(oldreportunclean, RegexQuerry, &oldreport)
+	foundcurrent  := RegExMatch(currentreportunclean, RegexQuerry, &currentreport)
+	foundprevious := RegExMatch(oldreportunclean, RegexQuerry, &oldreport)
+	;; Checkt of de regex van het vorige verslag gelukt is, en zo niet verwijderd het hele gedoe.
+	if (not foundprevious) {
+		_makeSplashText(title := "ERROR", text := "Probleem met de layout van het vorige verslag: is het een extern onderzoek?", time := -2000)
+		return ""
+	}
+	if (not foundcurrent) {
+		_makeSplashText(title := "ERROR", text := "Probleem met het huidige verslag te kopieren of layout herkennen: probeer opnieuw.", time := -2000)
+		return ""
+	}
 
-	compared := ""
-	if (oldreport["comparedwith"] && oldreport["compdate"]) {
-		compared := StrReplace(oldreport["comparedwith"], oldreport["compdate"], oldreport["date"])
-		oldreportcontent :=  StrReplace(oldreport["content"], oldreport["compdate"], oldreport["date"])
-	} else {
-		compared := "In vergelijking met het voorgaande onderzoek van " . oldreport["date"] . ":"
-	}
-	if (SubStr(currentreport["header"], StrLen(currentreport["header"])) != "`n") { ; Fix dat soms de "compare" tegen de onderzoeken wordt gezet. eventueel te fixen in de REGEX of gewoon extra newlines hier vanonder en dan de overschot newlines wegdoen
-		currentreport["header"] := currentreport["header"] . "`n"
-	}
+	compared := "In vergelijking met het voorgaande onderzoek van " . oldreport["date"] . ":"
 
 	mergedReport := currentreport["header"] . "`n" . compared . "`n`n- Globaal ongewijzigde positie van het supportmateriaal.`n- Globaal ongewijzigd cardiopulmonaal beeld."
-	Sleep(200)
-	_KWS_PasteToReport(mergedReport, true)
+
+	If (not mergedReport = "") ;; Checkt dat het effectief gelukt is om samen te voegen
+		_KWS_PasteToReport(mergedReport, true)
 	Send("^{F8}")							; Initieer dictee (ctrl F8)
 	MouseMove(mouseX, mouseY)
 	_BlockUserInput(false)
 	A_Clipboard := tempClip
-	return								; Klaar
-
 }
 
 validateAndClose_KWS() {
@@ -581,7 +586,6 @@ toInteger(int) {
 	return Integer(IsNumber(int) ? int : 0)
 }
 
-
 RIcalculatorGUI() {
 	RIcalc := Gui()
 	RIcalc.Opt("+LastFound")
@@ -603,8 +607,8 @@ RIcalculatorGUI() {
 
 RIcalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
 	if (A_GuiEvent = "Change") {
-		v1 := toInteger(GuiCtrlObj["vel1"])
-		v2 := toInteger(GuiCtrlObj["vel2"])
+		v1 := toInteger(GuiCtrlObj["vel1"].value)
+		v2 := toInteger(GuiCtrlObj["vel2"].value)
 		absolute := Round((Max(v1,v2) - Min(v1,v2)) / Max(v1,v2), 2)
 		percentage := Round(((Max(v1,v2) - Min(v1,v2)) / Max(v1,v2)) * 100, 1)
 		GuiCtrlObj["RIresult"].value := "PSV: " . Max(v1, v2) . " cm/s; RI: " . absolute
@@ -1086,7 +1090,7 @@ _KWS_CopyReportToClipboard(selectReportBox := True) {
 	_BlockUserInput(false)
 	Errorlevel := !ClipWait(1)					; wacht tot er data in het clipboard is
 	if (ErrorLevel)					; als NOT, is er data in clipboard
-		throw Error("Could not copy data to A_Clipboard!", -1)							; STOPT als geen data in clipboard
+		throw Error("Could not copy data to A_Clipboard!", -1)						; STOPT als geen data in clipboard
 }
 
 _KWS_SelectReportBox(mousebutton := "left") {
@@ -1198,7 +1202,6 @@ _getBirthDate(returnMouse := false) {
 	return date
 }
 
-;; TODO
 _makeSplashText(title := "Splash title", text := "Splash text", time := -3000, doublePressMode := false) {
 	time := Abs(time) * (-1) ;; Zorgt dat time altijd negatief is (dat removesplash dus maar 1 keer wordt uitgevoerd ipv in loop)
 	global splashExists
@@ -1338,22 +1341,12 @@ _MouseIsOver(vWinTitle:="", vWinText:="", vExcludeTitle:="", vExcludeText:="") {
 	return WinExist(vWinTitle (vWinTitle=""?"":" ") "ahk_id " hWnd, vWinText, vExcludeTitle, vExcludeText)
 }
 
-
 findAndReplaceGUI() {
 	active_id := WinGetID("A") ;; gets the window where the script was activated
 	A_Clipboard := ""
 	Send("{Ctrl down}c{Ctrl up}") ;; zou ook reliablity verhogen
 	ClipWait(1)
 	originalText := A_Clipboard
-	; global repTextBox
-	; global findText
-	; global replaceText
-	; global RegexToggle
-	; global IgnoreCaseFlag
-	; global MultilineFlag
-	; global SinglelineFlag
-	; global UngreadyFlag
-
 	repGUI := Gui()
 	repGUI.Opt("+LastFound -DPIscale")
 	repGuiHWND := WinExist()
@@ -1415,16 +1408,9 @@ findAndReplaceGUI() {
 		repGui.Destroy()
 	}
 	updateRepGUI(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
-		needle := ogcEditfindText.Text
-		replacement := ogcEditreplaceText.Text
-		regexTogglevar := ogcCheckboxRegexToggle.Text
-		IgnoreCaseFlag := ogcCheckboxIgnoreCaseFlag.Text
-		MultilineFlag := ogcCheckboxMultilineFlag.Text
-		SinglelineFlag := ogcCheckboxSinglelineFlag.Text
-		UngreadyFlag := ogcCheckboxUngreadyFlag.Text
-		flag := _findreplaceConstructRegexFlags(IgnoreCaseFlag, MultilineFlag, SinglelineFlag, UngreadyFlag)
+		flag := _findreplaceConstructRegexFlags(ogcCheckboxIgnoreCaseFlag.Text, ogcCheckboxMultilineFlag.Text, ogcCheckboxSinglelineFlag.Text, ogcCheckboxUngreadyFlag.Text)
 		repTextBox.open()
-		repTextBox.write(_getHTMLReplaceBox(originalText, needle, replacement, regexTogglevar, flag))
+		repTextBox.write(_getHTMLReplaceBox(originalText, ogcEditfindText.Text, ogcEditreplaceText.Text, ogcCheckboxRegexToggle.Text, flag))
 		repTextBox.close()
 	}
 } ; V1toV2: Added bracket before function
