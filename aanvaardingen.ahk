@@ -3,9 +3,11 @@
 #Include "Sift.ahk" ; Sift library
 
 SetTitleMatchMode(1)
+SetMouseDelay(-1) ;remove delays from mouse actions
+SetDefaultMouseSpeed 0
 
-  Data := ""
-  Data_orl := "
+Data := ""
+Data_orl := "
   (
     Rotsbeenderen standaard				RAD mr rotsb (+)
     Verworven perceptiedoofheid/perifere vertigo		RAD mr orl 01 (+)
@@ -36,7 +38,7 @@ SetTitleMatchMode(1)
     zondercontrast     (-)
     metcontrast    (+)
   )"
-  Data_neuro := "
+Data_neuro := "
   (
   Cervicobrachalgie				RAD mr wz 01  (-)
   CWK/DWK Post-Op			RAD mr wk 19  (-)
@@ -96,7 +98,7 @@ SetTitleMatchMode(1)
   Studie (?)
   )"
 
-  Data_abdomen_MR := "
+Data_abdomen_MR := "
   (
 	TODO: onvolledig!!
 
@@ -119,7 +121,7 @@ SetTitleMatchMode(1)
 
   )"
 
-  Data_abdomen_CT := "
+Data_abdomen_CT := "
   (
   Klassiek abdomen			RAD ct abd 22 (+) [IV veneus + 3 PO]
   Bloeding				RAD ct abd 22 (+) [trifasisch]
@@ -132,9 +134,10 @@ SetTitleMatchMode(1)
   Combi URO lijst			RAD ct uro 24 (+)
   Combi thoraxlijst			RAD ct thorax 20 (+)
 
+  NOTA: gebruik ctrl-m en ctrl-z om snel met of zonder contrast te kiezen. ctrl-m zet ook automatisch IV veneus + 3 PO.
   )"
 
- Data_thorax := "
+Data_thorax := "
   (
   Longembolen				RAD ct thorax 28 (+)
   Longembolen (chronisch)			RAD ct thorax 35 (+)
@@ -147,7 +150,7 @@ SetTitleMatchMode(1)
   Mediastinum				RAD ct thorax 15 (+)
   )"
 
-  Data_uro_CT  := "
+Data_uro_CT  := "
   (
   Bijnier					RAD ct uro 08 (+)
   Nier vasculair				RAD ct uro 100 (+)
@@ -164,15 +167,18 @@ SetTitleMatchMode(1)
   Niervolumetrie				RAD ct uro 28 (-) [Indien ADPKD normale dosis]
   )"
 
-  helptext := "
+helptext := "
   (
   Enter		-> Vul het eerste onderzoek in in KWS.
-  Ctrl-Enter 	-> Aanvaard het onderzoek in KWS (duwt op OK).
+  Ctrl-Enter	-> Aanvaard het onderzoek in KWS (duwt op OK).
   Ctrl-NumpadEnter -> Aanvaard het onderzoek in KWS (duwt op OK).
-  Ctrl-Numpad+ 	-> Selecteer 'met contrast'.
-  Ctrl-Numpad- 	-> Selecteer 'zonder contrast'.
+  Ctrl-Numpad+	-> Selecteer 'met contrast'.
+  Ctrl-Numpad-	-> Selecteer 'zonder contrast'.
+  Ctrl-m		-> Selecteer 'met contrast'.
+  Ctrl-z		-> Selecteer 'zonder contrast'.
   Ctrl-i		-> Zet de cursor in 'Opmerkingen'.
-  Ctrl-q		-> Sla de huidige patient over.
+  Ctrl-l		-> Open het labo.
+  Ctrl-q		-> Sluit het huidige KWS scherm (pt of labo).
 
   NB: Als abdomen CT is geselecteerd als discipline, zal Ctrl-Numpad+ ook 'IV veneus {+} 3 PO invullen'.
 )"
@@ -187,7 +193,10 @@ start_aanvaardingen:
   ;; Hotkey, Enter, aanvaard_onderzoek_knop ;; mss neit meer nodig met default
   Hotkey("^NumpadAdd", ctrnumplusHotkey)
   Hotkey("^NumpadSub", ctrlnumminHotkey)
+  Hotkey("^m", ctrnumplusHotkey)
+  Hotkey("^z", ctrlnumminHotkey)
   Hotkey("^i", selectOpmerking)
+  Hotkey("^l", selectLabo)
   Hotkey("^q", sluitaanvaardschermKWS)
   toon_onderzoeken := ""
   ;; TODO onthouden welke subdiscipline.
@@ -251,12 +260,11 @@ aanvaard_onderzoek_knop(A_GuiEvent, GuiCtrlObj, Info := "", *)
 	Gui_Display := oSaved.Gui_Display
 	onderzoek := Sift_Regex(&Data, &onderzoek_naam, "oc")
 	onderzoek := StrSplit(onderzoek, "`n")[1]
-	RegExMatch(onderzoek, "(RAD .*[a-zA-Z0-9])\ +\((.)\)(?:\ +\[(.+)\])?", &gekozenOnderzoek)
-	aanvaardOnderzoek(gekozenOnderzoek.1, gekozenOnderzoek.2, gekozenOnderzoek.3)
+	if RegExMatch(onderzoek, "(RAD .*[a-zA-Z0-9])\ +\((.)\)(?:\ +\[(.+)\])?", &gekozenOnderzoek)
+		aanvaardOnderzoek(gekozenOnderzoek.1, gekozenOnderzoek.2, gekozenOnderzoek.3)
 } ; V1toV2: Added bracket before function
 
-druk_ok_aanvaarding(ThisHotkey)
-{ ; V1toV2: Added bracket
+druk_ok_aanvaarding(ThisHotkey) {
   WinActivate("KWS ahk_exe javaw.exe")
   MouseGetPos(&mouseX, &mouseY)
   ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")
@@ -267,61 +275,75 @@ druk_ok_aanvaarding(ThisHotkey)
   MouseClick("left", FoundX+5, FoundY+5)
   MouseMove(mouseX, mouseY)
   ogcEditonderzoek_naam.Text := "" ;;nodig?
-  WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
   zoek_onderzoek_naam("Button", "")
-  return
-} ; V1toV2: Added Bracket before label
+  sleep(300)
+  WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+  ; sleep(200)
+  ; WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+}
 
-aanvaarderGuiEscape(*)
-{ ; V1toV2: Added bracket
+aanvaarderGuiEscape(*) {
 aanvaarderGuiClose:
 	ExitApp()
 Return
-} ; V1toV2: Added bracket before function
+}
 
 selectOpmerking(ThisHotkey)
-{ ; V1toV2: Added bracket
+{
 	WinActivate("KWS ahk_exe javaw.exe")
 	MouseGetPos(&mouseX, &mouseY)
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\contrastLabel.png")
-	If (ErrorLevel = 0) {
+	If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\contrastLabel.png")) {
 		MouseClick("Left", FoundX + 250, FoundY + 200)
 		SendInput("^a")
 		MouseMove(mouseX, mouseY)
 	} else
 		MsgBox("Het opmerkingen formulier werd niet gevonden.")
-return
-} ; V1toV2: Added Bracket before label
+}
 
-sluitaanvaardschermKWS(ThisHotkey)
-{ ; V1toV2: Added bracket
+selectLabo(ThisHotkey)
+{
+	WinActivate("KWS ahk_exe javaw.exe")
+	MouseGetPos(&mouseX, &mouseY)
+	If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\contrastLabel.png")) {
+		MouseClick("Left", FoundX + 365, FoundY)
+		sleep(550)
+		If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\eGFRLabel.png"))
+			MouseClick("Left", FoundX + 3, FoundY + 3) ;; klik op GFR
+		else
+			MouseClick("Left", 950, 310) ;; even klikken op het KWS scherm om het gele vakje weg te krijgen.
+		sleep(50)
+		WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+		MouseMove(mouseX, mouseY)
+	} else
+		MsgBox("Het opmerkingen formulier werd niet gevonden.")
+;	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+}
+
+sluitaanvaardschermKWS(ThisHotkey) {
   WinActivate("KWS ahk_exe javaw.exe")
+  sleep(200)
   Send("^{F4}")
+  sleep(300)
   WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
-return
-} ; V1toV2: Added bracket before function
+}
 
-ctrnumplusHotkey(ThisHotkey)
-{ ; V1toV2: Added bracket
+ctrnumplusHotkey(ThisHotkey) { ; V1toV2: Added bracket
 	global subdiscipline
 	Switch subdiscipline {
 		Case "abdomen (CT)": aanvaardOnderzoek("", "+", "IV veneus {+} 3 PO")
 		Default: aanvaardOnderzoek("", "+", "")
 	}
-return
-} ; V1toV2: Added Bracket before label
+	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+}
 
-ctrlnumminHotkey(ThisHotkey)
-{ ; V1toV2: Added bracket
-  aanvaardOnderzoek("", "-", "")
-return
-} ; V1toV2: Added Bracket before label
+ctrlnumminHotkey(ThisHotkey) { ; V1toV2: Added bracket
+	aanvaardOnderzoek("", "-", "")
+	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+}
 
-helpknop(A_GuiEvent, GuiCtrlObj, Info := "", *)
-{ ; V1toV2: Added bracket
-MsgBox(helptext)
-return
-} ; V1toV2: Added bracket before function
+helpknop(A_GuiEvent, GuiCtrlObj, Info := "", *) {
+	MsgBox(helptext)
+}
 
 aanvaardOnderzoek(onderzoekCode := "", contrast := "?", opmerking := "") {
 	WinActivate("KWS ahk_exe javaw.exe")
