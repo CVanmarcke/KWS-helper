@@ -1,15 +1,15 @@
 ﻿;****************************************************************
 ;								*
-;     		Luie radiologen TIRADS hulpje			*
-;		TIRADS calculator + verslag maker 		*
+;		Luie radiologen TIRADS hulpje			*
+;		TIRADS calculator + verslag maker		*
 ;								*
 ;****************************************************************
 ;								*
-; 	Auteur: Cedric Vanmarcke				*
-; 								*
-; 	Handleiding: zie "readme.txt" bestand			*
+;	Auteur: Cedric Vanmarcke				*
 ;								*
-; 	Dit programma is bedoeld voor iedereen die 		*
+;	Handleiding: zie "readme.txt" bestand			*
+;								*
+;	Dit programma is bedoeld voor iedereen die		*
 ;		het kan en wil gebruiken			*
 ;	Voor vragen: cedric.vanmarcke@uzleuven.be		*
 ;								*
@@ -321,4 +321,3 @@ constructReport(NoduleList) {
 toInteger(int) {
 	return Integer(IsNumber(int) ? int : 0)
 }
-

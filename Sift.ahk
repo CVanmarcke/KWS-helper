@@ -8,7 +8,7 @@
 ; ===================================================================================================================================================
 ;
 ; Functions:
-; 
+;
 ; ===================================================================================================================================================
 ; Sift_Regex(Haystack, Needle, Options, Delimiter)
 ;
@@ -23,7 +23,7 @@
 ;			RIGHT	Needle is to RIGHT or end of Haystack item
 ;			EXACT	Needle is an EXACT match to Haystack item
 ;			REGEX	Needle is an REGEX expression to check against Haystack item
-;			OC		Needle is ORDERED CHARACTERS to be searched for even non-consecutively but in the given order in Haystack item 
+;			OC		Needle is ORDERED CHARACTERS to be searched for even non-consecutively but in the given order in Haystack item
 ;			OW		Needle is ORDERED WORDS to be searched for even non-consecutively but in the given order in Haystack item
 ;			UC		Needle is UNORDERED CHARACTERS to be search for even non-consecutively and in any order in Haystack item
 ;			UW		Needle is UNORDERED WORDS to be search for even non-consecutively and in any order in Haystack item
@@ -32,11 +32,11 @@
 ;
 ;	4)  {Delimiter}	Single character Delimiter of each item in a Haystack string (Default = `n)
 ;
-;	Returns: 
+;	Returns:
 ;		If Haystack is string then a string is returned of found Haystack items delimited by the Delimiter
-; 		If Haystack is an array then an array is returned of found Haystack items
+;		If Haystack is an array then an array is returned of found Haystack items
 ;
-; 	Note:
+;	Note:
 ;		Sift_Regex searchs are all RegExMatch seaches with Needles crafted based on the options chosen
 ;
 ; ===================================================================================================================================================
@@ -49,11 +49,11 @@
 ;
 ;	3) {Delta}			(Default = .7) Fuzzy match coefficient, 1 is a prefect match, 0 is no match at all, only results above the Delta are returned
 ;
-;	4) {Haystack_Matrix} (Default = false)	
+;	4) {Haystack_Matrix} (Default = false)
 ;			An object containing the preprocessing of the Haystack for Ngrams content
 ;			If a non-object is passed the Haystack is processed for Ngram content and the results are returned by ByRef
 ;			If an object is passed then that is used as the processed Ngram content of Haystack
-;			If multiply calls to the function are made with no change to the Haystack then a previous processing of Haystack for Ngram content 
+;			If multiply calls to the function are made with no change to the Haystack then a previous processing of Haystack for Ngram content
 ;				can be passed back to the function to avoid reprocessing the same Haystack again in order to increase efficiency.
 ;
 ;	5) {Ngram Size}		(Default = 3) The length of Ngram used.  Generally Ngrams made of 3 letters called a Trigram is good
@@ -76,7 +76,7 @@
 ;	Dependencies: Sift_Ngram_Get, Sift_Ngram_Compare, Sift_Ngram_Matrix, Sift_SortResults
 ;		These are helper functions that are generally not called directly.  Although Sift_Ngram_Matrix could be useful to call directly to preprocess a large static Haystack
 ;
-; 	Note:
+;	Note:
 ;		The string "dog house" would produce these Trigrams: dog|og |g h| ho|hou|ous|use
 ;		Sift_Ngram breaks the needle and each item of the Haystack up into Ngrams.
 ;		Then all the Needle Ngrams are looked for in the Haystack items Ngrams resulting in a percentage of Needle Ngrams found
@@ -88,13 +88,13 @@ Sift_Regex(&Haystack, &Needle := "", Options := "IN", Delimit := "`n") {
 	Needle := IsSet(Needle) ? Needle : ""
 	;; Sifted := {}
 	Sifted := ""
-	if (Options = "IN")		
+	if (Options = "IN")
 		Needle_Temp := "\Q" Needle "\E"
 	else if (Options = "LEFT")
 		Needle_Temp := "^\Q" Needle "\E"
 	else if (Options = "RIGHT")
 		Needle_Temp := "\Q" Needle "\E$"
-	else if (Options = "EXACT")		
+	else if (Options = "EXACT")
 		Needle_Temp := "^\Q" Needle "\E$"
 	else if (Options = "REGEX")
 		Needle_Temp := Needle
@@ -111,7 +111,7 @@ Sift_Regex(&Haystack, &Needle := "", Options := "IN", Delimit := "`n") {
 
 	if isLower(Options)
 		Needle_Temp := "i)" Needle_Temp
-	
+
 	if IsObject(Haystack) {
 		for key, Hay in Haystack
 			if RegExMatch(Hay, Needle_Temp)
@@ -168,7 +168,7 @@ Sift_Ngram_Get(&String, n := 3)
 	Loop (1 + StrLen(String) - n)
 		gram := SubStr(String, (A_Index)<1 ? (A_Index)-1 : (A_Index), n), Grams[gram] ? Grams[gram] ++ : Grams[gram] := 1
 	return Grams
-} 
+}
 
 Sift_Ngram_Compare(&Hay, &Needle)
 {

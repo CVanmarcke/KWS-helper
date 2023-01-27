@@ -1,5 +1,4 @@
-﻿
-; CODE ADAPTED FROM https://www.autohotkey.com/board/topic/38015-ahkhid-an-ahk-implementation-of-the-hid-functions/
+﻿; CODE ADAPTED FROM https://www.autohotkey.com/board/topic/38015-ahkhid-an-ahk-implementation-of-the-hid-functions/
 ; Note: for this script to work, it must be one of the first to be included in the main script!
 ; Be carefull with labels in the main script (or includes other scripts), as this can cause interference and may casue this script to fail to work.
 
@@ -11,11 +10,11 @@
 usagePage := 65440
 vendorID := 2321
 productID := 3100
- 
-WM_INPUT := 0x00FF 
+
+WM_INPUT := 0x00FF
 RIDEV_INPUTSINK     := 0x00000100   ;If set, this enables the caller to receive the input even when the caller is not in
 DI_HID_VENDORID             := 8    ;Vendor ID for the HID.
-DI_HID_PRODUCTID            := 12   ;Product ID for the HID. 
+DI_HID_PRODUCTID            := 12   ;Product ID for the HID.
 II_DEVHANDLE        := 8    ;Handle to the device generating the raw input data.
 
 ; Create GUI to receive messages
@@ -35,7 +34,7 @@ r := AHKHID_Register(usagePage, 1, handlerGUI.Hwnd, RIDEV_INPUTSINK)
 funct_caller(funct, param) {			; this will call a the function funct with parameters ==> funct(param)
 	funct.call(param)
 	; if ( IsFunc(funct) != 0 )
-	; 	ret_val := %funct%(param)
+	;	ret_val := %funct%(param)
 	; return
 }
 
@@ -44,7 +43,7 @@ InputMsg(wParam, lParam, msg, hwnd) {
 	; 1 905447557 255 40174758
 	Local devh, iKey, sLabel
 	Critical()
-	
+
 	;Get handle of device
 	devh := AHKHID_GetInputInfo(lParam, II_DEVHANDLE)
 	; MsgBox(devh . " " . AHKHID_GetDevInfo(devh, DI_HID_VENDORID, True) . " " . AHKHID_GetDevInfo(devh, DI_HID_PRODUCTID, True))
@@ -63,16 +62,16 @@ InputMsg(wParam, lParam, msg, hwnd) {
 			keyCode := Bin2Hex(&uData, iKey)
 			; MsgBox(keyTest)
 			keyBuffer(keyCode)
-			; PassHotkey(output)			; if you dont want to use the buffer	
+			; PassHotkey(output)			; if you dont want to use the buffer
 			; _log(keyCode)
 		}
-	} 
+	}
 }
 
 keyBuffer(keypressed) {				; Some devices will fire the output twice very fast: this will prevent it from firing twice.
 	static preventKeypress := False
 	; exception if ending with 0000 (= release button, and pick up trigger): no buffer, otherwise it will conflict with a double press.
-	if (SubStr(keypressed, StrLen(keypressed)-3) == "5656") { 
+	if (SubStr(keypressed, StrLen(keypressed)-3) == "5656") {
 		PassHotkey(keypressed)
 		preventKeypress := False
 		return
@@ -92,8 +91,8 @@ Bin2Hex(&addr, len) {									; magic
 ; REMOVED:     f := A_FormatInteger
 ; REMOVED:     SetFormat IntegerFast, H
     Loop len
-        hex .= SubStr(0x100 + NumGet(addr.ptr + A_Index-1, 0, "uchar"), -2)
-        ; hex .= SubStr(0x100 + NumGet(addr + A_Index-1, 0, "uchar"), -2)
+	hex .= SubStr(0x100 + NumGet(addr.ptr + A_Index-1, 0, "uchar"), -2)
+	; hex .= SubStr(0x100 + NumGet(addr + A_Index-1, 0, "uchar"), -2)
 ; REMOVED:     SetFormat IntegerFast, % f
     return hex
 }
@@ -119,9 +118,9 @@ Bin2Hex(&addr, len) {									; magic
 
 /*
 ; Key codes most Philips speech devices
-PassHotkey(keypressed) { 
+PassHotkey(keypressed) {
 	Switch keypressed {
-		Case "00800000000000000020":  
+		Case "00800000000000000020":
 			MsgBox, EOL
 		Case "00800000000000000080":
 			MsgBox, -i-
@@ -142,9 +141,9 @@ PassHotkey(keypressed) {
 		Case "00800000000000000800":
 			MsgBox, F3
 		Case "00800000000000001000":
-			MsgBox, F4	
+			MsgBox, F4
 		Case "00800000000000002000":
-			MsgBox, back button 
+			MsgBox, back button
 		Case "009E0000000000000000":
 			MsgBox, picked up
 		Case "009E0000000000000001":
@@ -159,7 +158,7 @@ PassHotkey(keypressed) {
 
 /*
 ; Key codes for some other Philips speech devices.
-00800000002404000020 	; EOL
+00800000002404000020	; EOL
 00800000002404000080	; -i-
 00800000002404000040	; INS
 00800000002404000010	; Back
@@ -167,11 +166,10 @@ PassHotkey(keypressed) {
 00800000002404000008	; Fwd
 00800000002404000004	; Play/pause
 00800000002404000200	; F1
-009E0000000000000000 	; Probably pick up signal (not sure)
-00800000002404000400 	; F2
+009E0000000000000000	; Probably pick up signal (not sure)
+00800000002404000400	; F2
 00800000002404000800	; F3
 00800000002404001000	; F4
 00800000002404002000	; BackButton
 009E0000000000000001	; Probably put down signal (not sure)
 */
-

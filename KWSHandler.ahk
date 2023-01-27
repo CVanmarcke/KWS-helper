@@ -43,6 +43,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "im)^punt ", ". ")	; corrigeert speech fout dat het punt typt ipv punt (enkel in het begin van de zin)
 	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.+)\/ ?(?=\R|$)", "  . $1")                          ;; Alle zinnen met / op einde krijgen " . " er voor
 	inputtext := RegExReplace(inputtext, "m)^([\t\ ])+\*", "$1.")                          ;; Als * geindenteerd is wordt het vervangen met .
+	inputtext := RegExReplace(inputtext, "m)[\ \t]+$", "")  ; zorgt dat er geen nutteloze spaties op het einde van de zin komen
 	if (RegExMatch(inputtext, "m)^\. ?.+(?:\R|$)") OR RegExMatch(inputtext, "m)^.+# ?.?(?:\R|$)")) {	; only executes if there is ". " or "#" in the script
 		inputtext := _sorttext(inputtext) ; zet alle zinnen met een punt vooraan, onder het verslag.
 	}
@@ -70,7 +71,7 @@ cleanreport(inputtext) {
 	;; inputtext := StrReplace(inputtext, "bewaarde", "intacte")
 	inputtext := StrReplace(inputtext, "partiële beeld", "partiëel in beeld")
 	inputtext := StrReplace(inputtext, "plaatsen schroef", "plaat en schroef")
-	inputtext := StrReplace(inputtext, "rx", "RX", 0)
+	inputtext := StrReplace(inputtext, "rx ", "RX ", 0)
 	inputtext := RegExReplace(inputtext, "(?<=[a-z\d]),(?=[a-z])", ", ")  ; zet een extra spatie achter komma als nog niet aanwezig
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VIII(?=[\/\-\s\.\,])", "8")
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VII(?=[\/\-\s\.\,])", "7")
@@ -91,12 +92,11 @@ cleanreport(inputtext) {
 	; inputtext := RegExReplace(inputtext, "i)gekende?", "\#\#\#")
 	inputtext := RegExReplace(inputtext, "im)[\ \t]*supervis.*$", "") ; verwijderd supervisie.
 
-	inputtext := RegExReplace(inputtext, "m)[\ \t]+$", "")  ; zorgt dat er geen nutteloze spaties op het einde van de zin komen
 	;;; inputtext := RegExReplace(inputtext, "([\n\r\.]) +(?=[\n\r])", "$1")  ; zorgt dat er geen spatie achter . of op nieuwe lijn komt
 	inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2")				; corrigeert WOord naar Woord
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
 	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
-	inputtext := RegExReplace(inputtext, "m)(?<=\. |\? |^- |^)(\w)", "$U1")						; converts to uppercase after ., newline or newline -
+	inputtext := RegExReplace(inputtext, "m)(?<=(?<! a)\. |\? |^- |^)(\w)", "$U1")				; converts to uppercase after ., newline or newline - (exception for a. hepatica etc)
 	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")				; makes sure there is a space after a colon or point (if not number)...
 	inputtext := RegExReplace(inputtext, "(?<=[\:\;])\ ?([A-Z][^A-Z])", " $L1")				; converts after : or ; to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 ;;	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
@@ -118,23 +118,23 @@ cleanreport(inputtext) {
 }
 
 cleanReport_KWS() {
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<content>[\s\S]+?)(?:\R*$|[\n\r]{2,}\*\* Eind)"
+	RegexQuery := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<content>[\s\S]+?)(?:\R*$|[\n\r]{2,}\*\* Eind)"
 	try _KWS_CopyReportToClipboard(selectReportBox := True)
 	catch Error as e {
 		MsgBox(type(e) " in " e.What ", which was called at line " e.Line)
 		return
 	}
-	RegExMatch(A_Clipboard, RegexQuerry, &report)
+	RegExMatch(A_Clipboard, RegexQuery, &report)
 	if (isSet(report))
 		_KWS_PasteToReport(report["header"] . "`n" . cleanreport(report["content"]))
 }
 
 
 mergeReport(currentreportunclean, oldreportunclean) {
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
+	RegexQuery := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
 
-	foundcurrent  := RegExMatch(currentreportunclean, RegexQuerry, &currentreport)
-	foundprevious := RegExMatch(oldreportunclean, RegexQuerry, &oldreport)
+	foundcurrent  := RegExMatch(currentreportunclean, RegexQuery, &currentreport)
+	foundprevious := RegExMatch(oldreportunclean, RegexQuery, &oldreport)
 	;; Checkt of de regex van het vorige verslag gelukt is, en zo niet verwijderd het hele gedoe.
 	if (not foundprevious) {
 		_makeSplashText(title := "ERROR", text := "Probleem met de layout van het vorige verslag: is het een extern onderzoek?", time := -2000)
@@ -238,7 +238,7 @@ copyLastReport_KWS() {
 }
 
 selectLastReport_KWS() {
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
+	RegexQuery := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
 	try _KWS_CopyReportToClipboard(selectReportBox := True)
 	catch Error as e {
 		return
@@ -290,8 +290,8 @@ selectLastReport_KWS() {
 
 	oldreportunclean := A_Clipboard			; zet variabele gelijk aan clipboard
 	A_Clipboard := ""				; maakt het clipboard leeg
-	RegExMatch(oldreportunclean, RegexQuerry, &oldreport)
-	RegExMatch(currentreportunclean, RegexQuerry, &currentreport)
+	RegExMatch(oldreportunclean, RegexQuery, &oldreport)
+	RegExMatch(currentreportunclean, RegexQuery, &currentreport)
 	compared := ""
 	;; Checkt of de regex van het vorige verslag gelukt is, en zo niet verwijderd het hele gedoe.
 ;; TODO NOT CHECKED FOR ERRORS
@@ -389,10 +389,10 @@ onveranderdMetVorigVerslag() {
 	}
 
 
-	RegexQuerry := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
+	RegexQuery := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
 
-	foundcurrent  := RegExMatch(currentreportunclean, RegexQuerry, &currentreport)
-	foundprevious := RegExMatch(oldreportunclean, RegexQuerry, &oldreport)
+	foundcurrent  := RegExMatch(currentreportunclean, RegexQuery, &currentreport)
+	foundprevious := RegExMatch(oldreportunclean, RegexQuery, &oldreport)
 	;; Checkt of de regex van het vorige verslag gelukt is, en zo niet verwijderd het hele gedoe.
 	if (not foundprevious) {
 		_makeSplashText(title := "ERROR", text := "Probleem met de layout van het vorige verslag: is het een extern onderzoek?", time := -2000)
@@ -785,7 +785,8 @@ KWStoExcel(excelSavePath) {
 
 	_BlockUserInput(True)
 	_KWS_CopyReportToClipboard()
-	RegexQuery := "(?:Leuven|Pellenberg)[\s\S]+(?<datum>\d{2}-\d{2}-\d{4})[\s\S]+(?:KLINISCHE INLICHTINGEN:[\n\r]+)(?<klinlicht>[\s\S]+)[\n\r]{2,}(?:DIAGNOSTISCHE VRAAGSTELLING:[\n\r]+)(?<diagvraag>[\s\S]+)[\n\r]{2,}(?:ONDERZOEKE?N?:[\n\r]+)(?<onderzoek>(?:.+\R{0,1}?)+)\R{2,}(?:[\s\S]+)"
+	RegexQuery := "(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?<datum>\d{2}-\d{2}-\d{4})[\s\S]+(?:KLINISCHE INLICHTINGEN:[\n\r]+)(?<klinlicht>[\s\S]+)[\n\r]{2,}(?:(?:DIAGNOSTISCHE|RADIOLOGISCHE) VRAAGSTELLING:[\n\r]+)(?<diagvraag>[\s\S]+)[\n\r]{2,}(?:ONDERZOEKE?N?:[\n\r]+)(?<onderzoek>(?:.+\R{0,1}?)+)\R{2,}(?<content>[\s\S]+)"
+
 	RegExMatch(A_Clipboard, RegexQuery, &report)
 	ead := _getEAD()
 	_BlockUserInput(false)
@@ -879,6 +880,7 @@ KWStoExcel(excelSavePath) {
 			}
 			opTeVolgen := FormatTime(FutureDate, "yyy-MM-dd")
 		}
+
 		XL.Application.ActiveSheet.range("A" . lastCell).value := ead
 		XL.Application.ActiveSheet.range("B" . lastCell).value := report["datum"]
 		XL.Application.ActiveSheet.range("C" . lastCell).value := ExcCategorySelect

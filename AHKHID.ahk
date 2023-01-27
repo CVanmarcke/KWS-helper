@@ -54,7 +54,7 @@ can be found at the top of the script (the constants starting with DI_). Each fl
 If IsHandle is false, then i is considered the index (starts at 1) of the device in the enumeration. Otherwise it is the
 handle of the device. Returns -1 on error (with error message in ErrorLevel).
 
-See Example 1 for an example on how to use it. 
+See Example 1 for an example on how to use it.
 _______________________________________________________________________________
 AHKHID_AddRegister(UsagePage = False, Usage = False, Handle = False, Flags = 0)
 
@@ -132,20 +132,20 @@ DI_DEVTYPE                  := 4    ;Type of the device. See RIM_ constants.
 DI_MSE_ID                   := 8    ;ID for the mouse device.
 DI_MSE_NUMBEROFBUTTONS      := 12   ;Number of buttons for the mouse.
 DI_MSE_SAMPLERATE           := 16   ;Number of data points per second. This information may not be applicable for every
-                                    ;mouse device.
+				    ;mouse device.
 DI_MSE_HASHORIZONTALWHEEL   := 20   ;Vista and later only: TRUE if the mouse has a wheel for horizontal scrolling;
-                                    ;otherwise, FALSE.
+				    ;otherwise, FALSE.
 
-DI_KBD_TYPE                 := 8    ;Type of the keyboard. 
-DI_KBD_SUBTYPE              := 12   ;Subtype of the keyboard. 
-DI_KBD_KEYBOARDMODE         := 16   ;Scan code mode. 
+DI_KBD_TYPE                 := 8    ;Type of the keyboard.
+DI_KBD_SUBTYPE              := 12   ;Subtype of the keyboard.
+DI_KBD_KEYBOARDMODE         := 16   ;Scan code mode.
 DI_KBD_NUMBEROFFUNCTIONKEYS := 20   ;Number of function keys on the keyboard.
 DI_KBD_NUMBEROFINDICATORS   := 24   ;Number of LED indicators on the keyboard.
-DI_KBD_NUMBEROFKEYSTOTAL    := 28   ;Total number of keys on the keyboard. 
+DI_KBD_NUMBEROFKEYSTOTAL    := 28   ;Total number of keys on the keyboard.
 
 DI_HID_VENDORID             := 8    ;Vendor ID for the HID.
-DI_HID_PRODUCTID            := 12   ;Product ID for the HID. 
-DI_HID_VERSIONNUMBER        := 16   ;Version number for the HID. 
+DI_HID_PRODUCTID            := 12   ;Product ID for the HID.
+DI_HID_VERSIONNUMBER        := 16   ;Version number for the HID.
 DI_HID_USAGEPAGE            := 20 | 0x0100  ;Top-level collection Usage Page for the device.
 DI_HID_USAGE                := 22 | 0x0100  ;Top-level collection Usage for the device.
 ;________________________________________
@@ -155,25 +155,25 @@ II_DEVTYPE          := 0    ;Type of the device generating the raw input data. S
 II_DEVHANDLE        := 8    ;Handle to the device generating the raw input data.
 
 II_MSE_FLAGS        := (08+A_PtrSize*2) | 0x0100  ;Mouse state. This member can be any reasonable combination of the
-                                    ;following values -> see MOUSE constants.
+				    ;following values -> see MOUSE constants.
 II_MSE_BUTTONFLAGS  := (12+A_PtrSize*2) | 0x0100  ;Transition state of the mouse buttons. This member can be one or more of
-                                    ;the following values -> see RI_MOUSE constants.
+				    ;the following values -> see RI_MOUSE constants.
 II_MSE_BUTTONDATA   := (14+A_PtrSize*2) | 0x1100  ;If usButtonFlags is RI_MOUSE_WHEEL, this member is a signed value that
-                                    ;specifies the wheel delta.
-II_MSE_RAWBUTTONS   := (16+A_PtrSize*2)           ;Raw state of the mouse buttons. 
+				    ;specifies the wheel delta.
+II_MSE_RAWBUTTONS   := (16+A_PtrSize*2)           ;Raw state of the mouse buttons.
 II_MSE_LASTX        := (20+A_PtrSize*2) | 0x1000  ;Motion in the X direction. This is signed relative motion or absolute
-                                    ;motion, depending on the value of usFlags.
+				    ;motion, depending on the value of usFlags.
 II_MSE_LASTY        := (24+A_PtrSize*2) | 0x1000  ;Motion in the Y direction. This is signed relative motion or absolute
-                                    ;motion, depending on the value of usFlags. 
-II_MSE_EXTRAINFO    := (28+A_PtrSize*2)           ;Device-specific additional information for the event. 
+				    ;motion, depending on the value of usFlags.
+II_MSE_EXTRAINFO    := (28+A_PtrSize*2)           ;Device-specific additional information for the event.
 
 II_KBD_MAKECODE     := (08+A_PtrSize*2) | 0x0100  ;Scan code from the key depression. The scan code for keyboard overrun is
-                                    ;KEYBOARD_OVERRUN_MAKE_CODE.
+				    ;KEYBOARD_OVERRUN_MAKE_CODE.
 II_KBD_FLAGS        := (10+A_PtrSize*2) | 0x0100  ;Flags for scan code information. It can be one or more of the following
-                                    ;values -> see RI_KEY constants.
+				    ;values -> see RI_KEY constants.
 II_KBD_VKEY         := (14+A_PtrSize*2) | 0x0100  ;Microsoft Windows message compatible virtual-key code.
 II_KBD_MSG          := (16+A_PtrSize*2)           ;Corresponding window message, for example WM_KEYDOWN, WM_SYSKEYDOWN, and
-                                                  ;so forth.
+						  ;so forth.
 II_KBD_EXTRAINFO    := (20+A_PtrSize*2)           ;Device-specific additional information for the event.
 
 II_HID_SIZE         := (08+A_PtrSize*2)           ;Size, in bytes, of each HID input in bRawData.
@@ -191,38 +191,38 @@ RIM_TYPEHID         := 2    ;The device is an Human Interface Device (HID) that 
 ;Different flags for RAWINPUTDEVICE structure (to be used with AHKHID_AddRegister and AHKHID_Register)
 ;http://msdn.microsoft.com/en-us/library/ms645565
 RIDEV_REMOVE        := 0x00000001   ;If set, this removes the top level collection from the inclusion list. This tells the
-                                    ;operating system to stop reading from a device which matches the top level collection.
+				    ;operating system to stop reading from a device which matches the top level collection.
 RIDEV_EXCLUDE       := 0x00000010   ;If set, this specifies the top level collections to exclude when reading a complete
-                                    ;usage page. This flag only affects a TLC whose usage page is already specified with
-                                    ;RIDEV_PAGEONLY.
+				    ;usage page. This flag only affects a TLC whose usage page is already specified with
+				    ;RIDEV_PAGEONLY.
 RIDEV_PAGEONLY      := 0x00000020   ;If set, this specifies all devices whose top level collection is from the specified
-                                    ;usUsagePage. Note that usUsage must be zero. To exclude a particular top level
-                                    ;collection, use RIDEV_EXCLUDE.
+				    ;usUsagePage. Note that usUsage must be zero. To exclude a particular top level
+				    ;collection, use RIDEV_EXCLUDE.
 RIDEV_NOLEGACY      := 0x00000030   ;If set, this prevents any devices specified by usUsagePage or usUsage from generating
-                                    ;legacy messages. This is only for the mouse and keyboard. See Remarks.
+				    ;legacy messages. This is only for the mouse and keyboard. See Remarks.
 RIDEV_INPUTSINK     := 0x00000100   ;If set, this enables the caller to receive the input even when the caller is not in
-                                    ;the foreground. Note that hwndTarget must be specified.
+				    ;the foreground. Note that hwndTarget must be specified.
 RIDEV_CAPTUREMOUSE  := 0x00000200   ;If set, the mouse button click does not activate the other window.
 RIDEV_NOHOTKEYS     := 0x00000200   ;If set, the application-defined keyboard device hotkeys are not handled. However, the
-                                    ;system hotkeys; for example, ALT+TAB and CTRL+ALT+DEL, are still handled. By default,
-                                    ;all keyboard hotkeys are handled. RIDEV_NOHOTKEYS can be specified even if
-                                    ;RIDEV_NOLEGACY is not specified and hwndTarget is NULL.
+				    ;system hotkeys; for example, ALT+TAB and CTRL+ALT+DEL, are still handled. By default,
+				    ;all keyboard hotkeys are handled. RIDEV_NOHOTKEYS can be specified even if
+				    ;RIDEV_NOLEGACY is not specified and hwndTarget is NULL.
 RIDEV_APPKEYS       := 0x00000400   ;Microsoft Windows XP Service Pack 1 (SP1): If set, the application command keys are
-                                    ;handled. RIDEV_APPKEYS can be specified only if RIDEV_NOLEGACY is specified for a
-                                    ;keyboard device.
+				    ;handled. RIDEV_APPKEYS can be specified only if RIDEV_NOLEGACY is specified for a
+				    ;keyboard device.
 RIDEV_EXINPUTSINK   := 0x00001000   ;Vista and later only: If set, this enables the caller to receive input in the
-                                    ;background only if the foreground application does not process it. In other words, if
-                                    ;the foreground application is not registered for raw input, then the background
-                                    ;application that is registered will receive the input.
+				    ;background only if the foreground application does not process it. In other words, if
+				    ;the foreground application is not registered for raw input, then the background
+				    ;application that is registered will receive the input.
 RIDEV_DEVNOTIFY     := 0x00002000   ;Vista and later only: If set, this enables the caller to receive WM_INPUT_DEVICE_CHANGE
-                                    ;notifications for device arrival and device removal.
+				    ;notifications for device arrival and device removal.
 ;__________________________________________________
 ;Different values of wParam in the WM_INPUT message
 ;http://msdn.microsoft.com/en-us/library/ms645590
 RIM_INPUT       := 0    ;Input occurred while the application was in the foreground. The application must call
-                        ;DefWindowProc so the system can perform cleanup.
+			;DefWindowProc so the system can perform cleanup.
 RIM_INPUTSINK   := 1    ;Input occurred while the application was not in the foreground. The application must call
-                        ;DefWindowProc so the system can perform the cleanup.
+			;DefWindowProc so the system can perform the cleanup.
 ;__________________________________
 ;Flags for GetRawInputData API call
 ;http://msdn.microsoft.com/en-us/library/ms645596
@@ -279,41 +279,41 @@ AHKHID_UseConstants() {
 
 AHKHID_Initialize(bRefresh := False) {
     Static uHIDList, bInitialized := False
-    
+
     If bInitialized And Not bRefresh
-        Return &uHIDList
-    
+	Return &uHIDList
+
     ;Get the device count
     r := DllCall("GetRawInputDeviceList", "Ptr", 0, "UInt*", &iCount, "UInt", A_PtrSize * 2)
-    
+
     ;Check for error
     If (r = -1) Or ErrorLevel {
-        ErrorLevel := "GetRawInputDeviceList call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-        Return -1
+	ErrorLevel := "GetRawInputDeviceList call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	Return -1
     }
-    
+
     ;Prep var
     ; VarSetStrCapacity(&uHIDList, iCount * (A_PtrSize * 2)) ; V1toV2: if 'uHIDList' is NOT a UTF-16 string, use 'uHIDList := Buffer(iCount * (A_PtrSize * 2))'
     uHIDList := Buffer(iCount * (A_PtrSize * 2))
     r := DllCall("GetRawInputDeviceList", "Ptr", uHIDList, "UInt*", &iCount, "UInt", A_PtrSize * 2)
     If (r = -1) Or ErrorLevel {
-        ErrorLevel := "GetRawInputDeviceList call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-        Return -1
+	ErrorLevel := "GetRawInputDeviceList call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	Return -1
     }
-    
+
     bInitialized := True
     Return &uHIDList
 }
 
 AHKHID_GetDevCount() {
-    
+
     ;Get the device count
     r := DllCall("GetRawInputDeviceList", "Ptr", 0, "UInt*", &iCount, "UInt", A_PtrSize * 2)
-    
+
     ;Check for error
     If (r = -1) Or ErrorLevel {
-        ErrorLevel := "GetRawInputDeviceList call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-        Return -1
+	ErrorLevel := "GetRawInputDeviceList call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	Return -1
     } Else Return iCount
 }
 
@@ -323,8 +323,8 @@ AHKHID_GetDevHandle(i) {
 
 AHKHID_GetDevIndex(Handle) {
     Loop AHKHID_GetDevCount()
-        If (NumGet(AHKHID_Initialize(), (A_Index - 1) * (A_PtrSize * 2), "UPtr") = Handle)
-            Return A_Index
+	If (NumGet(AHKHID_Initialize(), (A_Index - 1) * (A_PtrSize * 2), "UPtr") = Handle)
+	    Return A_Index
     Return 0
 }
 
@@ -334,92 +334,92 @@ AHKHID_GetDevType(i, IsHandle := False) {
 }
 
 AHKHID_GetDevName(i, IsHandle := False) {
-    
+
     ;Get index if i is handle
     h := IsHandle ? i : AHKHID_GetDevHandle(i)
-    
+
     ;Get device name length.                                RIDI_DEVICENAME
     r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x20000007, "Ptr", 0, "UInt*", &iLength)
     If (r = -1) Or ErrorLevel {
-        ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-        Return ""
+	ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	Return ""
     }
-	
+
     ;Get device name.
     ; VarSetStrCapacity(&s, (iLength + 1) * 2)                         ;RIDI_DEVICENAME ; V1toV2: if 's' is NOT a UTF-16 string, use 's := Buffer((iLength + 1) * 2)'
     s := Buffer((iLength + 1) * 2)
     r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x20000007, "Str", s, "UInt*", &iLength)
     If (r = -1) Or ErrorLevel {
-        ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-        Return ""
+	ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	Return ""
     }
-    
+
     Return s
 }
 
 AHKHID_GetDevInfo(i, Flag, IsHandle := False) {
     Static uInfo, iLastHandle := 0
-    
+
     ;Get index if i is handle
     h := IsHandle ? i : AHKHID_GetDevHandle(i)
-    
+
     ;Check if the handle changed
     If (h = iLastHandle) ;It's the same device. No need to call again
-        Return NumGet(uInfo, Flag, AHKHID_NumIsShort(&Flag) ? "UShort" : "UInt")
+	Return NumGet(uInfo, Flag, AHKHID_NumIsShort(&Flag) ? "UShort" : "UInt")
     Else {
-        
+
 	    ; TODO zelf bij gezet
 	    iLength := IsSet(iLength) ? iLength : 0
-        ;Get device info buffer size.                           RIDI_DEVICEINFO
-        r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x2000000b, "Ptr", 0, "UInt*", &iLength)
-        If ((r = -1) Or not isSet(r)) {
-            ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	;Get device info buffer size.                           RIDI_DEVICEINFO
+	r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x2000000b, "Ptr", 0, "UInt*", &iLength)
+	If ((r = -1) Or not isSet(r)) {
+	    ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
 	    MsgBox(Errorlevel)
-            Return -1
-        }
-        
-        ;Get device info
-        ; VarSetStrCapacity(&uInfo, iLength) ; V1toV2: if 'uInfo' is NOT a UTF-16 string, use 'uInfo := Buffer(iLength)'
+	    Return -1
+	}
+
+	;Get device info
+	; VarSetStrCapacity(&uInfo, iLength) ; V1toV2: if 'uInfo' is NOT a UTF-16 string, use 'uInfo := Buffer(iLength)'
 	uInfo := Buffer(iLength)
-        NumPut("UInt", iLength, uInfo, 0) ;Put length in struct RIDI_DEVICEINFO
-        r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x2000000b, "Ptr", uInfo, "UInt*", &iLength)
-        If (r = -1) Or not IsSet(r) {
-            ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-            Return -1
-        }
-        
-        ;Successful. Keep handle.
-        iLastHandle := h
-        
-        ;Retrieve data
-        Return NumGet(uInfo, Flag, AHKHID_NumIsShort(&Flag) ? "UShort" : "UInt")
+	NumPut("UInt", iLength, uInfo, 0) ;Put length in struct RIDI_DEVICEINFO
+	r := DllCall("GetRawInputDeviceInfo", "Ptr", h, "UInt", 0x2000000b, "Ptr", uInfo, "UInt*", &iLength)
+	If (r = -1) Or not IsSet(r) {
+	    ErrorLevel := "GetRawInputDeviceInfo call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	    Return -1
+	}
+
+	;Successful. Keep handle.
+	iLastHandle := h
+
+	;Retrieve data
+	Return NumGet(uInfo, Flag, AHKHID_NumIsShort(&Flag) ? "UShort" : "UInt")
     }
-    
+
     Return 0
 }
 
 AHKHID_AddRegister(UsagePage := False, Usage := False, Handle := False, Flags := 0) {
     Static uDev, iIndex := 0, iCount := 0
-    
+
     ;Check if we just want the address
     If Not (UsagePage Or Usage Or Handle Or Flags)
-        Return &uDev
+	Return &uDev
     ;Check if we just want the count
     Else If (UsagePage = "Count")
-        Return iCount
+	Return iCount
     ;Check if we're dimensioning the struct
     Else If UsagePage And Not (Usage Or Handle Or Flags) {
-        iCount := UsagePage
-        iIndex := 0
-        ; VarSetStrCapacity(&uDev, iCount * (8 + A_PtrSize)) ; V1toV2: if 'uDev' is NOT a UTF-16 string, use 'uDev := Buffer(iCount * (8 + A_PtrSize))'
+	iCount := UsagePage
+	iIndex := 0
+	; VarSetStrCapacity(&uDev, iCount * (8 + A_PtrSize)) ; V1toV2: if 'uDev' is NOT a UTF-16 string, use 'uDev := Buffer(iCount * (8 + A_PtrSize))'
 	uDev := Buffer(iCount * (8 + A_PtrSize))
-        Return &uDev
+	Return &uDev
     }
-    
+
     ;Check if there's space before adding data to struct
     If (iIndex = iCount)
-        Return -1    ;Full capacity
-    
+	Return -1    ;Full capacity
+
     ;Check if hwnd needs to be null. RIDEV_REMOVE, RIDEV_EXCLUDE
     Handle := ((Flags & 0x00000001) Or (Flags & 0x00000010)) ? 0 : Handle
 
@@ -428,159 +428,159 @@ AHKHID_AddRegister(UsagePage := False, Usage := False, Handle := False, Flags :=
     NumPut("UShort", Usage, uDev, (iIndex * (8 + A_PtrSize)) + 2)
     NumPut("UInt", Flags, uDev, (iIndex * (8 + A_PtrSize)) + 4)
     NumPut("Ptr", Handle, uDev, (iIndex * (8 + A_PtrSize)) + 8)
-    
+
     ;Move to next slot
     iIndex += 1
-    
+
     Return &uDev
 }
 
 AHKHID_Register(UsagePage := False, Usage := False, Handle := False, Flags := 0) {
-    
+
     ;Check if we're using the AddRegister array or only a single struct
     If Not (UsagePage Or Usage Or Handle Or Flags) {
-        
-        ;Call
-        r := DllCall("RegisterRawInputDevices", "Ptr", AHKHID_AddRegister(), "UInt", AHKHID_AddRegister("Count"), "UInt", 8 + A_PtrSize)
-        
-        ;Check for error
-        If Not r {
-            ErrorLevel := "RegisterRawInputDevices call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-            Return -1
-        }
-        
+
+	;Call
+	r := DllCall("RegisterRawInputDevices", "Ptr", AHKHID_AddRegister(), "UInt", AHKHID_AddRegister("Count"), "UInt", 8 + A_PtrSize)
+
+	;Check for error
+	If Not r {
+	    ErrorLevel := "RegisterRawInputDevices call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	    Return -1
+	}
+
     ;Build struct and call
     } Else {
-        
-        ;Prep var
-        uDev := Buffer((8 + A_PtrSize), 0) ; V1toV2: if 'uDev' is a UTF-16 string, use 'VarSetStrCapacity(&uDev, (8 + A_PtrSize))'
+
+	;Prep var
+	uDev := Buffer((8 + A_PtrSize), 0) ; V1toV2: if 'uDev' is a UTF-16 string, use 'VarSetStrCapacity(&uDev, (8 + A_PtrSize))'
 	; VarSetStrCapacity(&uDev, (8 + A_PtrSize))
-        
-        ;Check if hwnd needs to be null. RIDEV_REMOVE, RIDEV_EXCLUDE
-        Handle := ((Flags & 0x00000001) Or (Flags & 0x00000010)) ? 0 : Handle
+
+	;Check if hwnd needs to be null. RIDEV_REMOVE, RIDEV_EXCLUDE
+	Handle := ((Flags & 0x00000001) Or (Flags & 0x00000010)) ? 0 : Handle
 	Handle := Handle ? Integer(Handle) : 0 ;; omgezet naar nummer, weet niet of dit werkt....
-        
-        NumPut("UShort", UsagePage, uDev, 0)
-        NumPut("UShort", Usage, uDev, 2)
-        NumPut("UInt", Flags, uDev, 4)
-        NumPut("Ptr", Handle, uDev, 8)
-        
-        ;Call
-        r := DllCall("RegisterRawInputDevices", "Ptr", uDev, "UInt", 1, "UInt", 8 + A_PtrSize)
-        
-        ;Check for error
-        ;; If Not r Or ErrorLevel {
-        If Not r {
-            ErrorLevel := "RegisterRawInputDevices call failed.`nReturn value: " . r . "`n`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-            Return -1
-        }
+
+	NumPut("UShort", UsagePage, uDev, 0)
+	NumPut("UShort", Usage, uDev, 2)
+	NumPut("UInt", Flags, uDev, 4)
+	NumPut("Ptr", Handle, uDev, 8)
+
+	;Call
+	r := DllCall("RegisterRawInputDevices", "Ptr", uDev, "UInt", 1, "UInt", 8 + A_PtrSize)
+
+	;Check for error
+	;; If Not r Or ErrorLevel {
+	If Not r {
+	    ErrorLevel := "RegisterRawInputDevices call failed.`nReturn value: " . r . "`n`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	    Return -1
+	}
     }
-    
+
     Return 0
 }
 
 AHKHID_GetRegisteredDevs(&uDev) {
-    
+
     ;Get length
     iCount := Buffer(4, 0) ; V1toV2: if 'iCount' is a UTF-16 string, use 'VarSetStrCapacity(&iCount, 4)'
     r := DllCall("GetRegisteredRawInputDevices", "Ptr", 0, "UInt*", &iCount, "UInt", 8 + A_PtrSize)
     If ErrorLevel {
-        ErrorLevel := "GetRegisteredRawInputDevices call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-        Return -1
+	ErrorLevel := "GetRegisteredRawInputDevices call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	Return -1
     }
-    
+
     If (iCount > 0) {
-        
-        ;Prep var
-        ; VarSetStrCapacity(&uDev, iCount * (8 + A_PtrSize)) ; V1toV2: if 'uDev' is NOT a UTF-16 string, use 'uDev := Buffer(iCount * (8 + A_PtrSize))'
+
+	;Prep var
+	; VarSetStrCapacity(&uDev, iCount * (8 + A_PtrSize)) ; V1toV2: if 'uDev' is NOT a UTF-16 string, use 'uDev := Buffer(iCount * (8 + A_PtrSize))'
 	uDev := Buffer(iCount * (8 + A_PtrSize))
-        
-        ;Call
-        r := DllCall("GetRegisteredRawInputDevices", "Ptr", uDev, "UInt*", &iCount, "UInt", 8 + A_PtrSize)
-        If ((r = -1) Or not isSet(r)) {
-            ErrorLevel := "GetRegisteredRawInputDevices call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-            Return -1
-        }
+
+	;Call
+	r := DllCall("GetRegisteredRawInputDevices", "Ptr", uDev, "UInt*", &iCount, "UInt", 8 + A_PtrSize)
+	If ((r = -1) Or not isSet(r)) {
+	    ErrorLevel := "GetRegisteredRawInputDevices call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	    Return -1
+	}
     }
-    
+
     Return iCount
 }
 
 AHKHID_GetInputInfo(InputHandle, Flag) {
     Static uRawInput, iLastHandle := 0
-    
+
     ;Check if it's the same handle
     If (InputHandle = iLastHandle) ;We can retrieve the data without having to call again
-        Return NumGet(uRawInput, Flag, AHKHID_NumIsShort(&Flag) ? (AHKHID_NumIsSigned(&Flag) ? "Short" : "UShort") : (AHKHID_NumIsSigned(&Flag) ? "Int" : (Flag = 8 ? "Ptr" : "UInt")))
+	Return NumGet(uRawInput, Flag, AHKHID_NumIsShort(&Flag) ? (AHKHID_NumIsSigned(&Flag) ? "Short" : "UShort") : (AHKHID_NumIsSigned(&Flag) ? "Int" : (Flag = 8 ? "Ptr" : "UInt")))
     Else {    ;We need to get a fresh copy
-        
+
 	    iSize := IsSet(iSize) ? iSize : 0 ;; TODO zelf er bij gezet, doet het iets?? Lijkt wel te werken!!
-        ;Get raw data size                                           RID_INPUT
-        r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", 0, "UInt*", &iSize, "UInt", 8 + A_PtrSize * 2)
-        ; If (r = -1) Or ErrorLevel {
-        If (r = -1 or not IsSet(r))  {
-            ;ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-            MsgBox("GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError)
-            Return -1
-        }
-        
-        ;Prep var
-        ; VarSetStrCapacity(&uRawInput, iSize) ; V1toV2: if 'uRawInput' is NOT a UTF-16 string, use 'uRawInput := Buffer(iSize)'
+	;Get raw data size                                           RID_INPUT
+	r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", 0, "UInt*", &iSize, "UInt", 8 + A_PtrSize * 2)
+	; If (r = -1) Or ErrorLevel {
+	If (r = -1 or not IsSet(r))  {
+	    ;ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	    MsgBox("GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError)
+	    Return -1
+	}
+
+	;Prep var
+	; VarSetStrCapacity(&uRawInput, iSize) ; V1toV2: if 'uRawInput' is NOT a UTF-16 string, use 'uRawInput := Buffer(iSize)'
 	uRawInput := Buffer(iSize)
 	; MsgBox(uRawInput)
-        ; uRawInput  := uRawInput ? uRawInput : 0 ;; TODO zelf er bij gezet, doet het iets?? Lijkt wel te werken!!
-        ;Get raw data                                                RID_INPUT
-        r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", uRawInput, "UInt*", &iSize, "UInt", 8 + A_PtrSize * 2)
-        ;; If (r = -1) Or ErrorLevel {
-        If (r = -1 or not IsSet(r))  {
-            ;; ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-             MsgBox("GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError)
-            Return -1
-        } Else If (r != iSize) {
-            ErrorLevel := "GetRawInputData did not return the correct size.`nSize returned: " . r . "`nSize allocated: " . iSize
+	; uRawInput  := uRawInput ? uRawInput : 0 ;; TODO zelf er bij gezet, doet het iets?? Lijkt wel te werken!!
+	;Get raw data                                                RID_INPUT
+	r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", uRawInput, "UInt*", &iSize, "UInt", 8 + A_PtrSize * 2)
+	;; If (r = -1) Or ErrorLevel {
+	If (r = -1 or not IsSet(r))  {
+	    ;; ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	     MsgBox("GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError)
+	    Return -1
+	} Else If (r != iSize) {
+	    ErrorLevel := "GetRawInputData did not return the correct size.`nSize returned: " . r . "`nSize allocated: " . iSize
 	    MsgBox(ErrorLevel)
-            Return -1
-        }
-        
-        ;Keep handle reference of current uRawInput
-        iLastHandle := InputHandle
-        
-        ;Retrieve data
-        Return NumGet(uRawInput, Flag, AHKHID_NumIsShort(&Flag) ? (AHKHID_NumIsSigned(&Flag) ? "Short" : "UShort") : (AHKHID_NumIsSigned(&Flag) ? "Int" : (Flag = 8 ? "Ptr" : "UInt")))
+	    Return -1
+	}
+
+	;Keep handle reference of current uRawInput
+	iLastHandle := InputHandle
+
+	;Retrieve data
+	Return NumGet(uRawInput, Flag, AHKHID_NumIsShort(&Flag) ? (AHKHID_NumIsSigned(&Flag) ? "Short" : "UShort") : (AHKHID_NumIsSigned(&Flag) ? "Int" : (Flag = 8 ? "Ptr" : "UInt")))
     }
-    
+
     Return 0
 }
 
 AHKHID_GetInputData(InputHandle, &uData) {
-    
+
 	iSize := IsSet(iSize) ? iSize : 0 ;; TODO zelf er bij gezet, doet het iets?? Lijkt wel te werken!!
     ;Get raw data size                                           RID_INPUT
     r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", 0, "UInt*", &iSize, "UInt", 8 + A_PtrSize * 2)
     If (r = -1 or not IsSet(r)) {
-        ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-        Return -1
+	ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	Return -1
     }
-    
+
     ;Prep var
     ; VarSetStrCapacity(&uRawInput, iSize) ; V1toV2: if 'uRawInput' is NOT a UTF-16 string, use 'uRawInput := Buffer(iSize)'
     uRawInput := Buffer(iSize)
-    
+
     ;Get raw data                                                RID_INPUT
     r := DllCall("GetRawInputData", "UInt", InputHandle, "UInt", 0x10000003, "Ptr", uRawInput, "UInt*", &iSize, "UInt", 8 + A_PtrSize * 2)
     If (r = -1 or not IsSet(r)) {
-        ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
-        Return -1
+	ErrorLevel := "GetRawInputData call failed.`nReturn value: " . r . "`nErrorLevel: " . ErrorLevel . "`nLine: " . A_LineNumber . "`nLast Error: " . A_LastError
+	Return -1
     } Else If (r != iSize) {
-        ErrorLevel := "GetRawInputData did not return the correct size.`nSize returned: " . r . "`nSize allocated: " . iSize
-        Return -1
+	ErrorLevel := "GetRawInputData did not return the correct size.`nSize returned: " . r . "`nSize allocated: " . iSize
+	Return -1
     }
-    
+
     ;Get the size of each HID input and the number of them
     iSize   := NumGet(uRawInput, 8 + A_PtrSize * 2 + 0, "UInt") ;ID_HID_SIZE
     iCount  := NumGet(uRawInput, 8 + A_PtrSize * 2 + 4, "UInt") ;ID_HID_COUNT
-    
-    rawInputbin := NumGet(uRawInput, 8 + A_PtrSize * 2 + 8, "UInt") 
+
+    rawInputbin := NumGet(uRawInput, 8 + A_PtrSize * 2 + 8, "UInt")
 
     ;Allocate memory
     ; VarSetStrCapacity(&uData, iSize * iCount) ; V1toV2: if 'uData' is NOT a UTF-16 string, use 'uData := Buffer(iSize * iCount)'
@@ -593,23 +593,22 @@ AHKHID_GetInputData(InputHandle, &uData) {
     ;Copy bytes
     ; DllCall("RtlMoveMemory", "UInt", uData, "UInt", uRawInput + 8 + A_PtrSize * 2 + 8, "UInt", iSize * iCount)
     DllCall("RtlMoveMemory", "UInt", uData.Ptr , "UInt", uRawInput.Ptr + 8 + A_PtrSize * 2 + 8, "UInt", iSize * iCount)
-    
+
     Return (iSize * iCount)
 }
 
 ;Internal use only
 AHKHID_NumIsShort(&Flag) {
     If (Flag & 0x0100) {
-        Flag ^= 0x0100    ;Remove it
-        Return True
+	Flag ^= 0x0100    ;Remove it
+	Return True
     } Return False
 }
 
 ;Internal use only
 AHKHID_NumIsSigned(&Flag) {
     If (Flag & 0x1000) {
-        Flag ^= 0x1000    ;Remove it
-        Return True
+	Flag ^= 0x1000    ;Remove it
+	Return True
     } Return False
 }
-

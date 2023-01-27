@@ -23,7 +23,8 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 
 ;; Hotkeys die enkel werken als het KWS patientscherm in focus is
 #HotIf WinActive("KWS ahk_exe javaw.exe")
-^b::^c				; maakt van ctrl-b gewoon ctrl-c; de originele functie van ctrl-b was uitloggen, en was te dicht tegen ctrl-c waardoor ik er soms perongeluk op duwde. Dit zet dit uit.
+^b::^c			; maakt van ctrl-b gewoon ctrl-c; de originele functie van ctrl-b was uitloggen, en was te dicht tegen ctrl-c
+^l::return    ; disables the hotkey to prevent accidental shutdown
 ^e::KWStoExcel(excelSavePath)
 !d::deleteLine()
 !x::Send("{Backspace}")       ; Alt-x
