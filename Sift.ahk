@@ -88,6 +88,7 @@ Sift_Regex(&Haystack, &Needle := "", Options := "IN", Delimit := "`n") {
 	Needle := IsSet(Needle) ? Needle : ""
 	;; Sifted := {}
 	Sifted := ""
+	Needle_Temp := ""
 	if (Options = "IN")
 		Needle_Temp := "\Q" Needle "\E"
 	else if (Options = "LEFT")
@@ -110,7 +111,7 @@ Sift_Regex(&Haystack, &Needle := "", Options := "IN", Delimit := "`n") {
 			Needle_Temp .= "(?=.*\Q" A_LoopField "\E)"
 
 	if isLower(Options)
-		Needle_Temp := "i)" Needle_Temp
+		Needle_Temp := "i)" . Needle_Temp
 
 	if IsObject(Haystack) {
 		for key, Hay in Haystack

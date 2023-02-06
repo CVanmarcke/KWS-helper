@@ -197,6 +197,18 @@ Data_uro_CT  := "
   Niervolumetrie				RAD ct uro 28 (-) [Indien ADPKD normale dosis]
   )"
 
+
+Data_uro_MR  := "
+  (
+  Prostaat standaard zc				RAD mr prostaat 01 zc (-)
+  Prostaat met contrast				RAD mr prostaat mk (+)
+
+  Nierletsel / niertumor (pre of postop)	RAD mr nier 08 (+)
+  MR IVU / urinewegen / afloop			RAD mr nier 05 (+)
+
+  MR Peritoneaalmetastasen 				RAD mr abd 41
+  )"
+
 helptext := "
   (
   Enter		-> Vul het eerste onderzoek in in KWS.
@@ -240,7 +252,7 @@ start_aanvaardingen:
   onderzoek_naam := ogcEditonderzoek_naam.hwnd
   ogcButtonAanvaard := aanvaarder.Add("Button", "x295 y9 w180 h20  Default", "Aanvaard")
   ogcButtonAanvaard.OnEvent("Click", aanvaard_onderzoek_knop.Bind("Normal"))
-  ogcDropDownListsubdiscipline := aanvaarder.Add("DropDownList", "x480 y9 w110 h20 R10 vsubdiscipline Choose1", ["neuro", "ORL", "abdomen (CT)", "abdomen (MR)", "thorax", "uro (CT)"])
+  ogcDropDownListsubdiscipline := aanvaarder.Add("DropDownList", "x480 y9 w110 h20 R10 vsubdiscipline Choose1", ["neuro", "ORL", "abdomen (CT)", "abdomen (MR)", "thorax", "uro (CT)", "uro (MR)"])
   ogcDropDownListsubdiscipline.OnEvent("Change", set_subdiscipline.Bind("Change"))
   ogcButton := aanvaarder.Add("Button", "x595 y9 w15 h20", "?")
   ogcButton.OnEvent("Click", helpknop.Bind("Normal"))
@@ -267,6 +279,7 @@ set_subdiscipline(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		Case "abdomen (MR)": Data := Data_abdomen_MR
 		Case "thorax": Data := Data_thorax
 		Case "uro (CT)": Data := Data_uro_CT
+		Case "uro (MR)": Data := Data_uro_MR
 		Default: Data := Data_neuro
 	}
 	zoek_onderzoek_naam(A_GuiEvent, GuiCtrlObj, Info)
