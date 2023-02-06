@@ -121,18 +121,48 @@ Data_abdomen_MR := "
 
   )"
 
-Data_abdomen_CT := "
+Data_abdomen_CT_oud := "
   (
   Klassiek abdomen			RAD ct abd 22 (+) [IV veneus + 3 PO]
   Bloeding				RAD ct abd 22 (+) [trifasisch]
   Buikwand				RAD ct abd 12 (-)
   Lever/pancreas			RAD ct abd 22 (+) [2 PO + a blanc en arterieel bovenbuik + veneus volledig abdomen]
   Bovenbuik pancreas		RAD ct abd 26 (+) [bovenbuik arterieel en veneus + 2 PO]
-  Bovenbuik lever			RAD ct abd 25 (+) [bovenbuik en veneus + 2 PO]
+  Bovenbuik lever			RAD ct abd 25 (+) [bovenbuik arterieel en veneus + 2 PO]
   Combi abdomenlijst			RAD ct comb 02 (+) [IV veneus + 3 PO]
   Combi +hersenen			RAD ct comb 03 (+) [IV veneus + 3 PO]
   Combi URO lijst			RAD ct uro 24 (+)
   Combi thoraxlijst			RAD ct thorax 20 (+)
+
+  NOTA: gebruik ctrl-m en ctrl-z om snel met of zonder contrast te kiezen. ctrl-m zet ook automatisch IV veneus + 3 PO.
+  )"
+
+Data_abdomen_CT := "
+  (
+  Klassiek abdomen				RAD ct abd 22 (+) [IV veneus + 3 PO]
+  Ischemie (darm/parenchym)			RAD ct abd 22 (+) [abd art, abd veneus op 75s, 3-4 ml/s, geen PO]
+  Obstructie zonder ischemie			RAD ct abd 22 (+) [IV portaal veneus, flow rate 3-4 ml/s, scan 75s na injectie, geen PO]
+  Interne herniatie post GABY			RAD ct abd 22 (+) [abd veneus, 1 beker of zoveel mogelijk 10 min voor scan, halve beker op tafel]
+  Bloeding					RAD ct abd 22 (+) [abd trifasisch angio/aorta protocol, 3-4 ml/s, geen PO (bellen afdeling indien hos)]
+  GI lek distale slokdarm/maag			RAD ct comb 02 (+) [één scanrange thorax-abdomen, 1 beker of zoveel mogelijk 10 min voor scan, 1 beker op tafel]
+  GI lek maag-duod-dundarm			RAD ct abd 22 (+) [abd veneus, 3 PO]
+  GI lek distale dundarm-rechter colon		RAD ct abd 22 (+) [abd veneus, 4 PO over 2u + retro indien mogelijk]
+  GI lek rectosigmoid - linker colon		RAD ct abd 22 (+) [abd veneus, + retro, geen PO]
+  Enterografie (Crohn,..)			RAD ct abd 28 (+) [bespreken met supervisie. Drinken, buscopan + manitol. In spoedsetting zonder manitol en zonder buscopan. *bij vraag dundarm NET: +LA fase]
+  Sonde					RAD ct abd 22 (-) [LOW DOSE CT uro, injectie 20-30 ml via sonde]
+
+  Screening/staging pancreasCa/cholangioCa	RAD ct abd 22 (+) [bb art, abd veneus op 75s, 3-4 ml/s, 2 bekers WATER PO over 30 min (zeker bij duodenum)]
+  Acuut bovenbuik (-itis)			RAD ct abd 22 (+) [bb art, abd veneus op 75s, 3-4 ml/s]
+  Postop vasculair en collecties			RAD ct abd 22 (+) [bb art, abd veneus op 75s, 3-4 ml/s]
+  FU hypervasc (NET, melanoom, schildklier)	RAD ct abd 22 (+) [bb art, abd veneus op 75s, 3-4 ml/s]
+  FU acute BB (pancreatitis, cholecystitis)		RAD ct abd 22 (+) [abd veneus op 75s 3-4 ml/s]
+  Screening/staging HCC / pretransplant		RAD ct abd 22 (+) [BB blanco/art, ABD veneus, nakijken of delayed fase (2-5 min postinjectie) nodig]
+
+  Combi abdomenlijst				RAD ct comb 02 (+) [IV veneus + 3 PO]
+  Combi Hypervasculair FU			RAD ct comb 02 (+) [BB art getriggerd cfr. abdomen bovenbuik protocol, thorax-abdomen veneus 75 sec]
+  Combi +hersenen				RAD ct comb 03 (+) [IV veneus + 3 PO]
+  Combi URO lijst				RAD ct uro 24 (+)
+  Combi thoraxlijst				RAD ct thorax 20 (+)
 
   NOTA: gebruik ctrl-m en ctrl-z om snel met of zonder contrast te kiezen. ctrl-m zet ook automatisch IV veneus + 3 PO.
   )"
@@ -183,6 +213,8 @@ helptext := "
   NB: Als abdomen CT is geselecteerd als discipline, zal Ctrl-Numpad+ ook 'IV veneus {+} 3 PO invullen'.
 )"
 
+inifile := "aanvaardingen.ini"
+
 ;;::startaanv::
   ;; Goto("start_aanvaardingen")
 
@@ -199,7 +231,6 @@ start_aanvaardingen:
   Hotkey("^l", selectLabo)
   Hotkey("^q", sluitaanvaardschermKWS)
   toon_onderzoeken := ""
-  ;; TODO onthouden welke subdiscipline.
   global aanvaarder
   aanvaarder := Gui()
   aanvaarder.OnEvent("Close", aanvaarderGuiEscape)
@@ -217,16 +248,17 @@ start_aanvaardingen:
   aanvaarder.Title := "Aanvaardingen helper"
   aanvaarder.Show("x420 y781 h241 w620")
   WinSetAlwaysOnTop(1, "Aanvaardingen helper")
+  if FileExist(inifile) {
+	  subdiscipline := IniRead(inifile, "General", "subdiscipline", "neuro")
+	  ogcDropDownListsubdiscipline.Choose(subdiscipline)
+  }
   set_subdiscipline("", aanvaarder)
   Return
 
-set_subdiscipline(A_GuiEvent, GuiCtrlObj, Info := "", *)
-{ ; V1toV2: Added bracket
-	Global Data
+set_subdiscipline(A_GuiEvent, GuiCtrlObj, Info := "", *) {
+	Global Data, subdiscipline
 	oSaved := aanvaarder.Submit("0")
-	onderzoek_naam := oSaved.onderzoek_naam
 	subdiscipline := oSaved.subdiscipline
-	Gui_Display := oSaved.Gui_Display
 	Switch subdiscipline
 	{
 		Case "neuro": Data := Data_neuro
@@ -238,31 +270,25 @@ set_subdiscipline(A_GuiEvent, GuiCtrlObj, Info := "", *)
 		Default: Data := Data_neuro
 	}
 	zoek_onderzoek_naam(A_GuiEvent, GuiCtrlObj, Info)
-} ; V1toV2: Added bracket before function
+}
 
-zoek_onderzoek_naam(A_GuiEvent, GuiCtrlObj, Info := "", *)
-{ ; V1toV2: Added bracket
-	Global Data, subdiscipline
+zoek_onderzoek_naam(A_GuiEvent, GuiCtrlObj, Info := "", *) {
+	Global Data
 	oSaved := aanvaarder.Submit("0")
 	onderzoek_naam := oSaved.onderzoek_naam
-	subdiscipline := oSaved.subdiscipline
-	Gui_Display := oSaved.Gui_Display
-	toon_onderzoek := Sift_Regex(&Data, &onderzoek_naam, "oc")
+	toon_onderzoek := Sift_Regex(&Data, &onderzoek_naam, "uw")
 	ogcEditGui_Display.Value := toon_onderzoek
-} ; V1toV2: Added Bracket before label
+}
 
-aanvaard_onderzoek_knop(A_GuiEvent, GuiCtrlObj, Info := "", *)
-{ ; V1toV2: Added bracket
-	global subdiscipline, Data
+aanvaard_onderzoek_knop(A_GuiEvent, GuiCtrlObj, Info := "", *) {
+	global Data
 	oSaved := aanvaarder.Submit("0")
 	onderzoek_naam := oSaved.onderzoek_naam
-	subdiscipline := oSaved.subdiscipline
-	Gui_Display := oSaved.Gui_Display
-	onderzoek := Sift_Regex(&Data, &onderzoek_naam, "oc")
+	onderzoek := Sift_Regex(&Data, &onderzoek_naam, "uw")
 	onderzoek := StrSplit(onderzoek, "`n")[1]
 	if RegExMatch(onderzoek, "(RAD .*[a-zA-Z0-9])\ +\((.)\)(?:\ +\[(.+)\])?", &gekozenOnderzoek)
 		aanvaardOnderzoek(gekozenOnderzoek.1, gekozenOnderzoek.2, gekozenOnderzoek.3)
-} ; V1toV2: Added bracket before function
+}
 
 druk_ok_aanvaarding(ThisHotkey) {
   WinActivate("KWS ahk_exe javaw.exe")
@@ -283,13 +309,15 @@ druk_ok_aanvaarding(ThisHotkey) {
 }
 
 aanvaarderGuiEscape(*) {
-aanvaarderGuiClose:
+	oSaved := aanvaarder.Submit("0")
+	subdiscipline := oSaved.subdiscipline
+	try
+	IniWrite(subdiscipline, inifile,"General", "subdiscipline")
 	ExitApp()
-Return
+	Return
 }
 
-selectOpmerking(ThisHotkey)
-{
+selectOpmerking(ThisHotkey) {
 	WinActivate("KWS ahk_exe javaw.exe")
 	MouseGetPos(&mouseX, &mouseY)
 	If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\contrastLabel.png")) {
@@ -300,8 +328,7 @@ selectOpmerking(ThisHotkey)
 		MsgBox("Het opmerkingen formulier werd niet gevonden.")
 }
 
-selectLabo(ThisHotkey)
-{
+selectLabo(ThisHotkey) {
 	WinActivate("KWS ahk_exe javaw.exe")
 	MouseGetPos(&mouseX, &mouseY)
 	If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\contrastLabel.png")) {
@@ -310,8 +337,8 @@ selectLabo(ThisHotkey)
 		If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\eGFRLabel.png"))
 			MouseClick("Left", FoundX + 3, FoundY + 3) ;; klik op GFR
 		else
-			MouseClick("Left", 950, 310) ;; even klikken op het KWS scherm om het gele vakje weg te krijgen.
-		sleep(50)
+			MouseClick("Left", 950, 313) ;; even klikken op het KWS scherm om het gele vakje weg te krijgen.
+		sleep(250)
 		WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
 		MouseMove(mouseX, mouseY)
 	} else
@@ -327,7 +354,7 @@ sluitaanvaardschermKWS(ThisHotkey) {
   WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
 }
 
-ctrnumplusHotkey(ThisHotkey) { ; V1toV2: Added bracket
+ctrnumplusHotkey(ThisHotkey) {
 	global subdiscipline
 	Switch subdiscipline {
 		Case "abdomen (CT)": aanvaardOnderzoek("", "+", "IV veneus {+} 3 PO")
@@ -336,7 +363,7 @@ ctrnumplusHotkey(ThisHotkey) { ; V1toV2: Added bracket
 	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
 }
 
-ctrlnumminHotkey(ThisHotkey) { ; V1toV2: Added bracket
+ctrlnumminHotkey(ThisHotkey) {
 	aanvaardOnderzoek("", "-", "")
 	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
 }
