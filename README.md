@@ -67,6 +67,8 @@ AanvaardOnderzoek(1, "IV veneus + 3 PO") | `Ctrl-NumpadPlus` | Handig voor aanva
 AanvaardOnderzoek(0) | `Ctrl-NumpadMin` | Zal in het aanvaardingsscherm aanduiden "zonder contrast".
 
 ## Speechkit knoppen
+![Speechkit knoppen afbeelding](images/SpeechkitGuide.jpg)
+
 Knop | functie
 --- | ---
 `EOL (2x duwen)` | saveAndClosePt_KWS()
@@ -80,7 +82,7 @@ Knop | functie
 `F2` | Sluit het huidige verslag zonder op te slaan.
 `F3` | cleanReport_KWS()
 `F4` | Ctrl-F8 (start speechkit in venster)
-`back button (hold)` | Simuleert de Ctrl knop: kan gebruikt worden om in enterprise te zoomen en pannen.
+`back button (hold)` | Simuleert de `ctrl` knop: kan gebruikt worden om in enterprise te zoomen en pannen.
 
 ## Headset workflow verbeteringen
 Er zijn meerdere aanpassingen voor diegene die met de linkerhand vrij werken, zodat meerdere acties gedaan kunnen worden zonder met de rechterhand de muis los te moeten laten.
