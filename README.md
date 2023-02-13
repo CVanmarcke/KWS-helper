@@ -67,7 +67,7 @@ AanvaardOnderzoek(1, "IV veneus + 3 PO") | `Ctrl-NumpadPlus` | Handig voor aanva
 AanvaardOnderzoek(0) | `Ctrl-NumpadMin` | Zal in het aanvaardingsscherm aanduiden "zonder contrast".
 
 ## Speechkit knoppen
-![Speechkit knoppen afbeelding](images/SpeechkitGuide.jpg)
+<img src="images/SpeechkitGuide.jpg" width=400>
 
 Knop | functie
 --- | ---
