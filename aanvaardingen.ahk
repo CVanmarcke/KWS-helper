@@ -1,5 +1,4 @@
-﻿;; GECONVERTEERD VAN v1 naar v2: kan nog opgekuisd worden (TODO)
-#SingleInstance Force
+﻿#SingleInstance Force
 #Include "Sift.ahk" ; Sift library
 
 SetTitleMatchMode(1)
@@ -40,8 +39,8 @@ Data_orl := "
   )"
 Data_neuro := "
   (
-  Cervicobrachalgie					RAD mr wz 01  (-)
-  CWK/DWK Post-Op				RAD mr wk 19  (-)
+  Cervicobrachalgie (CWK)				RAD mr wz 01  (-)
+  Cervicaal CWK/DWK Post-Op			RAD mr wk 19  (-)
   Intraspinale Metastasen				RAD mr wk 23  (+)
   LWK/DWK Standaard				RAD mr wk 18  (-)
   LWK Post-op					RAD mr wk 15  (+)
@@ -88,14 +87,19 @@ Data_neuro := "
   Epilepsie, Hippocampus Pathologie (pediatrie)		RAD mr hersen 46  (-)
   Langerhanscelhistiocyste				RAD mr hersen 81  (+)
   Neonato						RAD mr hersen 84  (-)
-  Neurofibromatose/fakomatose (pediatrie)		RAD mr hersen 85  (+)
+  Neurofibromatose/fakomatose (pediatrie)		RAD mr hersen 85  (+) [kinderen > 3jaar gebruik T2_mv  i.p.v. destir]
   PVL						RAD mr hersen 23  (-)
   Routineprotocol (pediatrie)				RAD mr hersen 87  (-)
   Tumor (Pediatrie)					RAD mr hersen 88  (+)
   Ontwikkelingsstoornis (Pediatrie)			RAD mr hersen 86 (-) [Als >3 jaar gebruik T2_mv ipv destir]
   MR Orbita					RAD mr orbita (+)
-  MR Halsvaten Dissectie				RAD amr hersen 59 (+)
-  MR Hersenen (Pediatrie) Pubertas Praecox		RAD mr hersen 42 (-)
+  MR Hersenen (Pediatrie) Pubertas Praecox		RAD mr hersen 42  (-)
+  MR orbita (Pediatrie) sinus cavernosus/orbita		RAD mr orbita 03  (+) [Indien < 3j: AX DESTIR ipv ax T2 TSE]
+  MR orbita (Pediatrie) opticus hypoplasie			RAD mr orbita 02  (-) [Indien > 3jaar gebruik T2_mv i.p.v. destir]
+  MR Halsvaten/craniocervicaal			RAD amr hersen 56  (?)
+  MR Halsvaten + hersenen				RAD amr hersen 61  (?)
+  MR Halsvaten Dissectie				RAD amr hersen 62  (?)
+  MR Halsvaten + hersenen dissectie			RAD amr hersen 63  (?)
   Studie 						(?)
   )"
 
@@ -306,7 +310,7 @@ aanvaard_onderzoek_knop(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 	if onderzoek = ""
 			return
 	onderzoek := StrSplit(onderzoek, "`n")[1]
-	if RegExMatch(onderzoek, "(?<oz>RAD .*[a-zA-Z0-9])?\ +\((?<contrast>[+-?])\)(?:\ +\[(?<opm>.+)\])?", &gekozenOnderzoek)
+	if RegExMatch(onderzoek, "(?<oz>RAD .*[a-zA-Z0-9])?[ \t]+\((?<contrast>[+-?])\)(?:\ +\[(?<opm>.+)\])?", &gekozenOnderzoek)
 		aanvaardOnderzoek(gekozenOnderzoek.oz, gekozenOnderzoek.contrast, gekozenOnderzoek.opm)
 }
 
