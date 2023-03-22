@@ -40,62 +40,63 @@ Data_orl := "
   )"
 Data_neuro := "
   (
-  Cervicobrachalgie				RAD mr wz 01  (-)
-  CWK/DWK Post-Op			RAD mr wk 19  (-)
-  Congenitale Aandoening LWK			RAD mr wk 21  (-)
-  Full Spine					RAD mr full spine (-)
-  Intraspinale Metastasen			RAD mr wk 23  (+)
-  LWK Post-op				RAD mr wk 15  (+)
-  LWK/DWK Standaard			RAD mr wk 18  (-)
-  Metaal					RAD mr wk 22  (-)
-  Ruggenmerg (MS of Myelitis)			RAD mr wz 13  (-)
-  Ruggenmergletsel (geen full spine)		RAD mr wk 16  (+)
-  Scoliose					RAD mr wk 24  (-)
-  Spinale AV-Fistel(enkel bij controle)		RAD mr wk 25  (+)
-  Liquorlek					RAD mr wk 26  (?)
-  Aneurysma				RAD amr hersen 57 (-)
-  Arterio-Veneuze Malformatie			RAD mr hersen 71  (+)
-  Bloeding					RAD mr hersen 65  (+)
-  Caverneuze Malformatie/Fabry		RAD mr hersen 67  (-)
-  Cerebellair Letsel (tumor)			RAD mr hersen 13  (+)
-  CVA-TIA					RAD mr hersen 04  (-)
-  Dementie					RAD mr hersen 11  (-)
-  Epilepsie, Hippocampus			RAD mr hersen 06  (-)
-  Frameless stereotaxie (neurochirurgie)		RAD mr hersen 54  (+)
-  Hoofdpijn					RAD mr hersen 24  (-)
-  Hydrocefalie / NPH				RAD mr hersen 64  (-)
-  Hypotensie				RAD mr hersen 72  (?)
-  Idiopathische Intracraniale Hypertensie		RAD mr hersen 73  (-)
-  Liquorlek					RAD mr hersen 68  (-)
-  MS (Vermoeden MS)			RAD mr hersen 02  (?)
-  MS Follow-up				RAD mr hersen 03  (-)
-  Neurofibromatosis/Fakomatose		RAD mr hersen 74  (+)
-  Neurovasculair Confict V/VII/IX		RAD mr hersen 75  (+)
-  Parkinson					RAD mr hersen 57  (-)
-  Post-operatieve Controle			RAD mr hersen 27  (+)
-  Routineprotocol				RAD mr hersen 25  (-)
-  Sella Macro-adenoma			RAD mr hersen 08  (+)
-  Sella Micro-adenoma			RAD mr hersen 09  (+)
-  Sella Post-operatief				RAD mr hersen 10  (+)
-  Stereotactisch Radiotherapie			RAD mr hersen 89  (+)
-  Tumor met Perfusie				RAD mr hersen 77  (+)
-  Tumor/infectie zonder Perfusie		RAD mr hersen 78  (+)
-  Vasculitis					RAD amr hersen 58 (+)
-  Veneuze Trombose				RAD mr hersen 14  (-)
-  Vertigo/Duizeligheid				RAD mr hersen 29  (-)
-  Vestibulair Schwannoom			RAD mr hersen 70  (+)
-  Trauma					RAD mr hersen 32  (-)
-  Epilepsie, Hippocampus Pathologie (pediatrie)	RAD mr hersen 46  (-)
-  Langerhanscelhistiocyste			RAD mr hersen 81  (+)
-  Neonato					RAD mr hersen 84  (-)
-  Neurofibromatose (pediatrie)			RAD mr hersen 85  (+)
-  PVL					RAD mr hersen 23  (-)
-  Routineprotocol (pediatrie)			RAD mr hersen 87  (-)
-  Tumor (Pediatrie)				RAD mr hersen 88  (+)
-  MR Orbita				RAD mr orbita (+)
-  MR Halsvaten Dissectie			RAD amr hersen 59 (+)
-  MR Hersenen (Pediatrie) Pubertas Praecox	RAD mr hersen 42 (-)
-  Studie (?)
+  Cervicobrachalgie					RAD mr wz 01  (-)
+  CWK/DWK Post-Op				RAD mr wk 19  (-)
+  Intraspinale Metastasen				RAD mr wk 23  (+)
+  LWK/DWK Standaard				RAD mr wk 18  (-)
+  LWK Post-op					RAD mr wk 15  (+)
+  Metaal						RAD mr wk 22  (-)
+  Congenitale Aandoening LWK				RAD mr wk 21  (-)
+  Full Spine						RAD mr full spine (-)
+  Ruggenmerg (MS of Myelitis)				RAD mr wz 13  (-)
+  Ruggenmergletsel (geen full spine)			RAD mr wk 16  (+)
+  Scoliose						RAD mr wk 24  (-)
+  Spinale AV-Fistel(enkel bij controle)			RAD mr wk 25  (+)
+  Liquorlek						RAD mr wk 26  (?)
+  Aneurysma					RAD amr hersen 57 (-)
+  Arterio-Veneuze Malformatie				RAD mr hersen 71  (+)
+  Bloeding						RAD mr hersen 65  (+)
+  Caverneuze Malformatie/Fabry			RAD mr hersen 67  (-)
+  Cerebellair Letsel (tumor)				RAD mr hersen 13  (+)
+  CVA-TIA						RAD mr hersen 04  (-)
+  Dementie						RAD mr hersen 11  (-)
+  Epilepsie, Hippocampus				RAD mr hersen 06  (-)
+  Frameless stereotaxie (neurochirurgie/navig)		RAD mr hersen 54  (+)
+  Hoofdpijn						RAD mr hersen 24  (-)
+  Hydrocefalie / NPH					RAD mr hersen 64  (-)
+  Hypotensie					RAD mr hersen 72  (?)
+  Idiopathische Intracraniale Hypertensie			RAD mr hersen 73  (-)
+  Liquorlek						RAD mr hersen 68  (-)
+  MS (Vermoeden MS)				RAD mr hersen 02  (?)
+  MS Follow-up					RAD mr hersen 03  (-)
+  Neurofibromatosis/Fakomatose			RAD mr hersen 74  (+)
+  Neurovasculair Conflict V/VII/IX			RAD mr hersen 75  (+)
+  Parkinson						RAD mr hersen 57  (-)
+  Post-operatieve Controle				RAD mr hersen 27  (+)
+  Routineprotocol					RAD mr hersen 25  (-)
+  Sella Macro-adenoma				RAD mr hersen 08  (+)
+  Sella Micro-adenoma				RAD mr hersen 09  (+)
+  Sella Post-operatief					RAD mr hersen 10  (+)
+  Stereotactisch Radiotherapie				RAD mr hersen 89  (+)
+  Tumor met Perfusie					RAD mr hersen 77  (+)
+  Tumor/infectie zonder Perfusie			RAD mr hersen 78  (+)
+  Vasculitis						RAD amr hersen 58 (+)
+  Veneuze Trombose					RAD mr hersen 14  (-)
+  Vertigo/Duizeligheid					RAD mr hersen 29  (-)
+  Vestibulair Schwannoom				RAD mr hersen 70  (+)
+  Trauma						RAD mr hersen 32  (-)
+  Epilepsie, Hippocampus Pathologie (pediatrie)		RAD mr hersen 46  (-)
+  Langerhanscelhistiocyste				RAD mr hersen 81  (+)
+  Neonato						RAD mr hersen 84  (-)
+  Neurofibromatose/fakomatose (pediatrie)		RAD mr hersen 85  (+)
+  PVL						RAD mr hersen 23  (-)
+  Routineprotocol (pediatrie)				RAD mr hersen 87  (-)
+  Tumor (Pediatrie)					RAD mr hersen 88  (+)
+  Ontwikkelingsstoornis (Pediatrie)			RAD mr hersen 86 (-) [Als >3 jaar gebruik T2_mv ipv destir]
+  MR Orbita					RAD mr orbita (+)
+  MR Halsvaten Dissectie				RAD amr hersen 59 (+)
+  MR Hersenen (Pediatrie) Pubertas Praecox		RAD mr hersen 42 (-)
+  Studie 						(?)
   )"
 
 Data_abdomen_MR := "
@@ -186,12 +187,12 @@ Data_uro_CT  := "
   Nier vasculair				RAD ct uro 100 (+)
   Niertumor primair				RAD ct uro 19 (+)
   Pyelonefritis				RAD ct uro 10 (+)
-  Low dose lithiasis				RAD ct uro 14 (-)
+  Low dose lithiasis				RAD ct uro 13 (-)
   IVU					RAD ct uro 20 (+)
   Follow up/screening abdomen met aflopen	RAD ct uro 30 (+)
   Combi thorax/abdomen			RAD ct uro 24 (+)
   Combi + hersenen				RAD ct uro 27 (+)
-  Combi thorax/abdomen + afloop RAD ct uro 29 (+)
+  Combi thorax/abdomen + afloop 		RAD ct uro 29 (+)
   Trauma					RAD ct uro 22 (+)
   Nierdonor					RAD ct uro 21 (+)
   Niervolumetrie				RAD ct uro 28 (-) [Indien ADPKD normale dosis]
@@ -202,11 +203,17 @@ Data_uro_MR  := "
   (
   Prostaat standaard zc				RAD mr prostaat 01 zc (-)
   Prostaat met contrast				RAD mr prostaat mk (+)
+  Prostaat veld / radiotherapie 				RAD mr v prostaat 02 (-)
 
-  Nierletsel / niertumor (pre of postop)	RAD mr nier 08 (+)
-  MR IVU / urinewegen / afloop			RAD mr nier 05 (+)
+  Nierletsel / niertumor (pre of postop)			RAD mr nier 08 (+)
+  IVU / urinewegen / afloop				RAD mr nier 05 (+)
+  Transplantnier (cave geen angio!)			RAD mr tpnier 01 (+)
+  Bijnier						RAD mr bijnier 02 mc (?) [graag bellen voor contrast wordt gegeven.]
+  Bijnier met contrast					RAD mr bijnier 02 mc (+)
 
-  MR Peritoneaalmetastasen 				RAD mr abd 41
+  Angio renale vaten   		 		RAD amr nier 01 (+)
+  Angio transplantnier vaten   		 		RAD amr tpnier 02 (+)
+  Peritoneaalmetastasen 				RAD mr abd 41
   )"
 
 helptext := "
@@ -220,6 +227,7 @@ helptext := "
   Ctrl-z		-> Selecteer 'zonder contrast'.
   Ctrl-i		-> Zet de cursor in 'Opmerkingen'.
   Ctrl-l		-> Open het labo.
+  Ctrl-d		-> Toon document.
   Ctrl-q		-> Sluit het huidige KWS scherm (pt of labo).
 
   NB: Als abdomen CT is geselecteerd als discipline, zal Ctrl-Numpad+ ook 'IV veneus {+} 3 PO invullen'.
@@ -227,48 +235,45 @@ helptext := "
 
 inifile := "aanvaardingen.ini"
 
-;;::startaanv::
-  ;; Goto("start_aanvaardingen")
-
-start_aanvaardingen:
-  HotIfWinActive("Aanvaardingen helper ahk_class AutoHotkeyGUI")
-  Hotkey("^Enter", druk_ok_aanvaarding)
-  Hotkey("^NumpadEnter", druk_ok_aanvaarding)
-  ;; Hotkey, Enter, aanvaard_onderzoek_knop ;; mss neit meer nodig met default
-  Hotkey("^NumpadAdd", ctrnumplusHotkey)
-  Hotkey("^NumpadSub", ctrlnumminHotkey)
-  Hotkey("^m", ctrnumplusHotkey)
-  Hotkey("^z", ctrlnumminHotkey)
-  Hotkey("^i", selectOpmerking)
-  Hotkey("^l", selectLabo)
-  Hotkey("^q", sluitaanvaardschermKWS)
-  toon_onderzoeken := ""
-  global aanvaarder
-  aanvaarder := Gui()
-  aanvaarder.OnEvent("Close", aanvaarderGuiEscape)
-  aanvaarder.OnEvent("Escape", aanvaarderGuiEscape)
-  ogcEditonderzoek_naam := aanvaarder.Add("Edit", "x10 y9 w280 h20 vonderzoek_naam")
-  ogcEditonderzoek_naam.OnEvent("Change", zoek_onderzoek_naam.Bind("Change"))
-  onderzoek_naam := ogcEditonderzoek_naam.hwnd
-  ogcButtonAanvaard := aanvaarder.Add("Button", "x295 y9 w180 h20  Default", "Aanvaard")
-  ogcButtonAanvaard.OnEvent("Click", aanvaard_onderzoek_knop.Bind("Normal"))
-  ogcDropDownListsubdiscipline := aanvaarder.Add("DropDownList", "x480 y9 w110 h20 R10 vsubdiscipline Choose1", ["neuro", "ORL", "abdomen (CT)", "abdomen (MR)", "thorax", "uro (CT)", "uro (MR)"])
-  ogcDropDownListsubdiscipline.OnEvent("Change", set_subdiscipline.Bind("Change"))
-  ogcButton := aanvaarder.Add("Button", "x595 y9 w15 h20", "?")
-  ogcButton.OnEvent("Click", helpknop.Bind("Normal"))
-  ogcEditGui_Display := aanvaarder.Add("Edit", "x10 y39 w600 h190 vGui_Display ReadOnly -wrap", toon_onderzoeken)
-  aanvaarder.Title := "Aanvaardingen helper"
-  aanvaarder.Show("x420 y781 h241 w620")
-  WinSetAlwaysOnTop(1, "Aanvaardingen helper")
-  if FileExist(inifile) {
-	  subdiscipline := IniRead(inifile, "General", "subdiscipline", "neuro")
-	  ogcDropDownListsubdiscipline.Choose(subdiscipline)
-  }
-  set_subdiscipline("", aanvaarder)
-  Return
+HotIfWinActive("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+Hotkey("^Enter", druk_ok_aanvaarding)
+Hotkey("^NumpadEnter", druk_ok_aanvaarding)
+;; Hotkey, Enter, aanvaard_onderzoek_knop ;; mss neit meer nodig met default
+Hotkey("^NumpadAdd", ctrnumplusHotkey)
+Hotkey("^NumpadSub", ctrlnumminHotkey)
+Hotkey("^m", ctrnumplusHotkey)
+Hotkey("^z", ctrlnumminHotkey)
+Hotkey("^i", selectOpmerking)
+Hotkey("^l", selectLabo)
+Hotkey("^d", selectToonDocument)
+Hotkey("^q", sluitaanvaardschermKWS)
+toon_onderzoeken := ""
+global aanvaarder
+aanvaarder := Gui()
+aanvaarder.OnEvent("Close", aanvaarderGuiEscape)
+aanvaarder.OnEvent("Escape", aanvaarderGuiEscape)
+ogcEditonderzoek_naam := aanvaarder.Add("Edit", "x10 y9 w280 h20 vonderzoek_naam")
+ogcEditonderzoek_naam.OnEvent("Change", zoek_onderzoek_naam.Bind("Change"))
+onderzoek_naam := ogcEditonderzoek_naam.hwnd
+ogcButtonAanvaard := aanvaarder.Add("Button", "x295 y9 w180 h20  Default", "Vul in")
+ogcButtonAanvaard.OnEvent("Click", aanvaard_onderzoek_knop.Bind("Normal"))
+ogcDropDownListsubdiscipline := aanvaarder.Add("DropDownList", "x480 y9 w110 h20 R10 vsubdiscipline Choose1", ["neuro", "ORL", "abdomen (CT)", "abdomen (MR)", "thorax", "uro (CT)", "uro (MR)"])
+ogcDropDownListsubdiscipline.OnEvent("Change", set_subdiscipline.Bind("Change"))
+ogcButton := aanvaarder.Add("Button", "x595 y9 w15 h20", "?")
+ogcButton.OnEvent("Click", helpknop.Bind("Normal"))
+ogcEditGui_Display := aanvaarder.Add("Edit", "x10 y39 w600 h190 vGui_Display ReadOnly -wrap", toon_onderzoeken)
+aanvaarder.Title := "Aanvaardingen helper"
+aanvaarder.Show("x1220 y780 h241 w620")
+WinSetAlwaysOnTop(1, "Aanvaardingen helper")
+if FileExist(inifile) {
+		subdiscipline := IniRead(inifile, "General", "subdiscipline", "neuro")
+		ogcDropDownListsubdiscipline.Choose(subdiscipline)
+}
+set_subdiscipline("", aanvaarder)
+Return
 
 set_subdiscipline(A_GuiEvent, GuiCtrlObj, Info := "", *) {
-	Global Data, subdiscipline
+		Global Data, subdiscipline
 	oSaved := aanvaarder.Submit("0")
 	subdiscipline := oSaved.subdiscipline
 	Switch subdiscipline
@@ -298,27 +303,29 @@ aanvaard_onderzoek_knop(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 	oSaved := aanvaarder.Submit("0")
 	onderzoek_naam := oSaved.onderzoek_naam
 	onderzoek := Sift_Regex(&Data, &onderzoek_naam, "uw")
+	if onderzoek = ""
+			return
 	onderzoek := StrSplit(onderzoek, "`n")[1]
-	if RegExMatch(onderzoek, "(RAD .*[a-zA-Z0-9])\ +\((.)\)(?:\ +\[(.+)\])?", &gekozenOnderzoek)
-		aanvaardOnderzoek(gekozenOnderzoek.1, gekozenOnderzoek.2, gekozenOnderzoek.3)
+	if RegExMatch(onderzoek, "(?<oz>RAD .*[a-zA-Z0-9])?\ +\((?<contrast>[+-?])\)(?:\ +\[(?<opm>.+)\])?", &gekozenOnderzoek)
+		aanvaardOnderzoek(gekozenOnderzoek.oz, gekozenOnderzoek.contrast, gekozenOnderzoek.opm)
 }
 
 druk_ok_aanvaarding(ThisHotkey) {
-  WinActivate("KWS ahk_exe javaw.exe")
-  MouseGetPos(&mouseX, &mouseY)
-  ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")
-  if (ErrorLevel = 2 or ErrorLevel = 1) {
-	  MsgBox("Er is iets fout gegaan met zoeken naar de OK knop (niet gevonden of afbeelding bestaat niet)")
-	  return
-  }
-  MouseClick("left", FoundX+5, FoundY+5)
-  MouseMove(mouseX, mouseY)
-  ogcEditonderzoek_naam.Text := "" ;;nodig?
-  zoek_onderzoek_naam("Button", "")
-  sleep(300)
-  WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
-  ; sleep(200)
-  ; WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+	WinActivate("KWS ahk_exe javaw.exe")
+	MouseGetPos(&mouseX, &mouseY)
+	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")
+	if (ErrorLevel = 2 or ErrorLevel = 1) {
+			MsgBox("Er is iets fout gegaan met zoeken naar de OK knop (niet gevonden of afbeelding bestaat niet)")
+			return
+	}
+	MouseClick("left", FoundX+5, FoundY+5)
+	MouseMove(mouseX, mouseY)
+	ogcEditonderzoek_naam.Text := "" ;;nodig?
+	zoek_onderzoek_naam("Button", "")
+	sleep(300)
+	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+	; sleep(200)
+	; WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
 }
 
 aanvaarderGuiEscape(*) {
@@ -328,6 +335,18 @@ aanvaarderGuiEscape(*) {
 	IniWrite(subdiscipline, inifile,"General", "subdiscipline")
 	ExitApp()
 	Return
+}
+
+selectToonDocument(ThisHotkey) {
+	WinActivate("KWS ahk_exe javaw.exe")
+	MouseGetPos(&mouseX, &mouseY)
+	If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")) {
+		MouseClick("left", FoundX + 180, FoundY + 5)
+		MouseMove(mouseX, mouseY)
+		sleep(300)
+		WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+	} else
+		MsgBox("Het referentiepunt voor de knop werd niet gevonden!")
 }
 
 selectOpmerking(ThisHotkey) {
@@ -347,11 +366,13 @@ selectLabo(ThisHotkey) {
 	If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\contrastLabel.png")) {
 		MouseClick("Left", FoundX + 365, FoundY)
 		sleep(550)
-		If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\eGFRLabel.png"))
-			MouseClick("Left", FoundX + 3, FoundY + 3) ;; klik op GFR
-		else
-			MouseClick("Left", 950, 313) ;; even klikken op het KWS scherm om het gele vakje weg te krijgen.
-		sleep(250)
+		loop(2) {
+			If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\eGFRLabel.png"))
+				MouseClick("Left", FoundX + 3, FoundY + 3) ;; klik op GFR
+			else
+				MouseClick("Left", 950, 318) ;; even klikken op het KWS scherm om het gele vakje weg te krijgen.
+			sleep(250)
+		}
 		WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
 		MouseMove(mouseX, mouseY)
 	} else

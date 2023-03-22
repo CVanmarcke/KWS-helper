@@ -13,10 +13,7 @@
 
 ; CALLABLE FUNCTIONS
 ; --------------------------------------
-
-; TODO: pedabdomen nog eens testen of de stddev kloppen.
 ; TODO: functie om automatisch alle schermen voor spoed te openen.
-
 
 initKWSHandler() {
 	global logfile
@@ -56,7 +53,7 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose")		 ;; frequente speech fout
 	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie")			;; frequente speech fout
 	inputtext := StrReplace(inputtext, "normale doorgankelijkheid van de", "normaal doorgankelijke")
-	inputtext := StrReplace(inputtext, "suscebiliteits", "susceptibiliteits")
+	inputtext := StrReplace(inputtext, "suscebiliteit", "susceptibiliteit")
 	inputtext := StrReplace(inputtext, "pig katheter", "PIC katheter")
 	inputtext := StrReplace(inputtext, "flair ", "FLAIR ", 0)
 	inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", , &CaseSensitive := false)
@@ -96,7 +93,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2")				; corrigeert WOord naar Woord
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
 	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
-	inputtext := RegExReplace(inputtext, "m)(?<=(?<! a)\. |\? |^- |^)(\w)", "$U1")				; converts to uppercase after ., newline or newline - (exception for a. hepatica etc)
+	inputtext := RegExReplace(inputtext, "m)(?<=(?<! [amvn])\. |\? |^- |^)(\(?\w)", "$U1")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
 	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")				; makes sure there is a space after a colon or point (if not number)...
 	inputtext := RegExReplace(inputtext, "(?<=[\:\;])\ ?([A-Z][^A-Z])", " $L1")				; converts after : or ; to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 ;;	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
@@ -108,7 +105,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3")			; corrects d/m/y tot d-m-y
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n")											; replaces triple+ newline with double
 ;; TODO: checken of die [A-Z] ok is, want is toch met case insensitive gedaan...
-	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\`")(?![A-Z -]{5,}\:[\r\n]|CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
+	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\`")(?!.{5,}\:[\r\n][^ ]|CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
 	inputtext := RegExReplace(inputtext, "(CONCLUSIE:[\n\r\R])\-\ (.+)(?:[\n\r\R]|$)(?!-)", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten. WERKT NOG NIET
 	;;inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1Ãƒ$2")							; maakt  als a tussen 2 getallen.
 	inputtext := RegExReplace(inputtext, "([\-\.]) {2,}(?=[\R\n\r\w])", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
@@ -148,6 +145,7 @@ mergeReport(currentreportunclean, oldreportunclean) {
 	currentreportheader := currentreport["header"]
 	;; Veranderd de datum in een reeds bestaande vergelijking, of voegt de vergelijktekst toe indien die nog niet aanwezig was.
 	compared := ""
+	;; TODO herschrijven denk ik...
 	if (oldreport["comparedwith"] != "" and oldreport["compdate"] = "") {
 		compared := StrReplace(oldreport["comparedwith"], oldreport["compdate"], oldreport["date"])
 		oldreportcontent :=  StrReplace(oldreportcontent, oldreport["compdate"], oldreport["date"])
@@ -163,14 +161,11 @@ mergeReport(currentreportunclean, oldreportunclean) {
 			oldreportcontent := RegExReplace(oldreportcontent, "((?:BESLUIT|CONCLUSIE).*)\R", "$1`nIn vergelijking met het voorgaande onderzoek van " . oldreport["date"] . ":`n", , 1, conclusielocatie-5)
 		}
 	}
-	if (SubStr(currentreportheader, -1) != "`n") ; Fix dat soms de "compare" tegen de onderzoeken wordt gezet. eventueel te fixen in de REGEX of gewoon extra newlines hier vanonder en dan de overschot newlines wegdoen
-		MsgBox("Testnotification: adding newline")
-		currentreportheader := currentreportheader . "`n"
 	if (InStr(currentreport["type"], "RX thorax"))
 		oldreportcontent := cleanreport(oldreportcontent) ;; automatisch maakt het verslag proper als het een RX thorax is.
 	oldreportcontent := RegExReplace(oldreportcontent, "im)[\ \t]*supervis.*$", "") ; verwijder supervisie.
 	; report := currentreportheader . "`n" . compared . "`n`n" . oldreportcontent
-	return currentreportheader . "" . compared . "`n`n" . oldreportcontent
+	return currentreportheader . "`n" . compared . "`n`n" . oldreportcontent
 }
 
 
@@ -201,7 +196,7 @@ copyLastReport_KWS() {
 		}
 	}
 	MouseClick("left", FoundX+10, FoundY+10)
-	Sleep(300)
+	Sleep(250) ;;300 werkt
 
 	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\laatstVerslagHeader.png")
 	if (FoundX = "") {
@@ -218,8 +213,8 @@ copyLastReport_KWS() {
 
 	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\sluitLaatstVerslagKnop.png")
 	MouseClick("left", FoundX+5, FoundY+5)
-	Sleep(100)
-	MouseClick("left", FoundX+5, FoundY+650) ;; Selecteerd Textbox van KWS
+	Sleep(50)
+	MouseClick("left", FoundX+25, FoundY+650) ;; Selecteerd Textbox van KWS
 	Sleep(100) ;; even tijd geven
 	A_Clipboard := ""
 	if (RegExMatch(oldreportunclean, "m)^ingevoerde beelden$")) { ; undoes the whole operation
@@ -234,103 +229,6 @@ copyLastReport_KWS() {
 	MouseMove(mouseX, mouseY)
 	_BlockUserInput(false)
 	A_Clipboard := tempClip
-	return								; Klaar
-}
-
-selectLastReport_KWS() {
-	RegexQuery := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:Onderzoeksdatum: )(?<date>\d{2}-\d{2}-\d{4})[\s\S]+(?:ONDERZOEKE?N?:\R{0,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<comparedwith>.{0,22}(?:(?:ergel(?:ij|e)k)|opzichte|vgl\.? |tov\.? |Ivm).{3,55}?(?:(?<compdate>\d+[-\/.]\d+[-\/.]\d+)|gisteren|vandaag).*)?\R+(?<content>[\s\S]+?)(?:\R*$|\*\* Eind)"
-	try _KWS_CopyReportToClipboard(selectReportBox := True)
-	catch Error as e {
-		return
-	}
-	_BlockUserInput(True)
-	Send("{Down}") ;; deselecteert de inhoud
-	currentreportunclean := A_Clipboard
-	A_Clipboard := ""
-	_KWS_SelectReportBox("right")
-	_BlockUserInput(True)
-	Send("{Down}")					; klik pijltje naar beneden
-	Send("{Down}")
-	Send("{Enter}")					; selecteerd "neem laatste verslag over"
-	if (A_UserName = "cvmarc2") {
-		;; Mag enkel uitgevoerd worden als de technische dienst de toegangsactie "laatsteGelijkaardigVerslagDetails" heeft opengezet! Indien niet, is dit niet nodig.
-		WinWait("Neem een gelijkaardig verslag over ahk_class SunAwtDialog ahk_exe javaw.exe", , 3)
-		WinActivate()
-		_BlockUserInput(false)
-		WinWaitClose("Neem een gelijkaardig verslag over ahk_class SunAwtDialog ahk_exe javaw.exe")
-		Sleep(200)
-		WinActivate("KWS ahk_exe javaw.exe")
-	}
-	Sleep(400)					; geeft tijd om vorig verslag te laden, kan evt verhoogd of verlaagd worden (400 werkt sowieso)
-	try _KWS_CopyReportToClipboard(selectReportBox := True)
-	catch Error as e {
-		_makeSplashText(title := "ERROR", text := "Probleem met het voorgaande verslag te kopieren!", time := -3000)
-		_log("Catch clause regel 113, poging tot _KWS_copyreporttoclipboard")
-		_log("A_Clipboard: `n" . A_Clipboard)
-		Send("{Enter}")
-		return
-	} finally {
-		_BlockUserInput(false)
-	}
-
-	if (RegExMatch(A_Clipboard, "m)^ingevoerde beelden$")) { ; undoes the whole operation
-		Send("^z")
-		Send("^z")
-		Send("^{F8}")					; Initieer dictee (ctrl F8)
-		_makeSplashText(title := "ERROR", text := "Fout: het voorgaande verslag zijn ingevoerde beelden!", time := -2000)
-		if (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\samenvattingLabel.png")) { ;; verwijderd "ingevoerde beelden" onderaan
-			MouseGetPos(&mouseX, &mouseY)
-			MouseClick("left", FoundX+20, FoundY+30)
-			Send("^a")
-			Send("{Backspace}")
-			MouseMove(mouseX, mouseY)
-		}
-		return
-	}
-
-	oldreportunclean := A_Clipboard			; zet variabele gelijk aan clipboard
-	A_Clipboard := ""				; maakt het clipboard leeg
-	RegExMatch(oldreportunclean, RegexQuery, &oldreport)
-	RegExMatch(currentreportunclean, RegexQuery, &currentreport)
-	compared := ""
-	;; Checkt of de regex van het vorige verslag gelukt is, en zo niet verwijderd het hele gedoe.
-;; TODO NOT CHECKED FOR ERRORS
-	; if (oldreport["content"] = "") {
-	;	_log("Catch clause regel 143, error bij regexmatch")
-	;	_log("old report: `n" . oldreportunclean)
-	;	_makeSplashText(title := "ERROR", text := "Probleem met REGEX van het A_Clipboard van het vorige verslag: sluit de patient en probeer opnieuw.", time := -2000)
-	;	Send("^z")
-	;	Send("^z")
-	;	Send("^{F8}")					; Initieer dictee (ctrl F8)
-	; }
-	; ;; Veranderd de datum in een reeds bestaande vergelijking, of voegt de vergelijktekst toe indien die nog niet aanwezig was.
-	; if (oldreport["comparedwith"] && oldreport["compdate"]) {
-	;	compared := StrReplace(oldreport["comparedwith"], oldreport["compdate"], oldreport["date"])
-	;	oldreportcontent :=  StrReplace(oldreport["content"], oldreport["compdate"], oldreport["date"])
-	; } else {
-	;	compared := "In vergelijking met het voorgaande onderzoek van " . oldreport["date"] . ":"
-	; }
-
-	; ; zoekt naar het besluit, en als het het vindt voegt het "vergelijking met" toe of veranderdt het de datum van "in vergelijking met"
-	; conclusielocatie := RegExMatch(oldreport["content"], "(BESLUIT|CONCLUSIE).*[\n\r]", &conclusieText)
-	; if (conclusielocatie) {
-	;	RegExMatch(oldreport["content"], "(?:ergel(?:ij|e)k|opzichte|vgl |tov ).{5,55}?(?<date>\d+[-\/.]\d+[-\/.]\d+)", &conclcompare, (conclusielocatie - 5)<1 ? (conclusielocatie - 5)-1 : (conclusielocatie - 5))
-	;	if (conclcompare["date"]) {
-	;		oldreportcontent := StrReplace(oldreport["content"], conclcompare["date"], oldreport["date"])
-	;	} else {
-	;		oldreportcontent := RegExReplace(oldreport["content"], "((?:BESLUIT|CONCLUSIE).*)\R", "$1`nIn vergelijking met het voorgaande onderzoek van " . oldreport["date"] . ":`n", , 1, (conclusielocatie-5)<1 ? (conclusielocatie-5)-1 : (conclusielocatie-5))
-	;	}
-	; }
-	; if (SubStr(currentreport["header"], (StrLen(currentreport["header"]))<1 ? (StrLen(currentreport["header"]))-1 : (StrLen(currentreport["header"]))) != "`n") { ; Fix dat soms de "compare" tegen de onderzoeken wordt gezet. eventueel te fixen in de REGEX of gewoon extra newlines hier vanonder en dan de overschot newlines wegdoen
-	;	currentreport["header"] .= "`n"
-	; }
-	; if (InStr(currentreport["type"], "RX thorax")) {
-	;	oldreportcontent := cleanreport(oldreport["content"]) ;; automatisch maakt het verslag proper als het een RX thorax is.
-	; }
-	; oldreportcontent := RegExReplace(oldreport["content"], "im)[\ \t]*supervis.*$", "") ; verwijder supervisie.
-	; _KWS_PasteToReport(currentreport["header"] . "`n" . compared . "`n`n" . oldreport["content"])
-	; Send("^{F8}")							; Initieer dictee (ctrl F8)
-	; MouseMove(mouseX, mouseY)
 	return								; Klaar
 }
 
@@ -514,9 +412,13 @@ volCalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
 		return
 	}
 	if (A_GuiEvent = "OK") {
-		x := toInteger(GuiCtrlObj["volX"].Text)
-		y := toInteger(GuiCtrlObj["volY"].Text)
-		z := toInteger(GuiCtrlObj["volZ"].Text)
+		oSaved := GuiCtrlObj.Submit(1)
+		x := oSaved.volX
+		y := oSaved.volY
+		z := oSaved.volZ
+		; x := toInteger(GuiCtrlObj["volX"].Text)
+		; y := toInteger(GuiCtrlObj["volY"].Text)
+		; z := toInteger(GuiCtrlObj["volZ"].Text)
 		volume := Round(x * y * z * 0.52, 1)
 		WinActivate("KWS ahk_exe javaw.exe")
 		Sleep(50)
@@ -553,14 +455,15 @@ VDTCalculator() {
 }
 
 VDTCalcGuiHandler(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
-	diameter1 := toInteger(GuiCtrlObj["diameter1"].value)
-	diameter2 := toInteger(GuiCtrlObj["diameter2"].value)
+	oSaved := GuiCtrlObj.Submit(1)
+	diameter1 := toInteger(oSaved.diameter1)
+	diameter2 := toInteger(oSaved.diameter2)
 	; date1 := toInteger(GuiCtrlObj["date1"].value)
 	; date2 := toInteger(GuiCtrlObj["date2"].value)
 	volume1 := Round(diameter1**3 * 0.52, 1)
 	volume2 := Round(diameter2**3 * 0.52, 1)
-	if (RegexMatch(GuiCtrlObj["date1"].value, "(\d{4}).?(\d{2}).?(\d{2})", &date1) and
-	RegexMatch(GuiCtrlObj["date2"].value, "(\d{4}).?(\d{2}).?(\d{2})", &date2) ) {
+	if (RegexMatch(oSaved.date1, "(\d{4}).?(\d{2}).?(\d{2})", &date1) and
+	RegexMatch(oSaved.date2, "(\d{4}).?(\d{2}).?(\d{2})", &date2) ) {
 		; if (date1.count = 3 and date2.count = 3) {
 		date1 := date1.1 . date1.2 . date1.3
 		date2 := date2.1 . date2.2 . date2.3
@@ -822,7 +725,7 @@ KWStoExcel(excelSavePath) {
 		indexCategory := 7
 		case RegExMatch(report["onderzoek"], "i)mammo|borst"):
 		indexCategory := 8
-		case RegExMatch(report["onderzoek"], "i)nier|blaas|prostaat|gyna|vrouw|bekken"):
+		case RegExMatch(report["onderzoek"], "i)nier|blaas|prostaat|gyna|vrouw|bekken|uro-genitaal"):
 		indexCategory := 9
 		case RegExMatch(report["onderzoek"], "i)vascul"):
 		indexCategory := 10
@@ -856,7 +759,7 @@ KWStoExcel(excelSavePath) {
 	ExcelGUI.Title := "Save to excel script"
 	ExcelGUI.Show("x360 y233")
 	; ErrorLevel := WinWaitClose("ahk_id " ExcelGuiHWND,,)
-;; todo: add a check to see if excel has been found and XL object initialized
+	;; todo: add a check to see if excel has been found and XL object initialized
 	; return
 	ExcelGUIButtonOK(A_GuiEvent, GuiCtrlObj, Info := "", *)		{ ; V1toV2: Added bracket
 		XL := ComObjGet(excelSavePath) ;; looks for excel
@@ -1071,6 +974,51 @@ initKWSWindows() {
 		Sleep(2200)
 	}
 }
+
+switchMPR(setting := "2D") {
+	MouseGetPos(&mouseX, &mouseY)
+	MouseClick("Left", mouseX, mouseY, , ,"Up")
+	FoundX := 0
+	FoundY := 0
+	if ImageSearch(&FoundX, &FoundY, 0, 0, 4040, 1300, "images\enterpriseReconLabel.png") {
+		FoundX := FoundX+30
+		FoundY := FoundY-10
+		MouseClick("Left", FoundX, FoundY+10)
+		sleep(60)
+		MouseClick("Left", FoundX, FoundY)
+		sleep(50)
+	} else if ImageSearch(&FoundX, &FoundY, 0, 0, 4040, 1300, "images\enterpriseMoveSeriesLabel.png") {
+		FoundX := FoundX + 210
+		FoundY := FoundY + 10
+		MouseClick("Left", FoundX, FoundY)
+		sleep(50)
+	} else {
+		return
+	}
+	if (setting = "2D") {
+		MouseClick("Left", FoundX, FoundY-40)
+		MouseMove(mouseX, mouseY)
+		return
+	}
+	MouseClick("Left", FoundX, FoundY-70) ; press MPR
+	sleep(50)
+	MouseClick("Left", FoundX + 80, FoundY) ; pres mm button
+	sleep(50)
+	Switch setting
+	{
+		Case "mip": MouseClick("Left", FoundX + 180, FoundY-70)
+			MouseClick("Left", FoundX + 40, FoundY-70)
+		Case "minip": MouseClick("Left", FoundX + 180, FoundY-40)
+			MouseClick("Left", FoundX + 40, FoundY-70)
+		Case 1: MouseClick("Left", FoundX - 20, FoundY-100)
+			MouseClick("Left", FoundX + 180, FoundY - 100)
+		Case 3: MouseClick("Left", FoundX + 40, FoundY-100)
+		Case 5: MouseClick("Left", FoundX - 20, FoundY-70)
+		Case 10: MouseClick("Left", FoundX + 40, FoundY-70)
+	}
+	MouseMove(mouseX, mouseY)
+}
+
 
 ; HELPER FUNCTIONS
 ; --------------------------------------
