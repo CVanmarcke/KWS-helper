@@ -48,7 +48,7 @@ auto_scroll() | `Ctrl-&` of `Ctrl-é` | Start automatisch met scrollen in het ve
 ### Calculators/Tools
 Functienaam | Standaard Hotkey | Beschrijving
 --- | --- | ---
-Aanvaarder tool | `aanvaarder`<br />`startaanv` | Start een [programma](#aanvaarder-tool) om snel de juiste codes en contrast voor aanvaardingen in te voeren. Werkt het beste met MR neuro en NKO, maar kan ook gebruikt worden voor MR abdomen, CT abdomen, thorax, en uro. Dank aan Johannes Devos.
+Aanvaarder tool | `F12`<br />`aanvaarder`<br />`startaanv` | Start een [programma](#aanvaarder-tool) om snel de juiste codes en contrast voor aanvaardingen in te voeren. Werkt het beste met MR neuro en NKO, maar kan ook gebruikt worden voor MR abdomen, CT abdomen, thorax, en uro. Dank aan Johannes Devos.
 KWStoExcel(padNaarExcelBestand) | `Ctrl-e` | Voegt de patientEAD, datum, onderzoekstype, ... automatisch toe aan een excel bestand. Handig om snel een casus bij te houden om op te volgen. [Voorbeeld hier](#KWS-to-excel)
 openEAD_KWS() | `Ctrl-o` | In excel, skype of Google Spreadsheet, open automatisch het geselecteerde EAD nummer in KWS.
 findAndReplaceGUI() | `Ctrl-r` | Selecteer de tekst om een ["find and replace" functie](#find-and-replace) te openen (met REGEX functionaliteit).
@@ -153,7 +153,7 @@ Het script zal automatisch de standaarddeviaties berekenen op basis van de leeft
 ![Find and replace example](images/Find-and-replace-example.jpg)
 
 ### Aanvaarder tool
-Typ `aanvaarder` of `startaanv` in het verslag.
+`F12`of typ `aanvaarder` of `startaanv` in het verslag.
 
 Voor neuro en ORL helpt het om snel de juiste codes te vinden voor het gewenste onderzoek. Het gewenste onderzoek kan gefilterd worden uit de lijst, waarna het correct aanvaard kan worden met `Enter` en `ctrl-Enter`.
 Voor abdomen en uro kan heel snel het labo worden geopend en gesloten, en de juiste opmerking worden ingevuld met de knoppen `ctrl-L` (labo), `ctrl-q` (sluit labo), `ctrl-m` (met contrast, IV Veneus + 3PO) of `ctrl-z` (zonder contrast), en `ctrl-Enter` (druk op ok).

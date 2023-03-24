@@ -32,6 +32,7 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 !SC003::MoveLineDown() ;; SC003 = Ã©
 F7::copyLastReport_KWS()
 F9::cleanReport_KWS()		; verslag cleaner
+F12::Run(A_AHKPath " `"" A_ScriptDir "\aanvaardingen.ahk`"")
 :X:tiradsnodule::Run(A_AHKPath " `"" A_ScriptDir "\TIRADSv2.ahk`"")
 :X:tirads2::Run(A_AHKPath " `"" A_ScriptDir "\TIRADSv2.ahk`"")
 :X:aanvaarder::Run(A_AHKPath " `"" A_ScriptDir "\aanvaardingen.ahk`"")
