@@ -101,6 +101,18 @@ PassHotkey(keypressed) {
 		Case "5656":
 			Send("{Ctrl Up}")
 	}
+	Switch keypressed {
+			Case "8857":		; rec
+				Send("^{F8}")
+			Case "8872":		; backwards
+				Send("{F3}")
+			Case "8864":		; forwards
+				Send("+{F3}")
+			Case "8860":		; F1
+				Send("{Ctrl Up}")
+				deleteLine()
+				Send("{Ctrl Down}")
+	}
 	If WinActive("KWS ahk_exe javaw.exe") {
 		Switch keypressed {
 			Case "5688":		; EOL
@@ -157,4 +169,18 @@ PassHotkey(keypressed) {
 1000	; F4
 2000	; BackButton
 0001	; Probably put down signal (not sure)
+*/
+
+/* keycodes in combination with back button (ctrl):
+8888 EOL
+8884 i
+8820 Ins
+8872 Backwards
+8857 Rec
+8864 Fw
+8860 play
+9056 F1
+9256 F2
+9656 F3
+0456 F4
 */

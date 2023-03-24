@@ -68,20 +68,14 @@ InputMsg(wParam, lParam, msg, hwnd) {
 	}
 }
 
-keyBuffer(keypressed) {				; Some devices will fire the output twice very fast: this will prevent it from firing twice.
-	static preventKeypress := False
-	; exception if ending with 0000 (= release button, and pick up trigger): no buffer, otherwise it will conflict with a double press.
-	if (SubStr(keypressed, StrLen(keypressed)-3) == "5656") {
-		PassHotkey(keypressed)
-		preventKeypress := False
-		return
+keyBuffer(keypressed) {				; Some devices will fire the output twice very fast: this will prevent it from firing twice. The key 5656 (release button) is always passed.
+	static lastKeyPressed := keypressed
+	if (keypressed == lastKeyPressed and
+			SubStr(keypressed, StrLen(keypressed)-3) != "5656") {
+			return
 	}
-	if (not preventKeypress) {
-		preventKeypress := True
-		PassHotkey(keypressed)		; Must be declared somewhere, otherwise script wont work! (see below for example)
-	}
-	Sleep(50)						; might have to play a bit with this value.
-	preventKeypress := False
+	PassHotkey(keypressed)
+	lastKeyPressed := keypressed
 }
 
 Bin2Hex(&addr, len) {									; magic
@@ -111,8 +105,6 @@ Bin2Hex(&addr, len) {									; magic
 7256 F4
 5656 pickup/drop + release button
 8856 back button
-
-
 */
 
 
