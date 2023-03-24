@@ -242,7 +242,7 @@ inifile := "aanvaardingen.ini"
 HotIfWinActive("Aanvaardingen helper ahk_class AutoHotkeyGUI")
 Hotkey("^Enter", druk_ok_aanvaarding)
 Hotkey("^NumpadEnter", druk_ok_aanvaarding)
-;; Hotkey, Enter, aanvaard_onderzoek_knop ;; mss neit meer nodig met default
+;; Hotkey, Enter, vulin_knop ;; mss neit meer nodig met default
 Hotkey("^NumpadAdd", ctrnumplusHotkey)
 Hotkey("^NumpadSub", ctrlnumminHotkey)
 Hotkey("^m", ctrnumplusHotkey)
@@ -256,11 +256,13 @@ global aanvaarder
 aanvaarder := Gui()
 aanvaarder.OnEvent("Close", aanvaarderGuiEscape)
 aanvaarder.OnEvent("Escape", aanvaarderGuiEscape)
-ogcEditonderzoek_naam := aanvaarder.Add("Edit", "x10 y9 w280 h20 vonderzoek_naam")
+ogcEditonderzoek_naam := aanvaarder.Add("Edit", "x10 y9 w220 h20 vonderzoek_naam")
 ogcEditonderzoek_naam.OnEvent("Change", zoek_onderzoek_naam.Bind("Change"))
 onderzoek_naam := ogcEditonderzoek_naam.hwnd
-ogcButtonAanvaard := aanvaarder.Add("Button", "x295 y9 w180 h20  Default", "Vul in")
-ogcButtonAanvaard.OnEvent("Click", aanvaard_onderzoek_knop.Bind("Normal"))
+ogcButtonVulIn := aanvaarder.Add("Button", "x235 y9 w100 h20  Default", "Vul in [enter]")
+ogcButtonVulIn.OnEvent("Click", vulin_knop.Bind("Normal"))
+ogcButtonAanvaard := aanvaarder.Add("Button", "x340 y9 w135 h20", "Aanvaard [ctrl-enter]")
+ogcButtonAanvaard.OnEvent("Click", druk_ok_aanvaarding.Bind())
 ogcDropDownListsubdiscipline := aanvaarder.Add("DropDownList", "x480 y9 w110 h20 R10 vsubdiscipline Choose1", ["neuro", "ORL", "abdomen (CT)", "abdomen (MR)", "thorax", "uro (CT)", "uro (MR)"])
 ogcDropDownListsubdiscipline.OnEvent("Change", set_subdiscipline.Bind("Change"))
 ogcButton := aanvaarder.Add("Button", "x595 y9 w15 h20", "?")
@@ -302,7 +304,7 @@ zoek_onderzoek_naam(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 	ogcEditGui_Display.Value := toon_onderzoek
 }
 
-aanvaard_onderzoek_knop(A_GuiEvent, GuiCtrlObj, Info := "", *) {
+vulin_knop(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 	global Data
 	oSaved := aanvaarder.Submit("0")
 	onderzoek_naam := oSaved.onderzoek_naam
