@@ -1042,7 +1042,7 @@ switchMPR(setting := "2D") {
 MenuHandler(ItemName, ItemPos, MyMenu) {
 		Switch ItemName
 		{
-				case "Update script": return
+				case "Update script": UpdateScript()
 				case "Aanvaarder": Run(A_AHKPath " `"" A_ScriptDir "\aanvaardingen.ahk`"")
 				case "TIRADS": Run(A_AHKPath " `"" A_ScriptDir "\TIRADSv2.ahk`"")
 				case "Abdomen Pediatrie": pedAbdomenTemplate()
@@ -1057,17 +1057,17 @@ UpdateScript() {
 		Answer := MsgBox("Ben je zeker dat je het script wil updaten naar de laatste versie?", "Update script?", 4)
 		if (Answer == "Yes") {
 				Try {
-						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/KWSHandler.ahk", "KWS-handler.ahk"
+						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/KWSHandler.ahk", "KWSHandler.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/aanvaardingen.ahk", "aanvaardingen.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/Sift.ahk", "Sift.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/SpeechDetector.ahk", "SpeechDetector.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/TIRADSv2.ahk", "TIRADSv2.ahk"
+						MsgBox("Script is geupdated naar de laatste versie!", "Script updater")
+						Reload
 				} catch Error {
 						_makeSplashText(title := "KWS-helper", text := "Could not update", time := -3000)
-				} Else {
-						_makeSplashText(title := "KWS-helper", text := "Done update", time := -3000)
 				}
-	} 
+		} 
 }
 
 
