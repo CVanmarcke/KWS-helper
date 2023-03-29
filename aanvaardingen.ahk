@@ -45,7 +45,7 @@ Data_neuro := "
   LWK/DWK Standaard				RAD mr wk 18  (-)
   LWK Post-op					RAD mr wk 15  (+)
   Metaal						RAD mr wk 22  (-)
-  Congenitale Aandoening LWK				RAD mr wk 21  (-)
+  Congenitale Aandoening LWK (pediatrie)		RAD mr wk 21  (-)
   Full Spine						RAD mr full spine (-)
   Ruggenmerg (MS of Myelitis)				RAD mr wz 13  (-)
   Ruggenmergletsel (geen full spine)			RAD mr wk 16  (+)
@@ -96,7 +96,7 @@ Data_neuro := "
   MR Hersenen (Pediatrie) Pubertas Praecox		RAD mr hersen 42  (-)
   MR orbita (Pediatrie) sinus cavernosus/orbita		RAD mr orbita 03  (+) [Indien < 3j: AX DESTIR ipv ax T2 TSE]
   MR orbita (Pediatrie) opticus hypoplasie			RAD mr orbita 02  (-) [Indien > 3jaar gebruik T2_mv i.p.v. destir]
-  MR Halsvaten/craniocervicaal			RAD amr hersen 56  (?)
+  MR Halsvaten/craniocervicaal			RAD amr hersen 60  (?) [Beter met contrast als de bepaling van de stenosegraad verplicht is]
   MR Halsvaten + hersenen				RAD amr hersen 61  (?)
   MR Halsvaten Dissectie				RAD amr hersen 62  (?)
   MR Halsvaten + hersenen dissectie			RAD amr hersen 63  (?)
@@ -415,6 +415,7 @@ helpknop(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 aanvaardOnderzoek(onderzoekCode := "", contrast := "?", opmerking := "") {
 	WinActivate("KWS ahk_exe javaw.exe")
 	MouseGetPos(&mouseX, &mouseY)
+	Clipboard := ""
 	;; MsgBox, % onderzoekCode " " contrast " " opmerking
 	if (onderzoekCode != "") {
 		ErrorLevel := !ImageSearch(&LocaX, &LocaY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\onderzoekLabel.png") ; Zoek de lijn onderzoek
@@ -426,10 +427,14 @@ aanvaardOnderzoek(onderzoekCode := "", contrast := "?", opmerking := "") {
 			MouseClick("Left", LocaX + 100, LocaY + 5)
 			Sleep(50)
 			SendInput("^a")
-			SendInput("{backspace}")
-			opmerking := StrReplace(opmerking, "+", "{+}")
+			SendInput("^x")
 			SendInput(onderzoekCode) ; typ het onderzoek in de regel van aanvaarding.
 			Sleep(200)
+			;; Checkt nog eens om zeker te zijn dat er niets verkeer aanvaard wordt.
+			if (InStr(onderzoekCode, "mr hersen") and RegExMatch(A_Clipboard, "mr c?l?w[zk]"))
+					MsgBox("CAVE: rug aangevraagd maar hersenen aanvaard!!!")
+			if (RegExMatch(onderzoekCode, "mr w[kz] (01|19|18|15|22)") and RegExMatch(A_Clipboard, "mr wz"))
+					MsgBox("CAVE: full spine aangevraagd maar LWZ/CWZ aanvaard!!!")
 		}
 	}
 	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\contrastLabel.png")
@@ -443,6 +448,7 @@ aanvaardOnderzoek(onderzoekCode := "", contrast := "?", opmerking := "") {
 		}
 		MouseClick("left", contrastX, FoundY)
 		if (opmerking != "") {
+			opmerking := StrReplace(opmerking, "+", "{+}")
 			LabelFieldX := FoundX + 250
 			LabelFieldY := FoundY + 200
 			MouseClick("Left", LabelFieldX, LabelFieldY)
