@@ -16,18 +16,35 @@
 ; TODO: functie om automatisch alle schermen voor spoed te openen.
 
 initKWSHandler() {
-	global logfile
+	global logfile, report_window_title
 	logfile := "logfile.csv"
+	report_window_title := "KWS ahk_exe javaw.exe"
 	CoordMode("Pixel")
 	CoordMode("Mouse")
 	SetMouseDelay(-1) ;remove delays from mouse actions
 	SetDefaultMouseSpeed 0
 
 	;; Verwijderd de Teams cache folder: die neemt soms meer dan een GB aan data in zonder reden.
-	try DirDelete("P:\uzlsystem\AppData\Microsoft\Teams\Service Worker\CacheStorage", 1)
 
 	;; indien blockinput true is, zullen de volgende knoppen geblokkeerd worden:
 	_makeSplashText(title := "KWS-helper", text := "Started KWS-helper", time := -3000)
+
+	SetTimer(_deleteTeamsCache.bind(), -10000) ;; execute ONCE in 10 seconds (10000 ms)
+	SetTimer(_deleteTeamsCache.bind(), 1800000) ;; execute every 30 minutes (1800000 ms)
+
+	ToolsSubmenu := Menu()
+	ToolsSubmenu.Add("Aanvaarder", MenuHandler)
+	ToolsSubmenu.Add("TIRADS", MenuHandler)
+	ToolsSubmenu.Add("Abdomen Pediatrie", MenuHandler)
+	ToolsSubmenu.Add("Hoogteverlies calc", MenuHandler)
+	ToolsSubmenu.Add("RI calculator", MenuHandler)
+	ToolsSubmenu.Add("Volume calculator", MenuHandler)
+	ToolsSubmenu.Add("Volume doubling time calc", MenuHandler)
+
+	; A_TrayMenu.Delete("Window Spy")  ; Creates a new menu item.
+	A_TrayMenu.Add()  ; Creates a separator line.
+	A_TrayMenu.Add("Update script", MenuHandler)  ; Creates a new menu item.
+	A_TrayMenu.Add("Tools/calculators", ToolsSubmenu)  ; Creates a new menu item.
 }
 
 ;=================================================
@@ -105,7 +122,8 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3")			; corrects d/m/y tot d-m-y
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n")											; replaces triple+ newline with double
 ;; TODO: checken of die [A-Z] ok is, want is toch met case insensitive gedaan...
-	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\`")(?!.{5,}\:[\r\n][^ ]|CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
+	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\`")(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
+	inputtext := RegExReplace(inputtext, "[\r\n]- ?(.+\:[\r\n][^\s])", "`n$1")	; Als de zin begint met - en eindigt met hoofdletter, en de volgende zien niet geindenteerd is zal het het streepje weg doen
 	inputtext := RegExReplace(inputtext, "(CONCLUSIE:[\n\r\R])\-\ (.+)(?:[\n\r\R]|$)(?!-)", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten. WERKT NOG NIET
 	;;inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1Ãƒ$2")							; maakt  als a tussen 2 getallen.
 	inputtext := RegExReplace(inputtext, "([\-\.]) {2,}(?=[\R\n\r\w])", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
@@ -321,7 +339,7 @@ validateAndClose_KWS() {
 		return
 	}
 	_destroySplash()
-	WinActivate("KWS ahk_exe javaw.exe")
+	WinActivate(report_window_title)
 	ead := _getEAD(true)
 	Send("{Ctrl down}{Shift down}v{Ctrl up}{Shift up}") ;; KWS knop om te valideren
 	_log(ead, "Gevalideerd en gesloten")
@@ -330,7 +348,7 @@ validateAndClose_KWS() {
 
 saveAndClose_KWS() {
 	global splashExists
-	WinActivate("KWS ahk_exe javaw.exe")
+	WinActivate(report_window_title)
 	if (not isSet(splashExists) or splashExists == False) {
 		_makeSplashText("Save function", "Press save button again to close.", -3000, doublePressMode := True)
 		Send("{Ctrl down}s{Ctrl up}")
@@ -379,17 +397,20 @@ heightLossGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
 		Return
 	}
 	if (A_GuiEvent = "OK") {
-		h1 := GuiCtrlObj["Height1"].Text
-		h2 := GuiCtrlObj["Height2"].Text
+
+		oSaved := GuiCtrlObj.Submit(1)
+		h1 := toInteger(oSaved.Height1)
+		h2 := toInteger(oSaved.Height2)
+		; h1 := GuiCtrlObj["Height1"].Text
+		; h2 := GuiCtrlObj["Height2"].Text
 		hl := _calcHeightLoss(h1, h2)
 		result := "hoogteverlies van " . hl[1] . " mm of " . hl[2] . "%"
-		WinActivate("KWS ahk_exe javaw.exe")
+		WinActivate(report_window_title)
 		Sleep(50)
 		_KWS_PasteToReport(result, false)
 		GuiCtrlObj.Destroy()
 	}
 }
-
 
 VolumeCalculator() {
 	volCalc := Gui()
@@ -413,14 +434,11 @@ volCalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
 	}
 	if (A_GuiEvent = "OK") {
 		oSaved := GuiCtrlObj.Submit(1)
-		x := oSaved.volX
-		y := oSaved.volY
-		z := oSaved.volZ
-		; x := toInteger(GuiCtrlObj["volX"].Text)
-		; y := toInteger(GuiCtrlObj["volY"].Text)
-		; z := toInteger(GuiCtrlObj["volZ"].Text)
+		x := toInteger(oSaved.volX)
+		y := toInteger(oSaved.volY)
+		z := toInteger(oSaved.volZ)
 		volume := Round(x * y * z * 0.52, 1)
-		WinActivate("KWS ahk_exe javaw.exe")
+		WinActivate(report_window_title)
 		Sleep(50)
 		_KWS_PasteToReport(volume, false)
 		GuiCtrlObj.Destroy()
@@ -452,41 +470,41 @@ VDTCalculator() {
 	ogcButtonOK.OnEvent("Click", VDTCalcGuiHandler.Bind("OK", VDTCalc))
 	VDTCalc.Title := "Volume Doubling Time calculator"
 	VDTCalc.Show()
+
+	VDTCalcGuiHandler(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
+			oSaved := GuiCtrlObj.Submit(0)
+			diameter1 := toInteger(oSaved.diameter1)
+			diameter2 := toInteger(oSaved.diameter2)
+			volume1 := Round(diameter1**3 * 0.52, 1)
+			volume2 := Round(diameter2**3 * 0.52, 1)
+			if (RegexMatch(oSaved.date1, "(\d{4}).?(\d{2}).?(\d{2})", &date1) and RegexMatch(oSaved.date2, "(\d{4}).?(\d{2}).?(\d{2})", &date2) ) {
+					; if (date1.count = 3 and date2.count = 3) {
+					date1 := date1.1 . date1.2 . date1.3
+					date2 := date2.1 . date2.2 . date2.3
+					daysDifference := DateDiff(date2, date1, "Days")
+					GuiCtrlObj["VDTDays"].value := "Interval: " daysDifference " days"
+					if (volume1 and volume2 != volume1) {
+							VDT := Round((ln(2) * daysDifference)/(ln(volume2/volume1)), 0)
+							GuiCtrlObj["VDTresult"].value := "VDT: " VDT " days"
+					} else {
+							GuiCtrlObj["VDTresult"].value := "VDT: "
+					}
+			}
+			If (A_GuiEvent == "OK") {
+					WinActivate(report_window_title)
+					Sleep(50)
+					_KWS_PasteToReport(VDT, false)
+					GuiCtrlObj.Destroy()
+	}
+	If (A_GuiEvent == "Close") {
+			GuiCtrlObj.Destroy()
+	}
+}
 }
 
-VDTCalcGuiHandler(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
-	oSaved := GuiCtrlObj.Submit(1)
-	diameter1 := toInteger(oSaved.diameter1)
-	diameter2 := toInteger(oSaved.diameter2)
-	; date1 := toInteger(GuiCtrlObj["date1"].value)
-	; date2 := toInteger(GuiCtrlObj["date2"].value)
-	volume1 := Round(diameter1**3 * 0.52, 1)
-	volume2 := Round(diameter2**3 * 0.52, 1)
-	if (RegexMatch(oSaved.date1, "(\d{4}).?(\d{2}).?(\d{2})", &date1) and
-	RegexMatch(oSaved.date2, "(\d{4}).?(\d{2}).?(\d{2})", &date2) ) {
-		; if (date1.count = 3 and date2.count = 3) {
-		date1 := date1.1 . date1.2 . date1.3
-		date2 := date2.1 . date2.2 . date2.3
-		daysDifference := DateDiff(date2, date1, "Days")
-		GuiCtrlObj["VDTDays"].value := "Interval: " daysDifference " days"
-		if (volume1 and volume2 != volume1) {
-			VDT := Round((ln(2) * daysDifference)/(ln(volume2/volume1)), 0)
-			GuiCtrlObj["VDTresult"].value := "VDT: " VDT " days"
-		} else
-		GuiCtrlObj["VDTresult"].value := "VDT: "
-	}
-	If (A_GuiEvent = "OK") {
-		WinActivate("KWS ahk_exe javaw.exe")
-		Sleep(50)
-		_KWS_PasteToReport(VDT, false)
-		GuiCtrlObj.Destroy()
-	}
-	If (A_GuiEvent = "close")
-		GuiCtrlObj.Destroy()
-}
 
 toInteger(int) {
-	return Integer(IsNumber(int) ? int : 0)
+		return Float(IsNumber(int) ? int : 0)
 }
 
 RIcalculatorGUI() {
@@ -506,27 +524,28 @@ RIcalculatorGUI() {
 	ogcButtonOK.OnEvent("Click", RIcalcGuiHandler.Bind("Normal", RIcalc))
 	RIcalc.Title := "RI calculator"
 	RIcalc.Show()
+
+	RIcalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
+			if (A_GuiEvent = "Change") {
+					v1 := toInteger(GuiCtrlObj["vel1"].value)
+					v2 := toInteger(GuiCtrlObj["vel2"].value)
+					absolute := Round((Max(v1,v2) - Min(v1,v2)) / Max(v1,v2), 2)
+					percentage := Round(((Max(v1,v2) - Min(v1,v2)) / Max(v1,v2)) * 100, 1)
+					GuiCtrlObj["RIresult"].value := "PSV: " . Max(v1, v2) . " cm/s; RI: " . absolute
+			}
+			if (A_GuiEvent = "Normal") {
+					result := GuiCtrlObj["RIresult"].value
+					WinActivate(report_window_title)
+					Sleep(50)
+					_KWS_PasteToReport(result, false)
+					GuiCtrlObj.Destroy()
+			}
+			if (A_GuiEvent = "Close") {
+		GuiCtrlObj.Destroy()
+	}
+}
 }
 
-RIcalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
-	if (A_GuiEvent = "Change") {
-		v1 := toInteger(GuiCtrlObj["vel1"].value)
-		v2 := toInteger(GuiCtrlObj["vel2"].value)
-		absolute := Round((Max(v1,v2) - Min(v1,v2)) / Max(v1,v2), 2)
-		percentage := Round(((Max(v1,v2) - Min(v1,v2)) / Max(v1,v2)) * 100, 1)
-		GuiCtrlObj["RIresult"].value := "PSV: " . Max(v1, v2) . " cm/s; RI: " . absolute
-	}
-	if (A_GuiEvent = "Normal") {
-		result := GuiCtrlObj["RIresult"].value
-		WinActivate("KWS ahk_exe javaw.exe")
-		Sleep(50)
-		_KWS_PasteToReport(result, false)
-		GuiCtrlObj.Destroy()
-	}
-	if (A_GuiEvent = "Close") {
-		GuiCtrlObj.Destroy()
-	}
-}
 
 openEAD_KWS(ead := "") {
 	if RegExMatch(ead, "[^1-9]?(\d{8})[^1-9]?", &matchEAD) {
@@ -534,7 +553,7 @@ openEAD_KWS(ead := "") {
 		Sleep(100) ;; 100 werkt dacht ik
 		A_Clipboard := matchEAD[1]
 		Errorlevel := !ClipWait(1)
-		WinActivate("KWS ahk_exe javaw.exe")
+		WinActivate(report_window_title)
 		Send("^+z") ; Hotkey voor zoek patient
 		Sleep(400)
 		Send("{Ctrl down}v{Ctrl up}")
@@ -616,7 +635,7 @@ pedAbdomenTemplate() {
 	pedAbdGuiButtonOK(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
 		oSaved := pedAbdGui.Submit(1)
 		result := _makePedReport(age, toInteger(oSaved.milt), toInteger(oSaved.linkerNier), toInteger(oSaved.lever), toInteger(oSaved.rechterNier))
-		WinActivate("KWS ahk_exe javaw.exe")
+		WinActivate(report_window_title)
 		sleep(100)
 		if (result != "")
 			_KWS_PasteToReport(result, false)		; returning value
@@ -1020,13 +1039,47 @@ switchMPR(setting := "2D") {
 }
 
 
+MenuHandler(ItemName, ItemPos, MyMenu) {
+		Switch ItemName
+		{
+				case "Update script": return
+				case "Aanvaarder": Run(A_AHKPath " `"" A_ScriptDir "\aanvaardingen.ahk`"")
+				case "TIRADS": Run(A_AHKPath " `"" A_ScriptDir "\TIRADSv2.ahk`"")
+				case "Abdomen Pediatrie": pedAbdomenTemplate()
+				case "Hoogteverlies calc": heightLossGui()
+				case "RI calculator": RIcalculatorGUI()
+				case "Volume calculator": VolumeCalculator()
+				case "Volume doubling time calc": VDTCalculator()
+		}
+}
+
+UpdateScript() {
+		Answer := MsgBox("Ben je zeker dat je het script wil updaten naar de laatste versie?", "Update script?", 4)
+		if (Answer == "Yes") {
+				Try {
+						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/KWSHandler.ahk", "KWS-handler.ahk"
+						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/aanvaardingen.ahk", "aanvaardingen.ahk"
+						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/Sift.ahk", "Sift.ahk"
+						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/SpeechDetector.ahk", "SpeechDetector.ahk"
+						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/TIRADSv2.ahk", "TIRADSv2.ahk"
+				} catch Error {
+						_makeSplashText(title := "KWS-helper", text := "Could not update", time := -3000)
+				} Else {
+						_makeSplashText(title := "KWS-helper", text := "Done update", time := -3000)
+				}
+	} 
+}
+
+
+
+
 ; HELPER FUNCTIONS
 ; --------------------------------------
 
 _KWS_CopyReportToClipboard(selectReportBox := True) {
 	_BlockUserInput(true)
-	If (not WinActive("KWS ahk_exe javaw.exe")) {
-		if WinExist("KWS ahk_exe javaw.exe")
+	If (not WinActive(report_window_title)) {
+		if WinExist(report_window_title)
 			WinActivate()
 		else
 			throw Error("KWS is not open!", -1)						; STOPT als geen data in clipboard
@@ -1058,10 +1111,11 @@ _KWS_SelectReportBox(mousebutton := "left") {
 }
 
 _KWS_PasteToReport(text, overwrite := true) {
-	If WinActive("KWS ahk_exe javaw.exe") {
+	If WinActive(report_window_title) {
 		_BlockUserInput(True)
 		tempclip := A_Clipboard
 		A_Clipboard := ""
+		sleep(10)
 		A_Clipboard := text		; maakt het clipboard leeg
 		Errorlevel := !ClipWait(1)			; wacht tot er data in het clipboard is
 		if (overwrite) {
@@ -1074,14 +1128,14 @@ _KWS_PasteToReport(text, overwrite := true) {
 			WinActivate()
 			SendInput("{Enter}")
 			Sleep(50)
-			WinActivate("KWS ahk_exe javaw.exe")
+			WinActivate(report_window_title)
 			_KWS_PasteToReport(text, overwrite)
 		}
 		A_Clipboard := tempclip
 		_BlockUserInput(false)
 		return
 	}
-	if WinExist("KWS ahk_exe javaw.exe")
+	if WinExist(report_window_title)
 		WinActivate()
 	else
 		throw Error("KWS is not open!", -1)
@@ -1177,6 +1231,10 @@ _destroySplash() {
 		return
 	}
 	splashGui.Destroy()
+}
+
+_deleteTeamsCache() {
+		try DirDelete("P:\uzlsystem\AppData\Microsoft\Teams\Service Worker\CacheStorage", 1)
 }
 
 _calcHeightLoss(h1, h2) {
