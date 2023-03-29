@@ -103,9 +103,11 @@ PassHotkey(keypressed) {
 			Send("{Ctrl Up}")
 	}
 	Switch keypressed {
-			Case "8857":		; rec
+			Case "8857":		; rec + back button
 				Send("^{F8}")
-			Case "8872":		; backwards
+			Case "8884":		; Ins + back button
+				onveranderdMetVorigVerslag()
+			Case "8872":		; backwards + back button
 				Send("{F3}")
 			Case "8864":		; forwards
 				Send("+{F3}")
