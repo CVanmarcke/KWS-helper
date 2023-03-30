@@ -9,21 +9,15 @@ Dit programma laat onder andere toe automatisch het vorige verslag over te nemen
 
 ### Automatisch opstarten
 Om het script automatisch te laten opstarten met de computer, volg deze stappen:
-1. `Rechtsklik` op Autohotkey64.exe --> `Kopiëren`.
+1. `Rechtsklik` op `Autohotkey64.exe` --> `Kopiëren`.
 2. Typ `Windows knop + R` (open het `run` venster). Typ hierin `shell:startup`.
-3. Er zal een windows verkennen scherm openen. In dit verkenner scherm `rechtsklik` --> `snelkoppeling plakken`.
+3. Er zal een windows verkennen scherm openen. In dit verkenner scherm `rechtsklik` --> `Snelkoppeling plakken`.
+> ! Wees zeker dat je `Snelkoppeling plakken` selecteerd en niet de "gewone" `plakken`, want dan zal het niet werken!
 
-<!---
-[//]: # 1. Download eerst de zip versie van [Autohotkey hier](https://www.autohotkey.com/download/ahk.zip). Rechts klik -> uitpakken, en kies een locatie die je terugvindt (bijvoorbeeld documenten of bureaublad).
+### Updaten naar de nieuwste versie
+Alle scripts gedownload na 29-03-2023 kunnen rechts onder in de menu balk rechtsklikken op het autohotkey icoontje en `Update script` aanklikken.
 
-1. Download vervolgens de bestanden van deze repo [hier](https://github.com/CVanmarcke/KWS-helper/archive/refs/heads/main.zip), en pak deze uit ergens in een folder.
-
-
-[//]: # 2. Kopiëer dan de inhoud (dus de `.ahk` bestandjes + de `images` folder) in de eerste folder, die `Autohotkey64.exe` bevat. Hieronder is een voorbeeld van hoe de inhoud van de folder er uit zou moeten zien.
-2. Start het programma via `Autohotkey64.exe`
-
-[//]: # ![Alt text](images/RootExample.PNG?raw=true "Voorbeeld van hoe de inhoud er uit zou moeten zien")
--->
+Als de optie er niet is zal je het manueel moeten doen (cfr supra).
 
 ## Hotkeys veranderen
 De hotkeys zijn gedefinieerd in `Autohotkey64.ahk`. Zie de [Autohotkey tutorial](https://www.autohotkey.com/docs/Tutorial.htm#s2) voor een korte handleiding hoe deze te veranderen.
@@ -161,4 +155,4 @@ Voor abdomen en uro kan heel snel het labo worden geopend en gesloten, en de jui
 ## Ideeën, bigfixes en aanpassingen
 Liefst een berichtje op Whatsapp of UZ Leuven mail.
 
-Voor bugfixes graag de error noteren en op welke lijn de error voorkwam, samen met een beschrijving van hoe het wordt uitgelokt.
+Voor bugfixes graag de error noteren en het lijnnummer, samen met een beschrijving van hoe het wordt uitgelokt.
