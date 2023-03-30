@@ -12,7 +12,7 @@ Om het script automatisch te laten opstarten met de computer, volg deze stappen:
 1. `Rechtsklik` op `Autohotkey64.exe` --> `Kopiëren`.
 2. Typ `Windows knop + R` (open het `run` venster). Typ hierin `shell:startup`.
 3. Er zal een windows verkennen scherm openen. In dit verkenner scherm `rechtsklik` --> `Snelkoppeling plakken`.
-> ! Wees zeker dat je `Snelkoppeling plakken` selecteerd en niet de "gewone" `plakken`, want dan zal het niet werken!
+> ! Wees zeker dat je `Snelkoppeling plakken` selecteert en niet het "gewone" `plakken`, want dan zal het niet werken!
 
 ### Updaten naar de nieuwste versie
 Alle scripts gedownload na 29-03-2023 kunnen rechts onder in de menu balk rechtsklikken op het autohotkey icoontje en `Update script` aanklikken.
