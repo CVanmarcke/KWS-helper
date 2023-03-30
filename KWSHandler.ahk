@@ -30,7 +30,7 @@ initKWSHandler() {
 	_makeSplashText(title := "KWS-helper", text := "Started KWS-helper", time := -3000)
 
 	SetTimer(_deleteTeamsCache.bind(), -10000) ;; execute ONCE in 10 seconds (10000 ms)
-	SetTimer(_deleteTeamsCache.bind(), 1800000) ;; execute every 30 minutes (1800000 ms)
+	SetTimer(_deleteTeamsCache.bind(), 900000) ;; execute every 15 minutes (900000 ms)
 
 	ToolsSubmenu := Menu()
 	ToolsSubmenu.Add("Aanvaarder", MenuHandler)
@@ -43,8 +43,9 @@ initKWSHandler() {
 
 	; A_TrayMenu.Delete("Window Spy")  ; Creates a new menu item.
 	A_TrayMenu.Add()  ; Creates a separator line.
-	A_TrayMenu.Add("Update script", MenuHandler)  ; Creates a new menu item.
 	A_TrayMenu.Add("Tools/calculators", ToolsSubmenu)  ; Creates a new menu item.
+	A_TrayMenu.Add("Open help page", MenuHandler)  ; Creates a new menu item.
+	A_TrayMenu.Add("Update script", MenuHandler)  ; Creates a new menu item.
 }
 
 ;=================================================
@@ -1042,6 +1043,7 @@ switchMPR(setting := "2D") {
 MenuHandler(ItemName, ItemPos, MyMenu) {
 		Switch ItemName
 		{
+				case "Open help page": Run "chrome.exe https://github.com/CVanmarcke/KWS-helper"
 				case "Update script": UpdateScript()
 				case "Aanvaarder": Run(A_AHKPath " `"" A_ScriptDir "\aanvaardingen.ahk`"")
 				case "TIRADS": Run(A_AHKPath " `"" A_ScriptDir "\TIRADSv2.ahk`"")
