@@ -135,6 +135,7 @@ cleanreport(inputtext) {
 
 cleanReport_KWS() {
 	RegexQuery := "(?<header>(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?:ONDERZOEKE?N?:\R{1,2})(?<type>(?:.+\R?)+)(?:\R*TOEGEDIENDE MEDI[CK]ATIE.+:\R(?:.+\R?)+)?)\R*(?<content>[\s\S]+?)(?:\R*$|[\n\r]{2,}\*\* Eind)"
+	tempclip := A_Clipboard
 	try _KWS_CopyReportToClipboard(selectReportBox := True)
 	catch Error as e {
 		MsgBox(type(e) " in " e.What ", which was called at line " e.Line)
@@ -143,6 +144,7 @@ cleanReport_KWS() {
 	RegExMatch(A_Clipboard, RegexQuery, &report)
 	if (isSet(report))
 		_KWS_PasteToReport(report["header"] . "`n" . cleanreport(report["content"]))
+	A_Clipboard := tempclip
 }
 
 
@@ -472,7 +474,7 @@ VDTCalculator() {
 	VDTCalc.Title := "Volume Doubling Time calculator"
 	VDTCalc.Show()
 
-	VDTCalcGuiHandler(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
+	VDTCalcGuiHandler(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 			oSaved := GuiCtrlObj.Submit(0)
 			diameter1 := toInteger(oSaved.diameter1)
 			diameter2 := toInteger(oSaved.diameter2)
@@ -543,9 +545,58 @@ RIcalculatorGUI() {
 			}
 			if (A_GuiEvent = "Close") {
 		GuiCtrlObj.Destroy()
+			}
 	}
 }
+
+
+ADCcalculatorGUI() {
+	ADCcalc := Gui()
+	ADCcalc.Opt("+LastFound")
+	ADCcalc.OnEvent("Close", ADCcalcGuiHandler.bind("Close", ADCcalc))
+	ADCcalc.OnEvent("Escape", ADCcalcGuiHandler.bind("Close", ADCcalc))
+	GuiHWND := WinExist()
+
+	ADCcalc.Add("Text", , "Calculate ADC from b values")
+	ADCcalc.Add("Text", "w30", "b0")
+	ogcEditb0 := ADCcalc.Add("Edit", "vb0 xp+43 yp-3")
+	ADCcalc.Add("Text", "w5 xp-43 yp+27", "b")
+	ogcEditbvalue := ADCcalc.Add("Edit", "vbvalue xp+7 yp-3", "1000")
+	ogcEditbx := ADCcalc.Add("Edit", "vbx xp+36 yp+0")
+	ogcTextresult := ADCcalc.Add("Text", "vADCresult w150 xp-36 yp+27", "ADC:")
+	ogcButtonOK := ADCcalc.Add("Button", "Default yp+25", "OK")
+
+	ogcEditb0.OnEvent("Change", ADCcalcGuiHandler.Bind("Change", ADCcalc))
+	ogcEditbvalue.OnEvent("Change", ADCcalcGuiHandler.Bind("Change", ADCcalc))
+	ogcEditbx.OnEvent("Change", ADCcalcGuiHandler.Bind("Change", ADCcalc))
+	ogcButtonOK.OnEvent("Click", ADCcalcGuiHandler.Bind("Normal", ADCcalc))
+	ADCcalc.Title := "ADC calculator"
+	ADCcalc.Show()
+
+	ADCcalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
+			if (A_GuiEvent = "Change") {
+					; b0result := toInteger(GuiCtrlObj["b0"].value)
+					; bxresult := toInteger(GuiCtrlObj["bx"].value)
+					; bvalueresult := toInteger(GuiCtrlObj["bvalue"].value)
+					b0result := toInteger(ADCcalc["b0"].value)
+					bxresult := toInteger(ADCcalc["bx"].value)
+					bvalueresult := toInteger(ADCcalc["bvalue"].value)
+					ADC := round(-ln(bxresult/b0result) / bvalueresult * 1000, 2)
+					ADCcalc["ADCresult"].value := "ADC: " . ADC . " * 10^-3 mm²/s"
+			}
+			if (A_GuiEvent = "Normal") {
+					result := ADCcalc["ADCresult"].value
+					WinActivate(report_window_title)
+					Sleep(50)
+					_KWS_PasteToReport(result, false)
+					ADCcalc.Destroy()
+			}
+			if (A_GuiEvent = "Close") {
+		ADCcalc.Destroy()
+			}
+	}
 }
+
 
 
 openEAD_KWS(ead := "") {
@@ -633,7 +684,7 @@ pedAbdomenTemplate() {
 	pedAbdGui.Title := "Echografie Pediatrie Afmetingen"
 	pedAbdGui.Show("x759 y391 h236 w305")
 	; --------
-	pedAbdGuiButtonOK(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
+	pedAbdGuiButtonOK(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		oSaved := pedAbdGui.Submit(1)
 		result := _makePedReport(age, toInteger(oSaved.milt), toInteger(oSaved.linkerNier), toInteger(oSaved.lever), toInteger(oSaved.rechterNier))
 		WinActivate(report_window_title)
@@ -646,7 +697,7 @@ pedAbdomenTemplate() {
 	pedAbdGuiCancelButton(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		pedAbdGui.Destroy()
 	}
-	pedAbdGuiRefresh(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
+	pedAbdGuiRefresh(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		oSaved := pedAbdGui.Submit(0)
 		SDs := _getStandardDevsPedAbd(age, toInteger(oSaved.milt), toInteger(oSaved.linkerNier), toInteger(oSaved.lever), toInteger(oSaved.rechterNier))
 		; milt := ogcEditmilt.Text
@@ -659,11 +710,9 @@ pedAbdomenTemplate() {
 		ogcTextSDlever.Text := Round(SDs[4], 2)
 		ogcTextSDreNier.Text := Round(SDs[2], 2)
 	}
-} ; V1toV2: Added bracket before function
+}
 
 pressOKButton() {
-	;; not really used, might be used in the future.
-	#SuspendExempt
 	MouseGetPos(&mouseX, &mouseY)
 	if(ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")) {
 		MouseClick("left", FoundX+5, FoundY+5)
@@ -739,10 +788,10 @@ KWStoExcel(excelSavePath) {
 		indexCategory := 3
 		case RegExMatch(report["onderzoek"], "i)wervel"):
 		indexCategory := 5
+		case RegExMatch(report["onderzoek"], "i)oor|hals|rots|schild|speeksel|orl"):
+		indexCategory := 7
 		case RegExMatch(report["onderzoek"], "i)knie|schouder|heup|arm|been|pols|hand"):
 		indexCategory := 6
-		case RegExMatch(report["onderzoek"], "i)oor|hals|rots|schild|speeksel"):
-		indexCategory := 7
 		case RegExMatch(report["onderzoek"], "i)mammo|borst"):
 		indexCategory := 8
 		case RegExMatch(report["onderzoek"], "i)nier|blaas|prostaat|gyna|vrouw|bekken|uro-genitaal"):
@@ -771,7 +820,7 @@ KWStoExcel(excelSavePath) {
 	ExcelGUI.Add("Text", "xp-140 yp+40 w130 R2", "Tags")
 	ogcEditExcTags := ExcelGUI.Add("Edit", "xp+140 yp+0  w190 R2 vExcTags")
 	ExcelGUI.Add("Text", "xp-140 yp+40 w130 R2", "Op te volgen?")
-	ogcDropDownListOpTeVolgen := ExcelGUI.Add("DropDownList", "xp+140 yp+0 w190 R5 vOpTeVolgen Choose1", ["", "Over 1 dag", "Over 1 week", "Over 1 maand", "Op te volgen"])
+	ogcDropDownListOpTeVolgen := ExcelGUI.Add("DropDownList", "xp+140 yp+0 w190 R5 vOpTeVolgen Choose1", ["", "Over 1 dag", "Over 1 week", "Over 1 maand", "Over 3 maanden", "Over 6 maanden", "Op te volgen"])
 	ogcButtonOK := ExcelGUI.Add("Button", "x10    yp+40 w130 h20 Default", "OK")
 	ogcButtonOK.OnEvent("Click", ExcelGUIButtonOK.Bind("Normal"))
 	ogcButtonCancel := ExcelGUI.Add("Button", "xp+140 yp+0 w130 h20", "Cancel")
@@ -781,7 +830,7 @@ KWStoExcel(excelSavePath) {
 	; ErrorLevel := WinWaitClose("ahk_id " ExcelGuiHWND,,)
 	;; todo: add a check to see if excel has been found and XL object initialized
 	; return
-	ExcelGUIButtonOK(A_GuiEvent, GuiCtrlObj, Info := "", *)		{ ; V1toV2: Added bracket
+	ExcelGUIButtonOK(A_GuiEvent, GuiCtrlObj, Info := "", *)	{
 		XL := ComObjGet(excelSavePath) ;; looks for excel
 		oSaved := ExcelGUI.Submit()
 		ExcCategorySelect := oSaved.ExcCategorySelect
@@ -797,9 +846,11 @@ KWStoExcel(excelSavePath) {
 			FutureDate := A_Now
 			Switch
 			{
-				case InStr(OpTeVolgen, "day"):   FutureDate := DateAdd(FutureDate, "1", "days")
+				case InStr(OpTeVolgen, "dag"):   FutureDate := DateAdd(FutureDate, "1", "days")
 				case InStr(OpTeVolgen, "week"):  FutureDate := DateAdd(FutureDate, "7", "days")
-				case InStr(OpTeVolgen, "month"): FutureDate := DateAdd(FutureDate, "32", "days")
+				case InStr(OpTeVolgen, "1 maand"): FutureDate := DateAdd(FutureDate, "32", "days")
+				case InStr(OpTeVolgen, "3 maand"): FutureDate := DateAdd(FutureDate, "93", "days")
+				case InStr(OpTeVolgen, "6 maand"): FutureDate := DateAdd(FutureDate, "182", "days")
 			}
 			opTeVolgen := FormatTime(FutureDate, "yyy-MM-dd")
 		}
@@ -815,12 +866,11 @@ KWStoExcel(excelSavePath) {
 		XL.Application.ActiveSheet.range("I" . lastCell).value := ExcTags
 		_makeSplashText(title := "Saved to excel", text := ead . " is saved to excel", time := -1500)
 		ExcelGUI.Destroy()
-	} ; V1toV2: Added Bracket before label
-
-	ExcCancelButton(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
+	}
+	ExcCancelButton(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		ExcelGUI.Destroy()
 	}
-} ; V1toV2: Added bracket before function
+}
 
 excelFindLastCell(objExcel, sheet := 1) {
 	static xlByRows    := 1	     , xlByColumns := 2	     , xlPrevious  := 2
@@ -1150,7 +1200,7 @@ _sorttext(inputtext) {
 	if (RegExMatch(inputtext, "([\s\S]+)(\RCONCLUSIE[\s\S]+)", &split)) {
 		outputtext := _sorttext(split[1]) . split[2]
 		return outputtext
-	} else if (RegExMatch(inputtext, "([\s\S]+)(\*.+)([\s\S]+)", &split)) {
+	} else if (RegExMatch(inputtext, "([\s\S]+)([\r\n]\*.+)([\s\S]+)", &split)) {
 		outputtext := _sorttext(split[1]) . split[2] . _sorttext(split[3])
 		return outputtext
 	} else {
@@ -1182,10 +1232,10 @@ _getEAD(returnMouse := false) {
 	_BlockUserInput(false)
 	Errorlevel := !ClipWait(1)
 	ead := A_Clipboard
-	A_Clipboard := temp
 	if (returnMouse) {
 		MouseMove(mouseX, mouseY)
 	}
+	A_Clipboard := temp
 	return ead
 }
 
@@ -1387,7 +1437,7 @@ findAndReplaceGUI() {
 	repGUI.Title := "Find and replace"
 	repGUI.Show()
 	;-------
-	ReplaceButton(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
+	ReplaceButton(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		needle := ogcEditfindText.Text
 		replacement := ogcEditreplaceText.Text
 		flag := _findreplaceConstructRegexFlags(ogcCheckboxIgnoreCaseFlag.Text, ogcCheckboxMultilineFlag.Text, ogcCheckboxSinglelineFlag.Text, ogcCheckboxUngreadyFlag.Text)
@@ -1412,18 +1462,18 @@ findAndReplaceGUI() {
 		A_Clipboard := temp
 		repGui.Destroy()
 
-	} ; V1toV2: Added bracket before function
+	}
 
 	repGuiCancel(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		repGui.Destroy()
 	}
-	updateRepGUI(A_GuiEvent, GuiCtrlObj, Info := "", *) { ; V1toV2: Added bracket
+	updateRepGUI(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		flag := _findreplaceConstructRegexFlags(ogcCheckboxIgnoreCaseFlag.Text, ogcCheckboxMultilineFlag.Text, ogcCheckboxSinglelineFlag.Text, ogcCheckboxUngreadyFlag.Text)
 		repTextBox.open()
 		repTextBox.write(_getHTMLReplaceBox(originalText, ogcEditfindText.Text, ogcEditreplaceText.Text, ogcCheckboxRegexToggle.Text, flag))
 		repTextBox.close()
 	}
-} ; V1toV2: Added bracket before function
+}
 
 _getHTMLReplaceBox(haystack, needle, replacement, regextoggle := True, flag := "") {
 	; https://www.autohotkey.com/boards/viewtopic.php?t=84074
