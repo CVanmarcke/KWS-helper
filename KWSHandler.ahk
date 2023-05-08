@@ -40,6 +40,7 @@ initKWSHandler() {
 	ToolsSubmenu.Add("RI calculator", MenuHandler)
 	ToolsSubmenu.Add("Volume calculator", MenuHandler)
 	ToolsSubmenu.Add("Volume doubling time calc", MenuHandler)
+	ToolsSubmenu.Add("ADC calc", MenuHandler)
 
 	; A_TrayMenu.Delete("Window Spy")  ; Creates a new menu item.
 	A_TrayMenu.Add()  ; Creates a separator line.
@@ -575,9 +576,6 @@ ADCcalculatorGUI() {
 
 	ADCcalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
 			if (A_GuiEvent = "Change") {
-					; b0result := toInteger(GuiCtrlObj["b0"].value)
-					; bxresult := toInteger(GuiCtrlObj["bx"].value)
-					; bvalueresult := toInteger(GuiCtrlObj["bvalue"].value)
 					b0result := toInteger(ADCcalc["b0"].value)
 					bxresult := toInteger(ADCcalc["bx"].value)
 					bvalueresult := toInteger(ADCcalc["bvalue"].value)
@@ -597,7 +595,13 @@ ADCcalculatorGUI() {
 	}
 }
 
-
+openEAD_KWS_from_clip() {
+		WinActivate(report_window_title)
+		Send("^+z") ; Hotkey voor zoek patient
+		Sleep(400)
+		Send("{Ctrl down}v{Ctrl up}")
+		Send("{Enter}")
+}
 
 openEAD_KWS(ead := "") {
 	if RegExMatch(ead, "[^1-9]?(\d{8})[^1-9]?", &matchEAD) {
@@ -605,11 +609,7 @@ openEAD_KWS(ead := "") {
 		Sleep(100) ;; 100 werkt dacht ik
 		A_Clipboard := matchEAD[1]
 		Errorlevel := !ClipWait(1)
-		WinActivate(report_window_title)
-		Send("^+z") ; Hotkey voor zoek patient
-		Sleep(400)
-		Send("{Ctrl down}v{Ctrl up}")
-		Send("{Enter}")
+		openEAD_KWS_from_clip()
 	} else if (ead = "") {
 		A_Clipboard := ""
 		Sleep(100) ;; 150 werkt, te zien of lager werk
@@ -617,6 +617,26 @@ openEAD_KWS(ead := "") {
 		Errorlevel := !ClipWait(1)
 		openEAD_KWS(A_Clipboard)
 	}
+}
+
+openEAD_emacs() {
+		; Put this in init.el
+  ; (defun EAD-header-to-win-clipboard ()
+  ;   "Copy the EAD of the current header to the clipboard (regex for 8 digits)"
+  ;   (interactive)
+  ;   (let ((header (substring-no-properties (org-get-heading))))
+  ;     (string-match "\\([0-9]\\{8\\}+\\)" header)
+  ;     (simpleclip-set-contents (match-string 1 header))))
+  ; (general-evil-define-key '(normal visual motion) org-mode-map
+  ;   "<apps>" 'EAD-header-to-win-clipboard)
+		sleep(200)
+		if RegExMatch(A_Clipboard, "[^1-9]?(\d{8})[^1-9]?", &matchEAD) {
+				openEAD_KWS_from_clip()
+		} else {
+				A_Clipboard := ""
+				ClipWait(1)
+				openEAD_KWS_from_clip()
+		}
 }
 
 openLastPtInLog_KWS() {
@@ -691,8 +711,8 @@ pedAbdomenTemplate() {
 		sleep(100)
 		if (result != "")
 			_KWS_PasteToReport(result, false)		; returning value
-		pedAbdGui.Destroy()
-	} ; V1toV2: Added Bracket before label
+	;;		pedAbdGui.Destroy()
+	}
 	; -------
 	pedAbdGuiCancelButton(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		pedAbdGui.Destroy()
@@ -743,6 +763,62 @@ aanvaardOnderzoek(contrast := 2, opmerking := "") {
 		}
 		MouseMove(mouseX, mouseY)
 	}
+}
+
+KWStoEmacs() {
+  ; The follow needs to be places in the emacs init.el
+  ; (setq server-use-tcp t)
+  ; (setq server-socket-dir "~/.emacs.d/server")
+  ; (setq org-capture-templates
+  ;       (quote
+  ;        (("w" "Server add patient" entry
+  ;          (file "P:/cases.org")
+  ;          ;; (file "C:/Users/cvmarc2/scoop/persist/nextcloud/wiki/cases.org")
+  ;          "* %:link\nSCHEDULED: %^t\n%(decode-coding-string \"%:description\" 'latin-1)\n%:initial"
+  ;          :jump-to-captured t
+  ;          ))))
+
+	_KWS_CopyReportToClipboard()
+	RegexQuery := "(?:Leuven|Pellenberg|Diest|Sint-Truiden)[\s\S]+(?<datum>\d{2}-\d{2}-\d{4})[\s\S]+(?:KLINISCHE INLICHTINGEN:[\n\r]+)(?<klinlicht>[\s\S]+)[\n\r]{2,}(?:(?:DIAGNOSTISCHE|RADIOLOGISCHE) VRAAGSTELLING:[\n\r]+)(?<diagvraag>[\s\S]+)[\n\r]{2,}(?:ONDERZOEKE?N?:[\n\r]+)(?<onderzoek>(?:.+\R{0,1}?)+)\R{2,}(?<content>[\s\S]+)"
+	RegExMatch(A_Clipboard, RegexQuery, &report)
+	ead := _getEAD()
+	tag := ""
+	Switch
+	{
+		case RegExMatch(report["onderzoek"], "i)hersen|schedel|hypophyse"):
+		tag := "neuro"
+		case RegExMatch(report["onderzoek"], "i)abdomen|lever|pancreas"):
+		tag := "abdomen"
+		case RegExMatch(report["onderzoek"], "i)thorax|longen|embol"):
+		tag := "thorax"
+		case RegExMatch(report["onderzoek"], "i)wervel"):
+		tag := "spine"
+		case RegExMatch(report["onderzoek"], "i)oor|hals|rots|schild|speeksel|orl|maxillo"):
+		tag := "orl"
+		case RegExMatch(report["onderzoek"], "i)knie|schouder|heup|arm|been|pols|hand"):
+		tag := "MSK"
+		case RegExMatch(report["onderzoek"], "i)mammo|borst"):
+		tag := "mammo"
+		case RegExMatch(report["onderzoek"], "i)nier|blaas|prostaat|gyna|vrouw|bekken|uro-genitaal"):
+		tag := "uro"
+		case RegExMatch(report["onderzoek"], "i)vascul"):
+		tag := "angio"
+		case RegExMatch(report["onderzoek"], "i)hart|coronair"):
+		tag := "cardio"
+	}
+	klinInlicht := RegExReplace(report["klinlicht"], "\.?[\r\n]{1,}", ". ")
+	onderzoek := RegExReplace(report["onderzoek"], "(.+)[\r\n]?", "$1")
+	body := "- klinische inlichtingen :: " . RegExReplace(klinInlicht, "\/", "-")
+	if (RegExMatch(report["content"], "i)(?:conclusie|besluit):[\r\n]([\s\S]+)", &concl)) {
+			body .= "`n- conclusie :: " . RegExReplace(concl[1], "m)^", "  ")
+			body := StrReplace(body, "`r", "")
+			body := StrReplace(body, "/", "%2F")
+			body := StrReplace(body, "`n`n** Einde tekst uit ongevalideerd verslag **", "%2F")
+	}
+	onderzoekDate := RegExReplace(report["datum"], "(\d{2})-(\d{2})-(\d{4})", "$3$2$1")
+	onderzoekDate := FormatTime(onderzoekDate, "yyyy-MM-dd ddd")
+	Run("C:\Users\cvmarc2\scoop\apps\emacs\28.2\bin\emacsclientw.exe -f `"\\mixer\home50\cvmarc2\uzlsystem\AppData\.emacs.d\server\server`" org-protocol:/capture:/w/`"<" . onderzoekDate . "> " . ead . " - " . onderzoek . "`t:" . tag .  ":`"/`"" . body . "`"/`"`"")
+	Send("{Ctrl Up}") ;; to prevent ctrl sticking on window switch
 }
 
 KWStoExcel(excelSavePath) {
@@ -1121,9 +1197,6 @@ UpdateScript() {
 				}
 		} 
 }
-
-
-
 
 ; HELPER FUNCTIONS
 ; --------------------------------------

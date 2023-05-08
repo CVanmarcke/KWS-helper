@@ -39,7 +39,7 @@ Data_orl := "
   )"
 Data_neuro := "
   (
-  Cervicobrachalgie (CWK)				RAD mr wz 01  (-)
+  Cervicobrachialgie (CWK)				RAD mr wz 01  (-)
   Cervicaal CWK/DWK Post-Op			RAD mr wk 19  (-)
   Intraspinale Metastasen				RAD mr wk 23  (+)
   LWK/DWK Standaard				RAD mr wk 18  (-)
@@ -53,7 +53,7 @@ Data_neuro := "
   Spinale AV-Fistel(enkel bij controle)			RAD mr wk 25  (+)
   Liquorlek						RAD mr wk 26  (?)
   Aneurysma					RAD amr hersen 57 (-)
-  Arterio-Veneuze Malformatie				RAD mr hersen 71  (+)
+  Arterio-Veneuze Malformatie (AVM)			RAD mr hersen 71  (+)
   Bloeding						RAD mr hersen 65  (+)
   Caverneuze Malformatie/Fabry			RAD mr hersen 67  (-)
   Cerebellair Letsel (tumor)				RAD mr hersen 13  (+)
