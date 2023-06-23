@@ -99,6 +99,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])II(?=[\/\-\s\.\,])", "2")
 	inputtext := RegExReplace(inputtext, "segment I(?=[ ,\.])", "segment 1")
 	inputtext := RegExReplace(inputtext, "(?<=\d )n?o?r?maal(?= \d)", "x")	; Corrigeert een veel gemaakte fout van de speech
+	inputtext := RegExReplace(inputtext, "(\d)\*(\d)", "$1 x $2")	; Corrigeert een veel gemaakte fout van de speech
 	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra) (?=[\w\-])", "$1")	; peri centimetrisch -> pericentimetrisch
 
        ;; mammo:
@@ -110,10 +111,11 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "im)[\ \t]*supervis.*$", "") ; verwijderd supervisie.
 
 	;;; inputtext := RegExReplace(inputtext, "([\n\r\.]) +(?=[\n\r])", "$1")  ; zorgt dat er geen spatie achter . of op nieuwe lijn komt
+	inputtext := RegExReplace(inputtext, "\x{2013}", "-")  ; veranderd het unicode streepje (â€“ aka \x{2013}) naar een ASCII streepje. Nog niet getest.
 	inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2")				; corrigeert WOord naar Woord
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
 	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
-	inputtext := RegExReplace(inputtext, "m)(?<=(?<! [amvn])\. |\? |^- |^)(\(?\w)", "$U1")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
+	inputtext := RegExReplace(inputtext, "m)(?<=(?<! [amvnAMVN])\. |\? |^- |^)(\(?\w)", "$U1")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
 	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")				; makes sure there is a space after a colon or point (if not number)...
 	inputtext := RegExReplace(inputtext, "(?<=[\:\;])\ ?([A-Z][^A-Z])", " $L1")				; converts after : or ; to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 ;;	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
@@ -125,13 +127,15 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3")			; corrects d/m/y tot d-m-y
 	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n")											; replaces triple+ newline with double
 ;; TODO: checken of die [A-Z] ok is, want is toch met case insensitive gedaan...
-	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\`")(?!CONCLUSIE|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
-	inputtext := RegExReplace(inputtext, "[\r\n]- ?(.+\:[\r\n][^\s])", "`n$1")	; Als de zin begint met - en eindigt met hoofdletter, en de volgende zien niet geindenteerd is zal het het streepje weg doen
-	inputtext := RegExReplace(inputtext, "(CONCLUSIE:[\n\r\R])\-\ (.+)(?:[\n\r\R]|$)(?!-)", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten. WERKT NOG NIET
+	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\`")(?!CONCLUSIE|Verder:|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]IRADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
 	;;inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1Ãƒ$2")							; maakt  als a tussen 2 getallen.
 	inputtext := RegExReplace(inputtext, "([\-\.]) {2,}(?=[\R\n\r\w])", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
 	inputtext := RegExReplace(inputtext, "\ +, \ +", ", ")  ; verwijdert te veel spaties rond een komma
-	inputtext := RegExReplace(inputtext, "\x{2013}", "-")  ; veranderd het unicode streepje (â€“ aka \x{2013}) naar een ASCII streepje. Nog niet getest.
+	inputtext := RegExReplace(inputtext, "(\w) {2,}(\w)", "$1 $2")  ; verwijdert te veel spaties tussen 2 woorden
+	;; inputtext := RegExReplace(inputtext, "m)[\r\n]- ?(.+\:[\r\n][^\s])", "`n$1")	; Als de zin begint met - en eindigt met :, en de volgende zien niet geindenteerd is zal het het streepje weg doen
+	inputtext := RegExReplace(inputtext, "m)(^CONCLUSIE:$\R)^\-\ (.+$)(?!\R[\-\w])", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten.
+	inputtext := RegExReplace(inputtext, "m)^- ?(.+\:$)(?=\R-)", "$1")	; Als de zin begint met - en eindigt met :, en de volgende begint met een - zal het het streepje weg doen
+	inputtext := RegExReplace(inputtext, "AP.n?o?r?maal.{10,}[cC]{2}", "AP x ML x CC")	; Speechcorrect iets dat die totaal niet verstaat
 	return inputtext
 }
 
