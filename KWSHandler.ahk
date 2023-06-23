@@ -821,13 +821,18 @@ KWStoEmacs() {
 			body .= "`n- conclusie :: " . RegExReplace(concl[1], "m)^", "  ")
 			body := StrReplace(body, "`r", "")
 			body := StrReplace(body, "/", "%2F")
-			body := StrReplace(body, "`n`n** Einde tekst uit ongevalideerd verslag **", "%2F")
+			body := StrReplace(body, "  `n  ** Einde tekst uit ongevalideerd verslag **", "%2F")
 	}
 	onderzoekDate := RegExReplace(report["datum"], "(\d{2})-(\d{2})-(\d{4})", "$3$2$1")
 	onderzoekDate := FormatTime(onderzoekDate, "yyyy-MM-dd ddd")
-	Run("C:\Users\cvmarc2\scoop\apps\emacs\28.2\bin\emacsclientw.exe -f `"\\mixer\home50\cvmarc2\uzlsystem\AppData\.emacs.d\server\server`" org-protocol:/capture:/w/`"<" . onderzoekDate . "> " . ead . " - " . onderzoek . "`t:" . tag .  ":`"/`"" . body . "`"/`"`"")
+	Run("C:\Users\cvmarc2\scoop\apps\emacs-k\current\bin\emacsclientw.exe -f `"\\mixer\home50\cvmarc2\uzlsystem\AppData\.emacs.d\server\server`" org-protocol:/capture:/w/`"<" . onderzoekDate . "> " . ead . " - " . onderzoek . "`t:" . tag .  ":`"/`"" . body . "`"/`"`"")
 	Send("{Ctrl Up}") ;; to prevent ctrl sticking on window switch
 }
+
+;; Protocol for agfa:
+;; naam: agfa-ei
+;; URL:Enterprise Imaging Launcher Protocol
+
 
 KWStoExcel(excelSavePath) {
 	global ExcComment
@@ -872,7 +877,7 @@ KWStoExcel(excelSavePath) {
 		indexCategory := 3
 		case RegExMatch(report["onderzoek"], "i)wervel"):
 		indexCategory := 5
-		case RegExMatch(report["onderzoek"], "i)oor|hals|rots|schild|speeksel|orl"):
+		case RegExMatch(report["onderzoek"], "i)oor|hals|rots|schild|speeksel|orl|maxillo"):
 		indexCategory := 7
 		case RegExMatch(report["onderzoek"], "i)knie|schouder|heup|arm|been|pols|hand"):
 		indexCategory := 6
@@ -1613,7 +1618,7 @@ _findreplaceConstructRegexFlags(ignoreCase := 1, multilineMode := 1, singleLineM
 _makePedReport(age, Milt, LinkerNier, Lever, RechterNier) { ; Gemaakt door Johannes Devos, aangepast
 	Result := _getStandardDevsPedAbd(age, Milt, LinkerNier, Lever, RechterNier)
 ; REMOVED:	SetFormat, Float, 0.1
-	Verslag := "Normale ligging van de retroperitoneale grote vaten.`nNormale ligging van de organen.`n`nLeverspan: " . Round(Lever/10, 1) . " cm (SD: " . Round(Result[4], 2) . ").`nHomogeen leverparenchym met normale reflectiviteit.`nNormale portahoofdstam en intrahepatische portatakken.`nNormale hepatische venen met normale hepatofugale flow.`nNormale hepatopetale portale flow.`nNormale flow in de a. hepatica.`nGeen gedilateerde intrahepatische of extrahepatische galwegen aangetoond.`nNormale galblaas.`nNormale pancreas. Geen visualisatie van de ductus van Wirsung.`nMilt: " . Round(Milt/10, 1) . " cm (SD: " . Round(Result[3], 2) . ").`nNormale milt.`n`nNormale bijnieren en bijnierloges.`nLinkernier: " . Round(Linkernier/10, 1) . " cm (SD: " . Round(Result[1],2) . ").`nRechternier: " . Round(Rechternier/10, 1) . " cm (SD: " . Round(Result[2], 2) . ").`nNormale reflectiviteit van het nierparenchym met corticomedullaire differentiatie.`nGeen hydro-ureteronefrose.`nNormale blaasvulling.`nNormale aflijning en dikte van de blaaswand.`n`nNormale ligging van de A. en V. Mesenterica Superior.`nGeen adenopathieen aangetoond.`nNormale darmwanden.`n###Normaal terminale ileum.`n###Normale appendix.`n`nCONCLUSIE:`n###`n`nGECOMMUNICEERDE DRINGENDE BEVINDINGEN:`n"
+	Verslag := "Normale ligging van de retroperitoneale grote vaten.`nNormale ligging van de organen.`n`nLeverspan: " . Round(Lever/10, 1) . " cm (SD: " . Round(Result[4], 2) . ").`nHomogeen leverparenchym met normale reflectiviteit.`nNormale portahoofdstam en intrahepatische portatakken.`nNormale hepatische venen met normale hepatofugale flow.`nNormale hepatopetale portale flow.`nNormale flow in de a. hepatica.`nGeen gedilateerde intrahepatische of extrahepatische galwegen aangetoond.`nNormale galblaas.`nNormale pancreas. Geen visualisatie van de ductus van Wirsung.`nMilt: " . Round(Milt/10, 1) . " cm (SD: " . Round(Result[3], 2) . ").`nNormale milt.`n`nNormale bijnieren en bijnierloges.`nLinkernier: " . Round(Linkernier/10, 1) . " cm (SD: " . Round(Result[1],2) . ").`nRechternier: " . Round(Rechternier/10, 1) . " cm (SD: " . Round(Result[2], 2) . ").`nNormale reflectiviteit van het nierparenchym met corticomedullaire differentiatie.`nGeen hydro-ureteronefrose.`nNormale blaasvulling.`nNormale aflijning en dikte van de blaaswand.`n`nNormale ligging van de a. en v. mesenterica superior.`nGeen adenopathieen aangetoond.`nNormale darmwanden.`n###Normaal terminale ileum.`n###Normale appendix.`n`nCONCLUSIE:`n###`n`nGECOMMUNICEERDE DRINGENDE BEVINDINGEN:`n"
 	return Verslag
 }
 
