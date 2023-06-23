@@ -710,17 +710,19 @@ pedAbdomenTemplate() {
 	pedAbdGui.Show("x759 y391 h236 w305")
 	; --------
 	pedAbdGuiButtonOK(A_GuiEvent, GuiCtrlObj, Info := "", *) {
-		oSaved := pedAbdGui.Submit(1)
+		oSaved := pedAbdGui.Submit(0)
 		result := _makePedReport(age, toInteger(oSaved.milt), toInteger(oSaved.linkerNier), toInteger(oSaved.lever), toInteger(oSaved.rechterNier))
 		WinActivate(report_window_title)
 		sleep(100)
 		if (result != "")
 			_KWS_PasteToReport(result, false)		; returning value
 	;;		pedAbdGui.Destroy()
+	return
 	}
 	; -------
 	pedAbdGuiCancelButton(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		pedAbdGui.Destroy()
+		return
 	}
 	pedAbdGuiRefresh(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 		oSaved := pedAbdGui.Submit(0)
@@ -734,6 +736,7 @@ pedAbdomenTemplate() {
 		ogcTextSDliNier.Text := Round(SDs[1], 2)
 		ogcTextSDlever.Text := Round(SDs[4], 2)
 		ogcTextSDreNier.Text := Round(SDs[2], 2)
+		return
 	}
 }
 
