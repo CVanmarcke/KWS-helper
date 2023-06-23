@@ -30,7 +30,7 @@ initKWSHandler() {
 	_makeSplashText(title := "KWS-helper", text := "Started KWS-helper", time := -3000)
 
 	SetTimer(_deleteTeamsCache.bind(), -10000) ;; execute ONCE in 10 seconds (10000 ms)
-	SetTimer(_deleteTeamsCache.bind(), 900000) ;; execute every 15 minutes (900000 ms)
+	SetTimer(_deleteTeamsCache.bind(), 60000) ;; execute every minute (900000 ms)
 
 	ToolsSubmenu := Menu()
 	ToolsSubmenu.Add("Aanvaarder", MenuHandler)
@@ -41,6 +41,7 @@ initKWSHandler() {
 	ToolsSubmenu.Add("Volume calculator", MenuHandler)
 	ToolsSubmenu.Add("Volume doubling time calc", MenuHandler)
 	ToolsSubmenu.Add("ADC calc", MenuHandler)
+	ToolsSubmenu.Add("Clean teams cache", MenuHandler)
 
 	; A_TrayMenu.Delete("Window Spy")  ; Creates a new menu item.
 	A_TrayMenu.Add()  ; Creates a separator line.
@@ -1178,6 +1179,8 @@ MenuHandler(ItemName, ItemPos, MyMenu) {
 				case "RI calculator": RIcalculatorGUI()
 				case "Volume calculator": VolumeCalculator()
 				case "Volume doubling time calc": VDTCalculator()
+				case "ADC calc": ADCcalculatorGUI()
+				case "Clean teams cache": _deleteTeamsCache()
 		}
 }
 
