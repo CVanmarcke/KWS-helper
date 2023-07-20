@@ -1374,7 +1374,7 @@ _destroySplash() {
 }
 
 _deleteTeamsCache() {
-		try DirDelete("P:\uzlsystem\AppData\Microsoft\Teams\Service Worker\CacheStorage", 1)
+		try DirDelete("\\mixer\home50\" . A_UserName . "\uzlsystem\AppData\Microsoft\Teams\Service Worker\CacheStorage", 1)
 }
 
 _calcHeightLoss(h1, h2) {
