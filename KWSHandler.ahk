@@ -431,26 +431,33 @@ VolumeCalculator() {
 	ogcEditvolX := volCalc.Add("Edit", "vvolX")
 	ogcEditvolY := volCalc.Add("Edit", "vvolY")
 	ogcEditvolZ := volCalc.Add("Edit", "vvolZ")
+	ogcEditvolX.OnEvent("Change", volCalcGuiHandler.Bind("Change"))
+	ogcEditvolY.OnEvent("Change", volCalcGuiHandler.Bind("Change"))
+	ogcEditvolZ.OnEvent("Change", volCalcGuiHandler.Bind("Change"))
+	ogcTextResult := volCalc.Add("Text", "w50 vvolResult", "")
+	;; ogcButtonOK := volCalc.Add("Text", "Default", "OK")
 	ogcButtonOK := volCalc.Add("Button", "Default", "OK")
-	ogcButtonOK.OnEvent("Click", volCalcGuiHandler.Bind("OK", volCalc))
+	ogcButtonOK.OnEvent("Click", volCalcGuiHandler.Bind("OK"))
 	volCalc.Title := "Volume calculator"
 	volCalc.Show()
-}
-volCalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
-	if (A_GuiEvent = "Close") {
-		GuiCtrlObj.Destroy()
-		return
-	}
-	if (A_GuiEvent = "OK") {
-		oSaved := GuiCtrlObj.Submit(1)
-		x := toInteger(oSaved.volX)
-		y := toInteger(oSaved.volY)
-		z := toInteger(oSaved.volZ)
-		volume := Round(x * y * z * 0.52, 1)
-		WinActivate(report_window_title)
-		Sleep(50)
-		_KWS_PasteToReport(volume, false)
-		GuiCtrlObj.Destroy()
+
+	volCalcGuiHandler(A_GuiEvent, *) {
+			oSaved := volCalc.Submit(0)
+			x := toInteger(oSaved.volX)
+			y := toInteger(oSaved.volY)
+			z := toInteger(oSaved.volZ)
+			volume := Round(x * y * z * 0.52, 1)
+			if (A_GuiEvent = "Change") {
+					volCalc["volResult"].value := volume
+			} else if (A_GuiEvent = "Close") {
+					volCalc.Destroy()
+					return
+			} else if (A_GuiEvent = "OK") {
+					WinActivate(report_window_title)
+					Sleep(50)
+					_KWS_PasteToReport(volume, false)
+					volCalc.Destroy()
+			}
 	}
 }
 
@@ -513,6 +520,7 @@ VDTCalculator() {
 
 
 toInteger(int) {
+		int := StrReplace(int, ",", ".")
 		return Float(IsNumber(int) ? int : 0)
 }
 
