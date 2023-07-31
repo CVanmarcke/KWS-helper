@@ -181,7 +181,7 @@ mergeReport(currentreportunclean, oldreportunclean) {
 	;; Veranderd de datum in een reeds bestaande vergelijking, of voegt de vergelijktekst toe indien die nog niet aanwezig was.
 	compared := ""
 	;; TODO herschrijven denk ik...
-	if (oldreport["comparedwith"] != "" and oldreport["compdate"] = "") {
+	if (oldreport["comparedwith"] != "" and oldreport["compdate"] != "") {
 		compared := StrReplace(oldreport["comparedwith"], oldreport["compdate"], oldreport["date"])
 		oldreportcontent :=  StrReplace(oldreportcontent, oldreport["compdate"], oldreport["date"])
 	} else
@@ -1399,7 +1399,7 @@ _calcHeightLoss(h1, h2) {
 	return [absolute, percentage]
 }
 
-auto_scroll(richting := 1, decreaseKey := "&", increaseKey := "Ã©", directionKey := "Space", pauseKey := "`""){ ; Automatisch scrollen. Versnel & vertraag. Gemaakt door Johannes Devos
+auto_scroll(richting := 1, decreaseKey := "&", increaseKey := "é", directionKey := "Space", pauseKey := "`""){ ; Automatisch scrollen. Versnel & vertraag. Gemaakt door Johannes Devos
 	Suspend(true)
 	; Hotkey, If
 	; try Hotkey, %decreaseKey%, Off
