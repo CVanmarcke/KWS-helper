@@ -1374,8 +1374,7 @@ _makeSplashText(title := "Splash title", text := "Splash text", time := -3000, d
 	splashGui.Add("Text", , text)
 	splashGui.Title := title
 	splashGui.Show("NoActivate")		; NoActivate prevents taking the focus
-	;; destroySplash_fn := _destroySplash.bind() ; Settimer aanvaard enkel een label, iets wat ik probeer te vermijden. Op deze manier kan ik toch een functie aan setTimer geven.
-	SetTimer(_destroySplash.bind(), time)
+	SetTimer(_destroySplash.bind(), time)  ; Settimer aanvaard enkel een label, iets wat ik probeer te vermijden. Op deze manier kan ik toch een functie aan setTimer geven.
 	return
 }
 
