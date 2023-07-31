@@ -328,10 +328,7 @@ druk_ok_aanvaarding(ThisHotkey) {
 	MouseMove(mouseX, mouseY)
 	ogcEditonderzoek_naam.Text := "" ;;nodig?
 	zoek_onderzoek_naam("Button", "")
-	sleep(300)
-	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
-	; sleep(200)
-	; WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+	focus_on_aanvaarder_timer()
 }
 
 aanvaarderGuiEscape(*) {
@@ -349,8 +346,7 @@ selectToonDocument(ThisHotkey) {
 	If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")) {
 		MouseClick("left", FoundX + 180, FoundY + 5)
 		MouseMove(mouseX, mouseY)
-		sleep(300)
-		WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+		focus_on_aanvaarder_timer()
 	} else
 		MsgBox("Het referentiepunt voor de knop werd niet gevonden!")
 }
@@ -379,7 +375,7 @@ selectLabo(ThisHotkey) {
 				MouseClick("Left", 950, 318) ;; even klikken op het KWS scherm om het gele vakje weg te krijgen.
 			sleep(250)
 		}
-		WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+		focus_on_aanvaarder_timer()
 		MouseMove(mouseX, mouseY)
 	} else
 		MsgBox("Het opmerkingen formulier werd niet gevonden.")
@@ -390,8 +386,7 @@ sluitaanvaardschermKWS(ThisHotkey) {
   WinActivate("KWS ahk_exe javaw.exe")
   sleep(200)
   Send("^{F4}")
-  sleep(300)
-  WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+  focus_on_aanvaarder_timer()
 }
 
 ctrnumplusHotkey(ThisHotkey) {
@@ -400,12 +395,12 @@ ctrnumplusHotkey(ThisHotkey) {
 		Case "abdomen (CT)": aanvaardOnderzoek("", "+", "IV veneus {+} 3 PO")
 		Default: aanvaardOnderzoek("", "+", "")
 	}
-	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+	focus_on_aanvaarder_timer()
 }
 
 ctrlnumminHotkey(ThisHotkey) {
 	aanvaardOnderzoek("", "-", "")
-	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+	focus_on_aanvaarder_timer()
 }
 
 helpknop(A_GuiEvent, GuiCtrlObj, Info := "", *) {
@@ -461,6 +456,16 @@ aanvaardOnderzoek(onderzoekCode := "", contrast := "?", opmerking := "") {
 	} else {
 		MsgBox("The contrast label was not found.")
 	}
-	sleep(150)
-	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+	focus_on_aanvaarder_timer(400)
 }
+
+focus_on_aanvaarder_timer(time := -500) {
+	time := Abs(time) * (-1) ;; Zorgt dat time altijd negatief is
+	focus_on_aanvaarder()
+	SetTimer(focus_on_aanvaarder.bind(), time) ;; do it again after x miliseconds
+}
+
+focus_on_aanvaarder() {
+		WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
+}
+		
