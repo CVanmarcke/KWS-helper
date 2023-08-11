@@ -60,6 +60,11 @@ F9::cleanReport_KWS()
 !r::copyLastReport_KWS()   ; Alt-r
 !g::onveranderdMetVorigVerslag()   ; Alt-g
 
+#HotIf (GetKeyState("LButton") and WinActive("Diagnostic Desktop - Images ("))
+RButton::Ctrl ;; Linker en rechtermuisknop samen indrukken om te pannen
+WheelUp::Send("{LButton Up}{Ctrl down}{WheelUp}{Ctrl Up}{LButton Down}") ;; Linkermuis + scrollen om te zoomen
+WheelDown::Send("{LButton Up}{Ctrl down}{WheelDown}{Ctrl Up}{LButton Down}")
+
 #HotIf WinActive("ahk_class SunAwtDialog ahk_exe javaw.exe") or WinActive("KWS ahk_exe javaw.exe")
 ;; Wanneer "vdg", "vmg" of "vwk" worden getypt zal een datumvork worden ingevoerd
 ;; Handig bij bijvoorbeeld het aanvaardingen scherm of querry's
