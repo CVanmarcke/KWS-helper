@@ -48,6 +48,7 @@ initKWSHandler() {
 	A_TrayMenu.Add("Tools/calculators", ToolsSubmenu)  ; Creates a new menu item.
 	A_TrayMenu.Add("Open help page", MenuHandler)  ; Creates a new menu item.
 	A_TrayMenu.Add("Update script", MenuHandler)  ; Creates a new menu item.
+	A_TrayMenu.delete("4&") ;; deletes "Windows Spy" from the list
 }
 
 ;=================================================
