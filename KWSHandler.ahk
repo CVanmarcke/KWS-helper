@@ -1190,6 +1190,7 @@ switchMPR(setting := "2D") {
 		Case 1: MouseClick("Left", FoundX - 20, FoundY-100)
 			MouseClick("Left", FoundX + 180, FoundY - 100)
 		Case 3: MouseClick("Left", FoundX + 40, FoundY-100)
+			MouseClick("Left", FoundX + 180, FoundY-100)
 		Case 5: MouseClick("Left", FoundX - 20, FoundY-70)
 		Case 10: MouseClick("Left", FoundX + 40, FoundY-70)
 	}
