@@ -56,6 +56,7 @@ initKWSHandler() {
 ; Als er een bepaalde aanpassing je niet aanstaat, kan je die lijn verwijderen.
 ;=================================================
 cleanreport(inputtext) {
+	inputtext := RegExReplace(inputtext, "m)\($", "#")				; Fixed speechfout: als hij hekje hoort zet hij soms ( ipv #
 	inputtext := RegExReplace(inputtext, "m)^\: ", ". ")				; replaces : if at the front of the sentence with (speechfout).
 	inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")				; replaces case insensitive besluit/conclusie door upper
 	inputtext := RegExReplace(inputtext, "im)^punt ", ". ")	; corrigeert speech fout dat het punt typt ipv punt (enkel in het begin van de zin)
@@ -75,7 +76,7 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie")			;; frequente speech fout
 	inputtext := StrReplace(inputtext, "normale doorgankelijkheid van de", "normaal doorgankelijke")
 	inputtext := StrReplace(inputtext, "suscebiliteit", "susceptibiliteit")
-	inputtext := StrReplace(inputtext, "pig katheter", "PIC katheter")
+	inputtext := RegExReplace(inputtext, "i)pi[gc] katheter", "PIC katheter")
 	inputtext := StrReplace(inputtext, "flair ", "FLAIR ", 0)
 	inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", , &CaseSensitive := false)
 	inputtext := StrReplace(inputtext, "tbc", "TBC")
@@ -124,7 +125,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2")				; corrigeert WOord naar Woord
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
 	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
-	inputtext := RegExReplace(inputtext, "m)(?<=(?<! [amvnAMVN])\. |\? |^- |^)(\(?\w)", "$U1")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
+	inputtext := RegExReplace(inputtext, "m)(?<=(?<! [amvnAMVN]|vnl|thv)\. |\? |^- |^)(\(?\w)", "$U1")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
 	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")				; makes sure there is a space after a colon or point (if not number)...
 	inputtext := RegExReplace(inputtext, "(?<=[\:\;])\ ?([A-Z][^A-Z])", " $L1")				; converts after : or ; to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 ;;	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
