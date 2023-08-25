@@ -21,6 +21,12 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 ^Up::MoveLineUp() ; Ctrl+pijltje omlaag
 :X:openlastpt::openLastPtInLog_KWS()
 
+#HotIf (GetKeyState("LButton") and WinActive("Diagnostic Desktop - Images ("))
+RButton::Ctrl ;; linker + rechtermuis samen: pan
+;; linkermuis + scroll: zoom.
+WheelUp::Send("{LButton Up}{Ctrl down}{WheelUp}{Ctrl Up}{LButton Down}")
+WheelDown::Send("{LButton Up}{Ctrl down}{WheelDown}{Ctrl Up}{LButton Down}")
+
 ;; Hotkeys die enkel werken als het KWS patientscherm in focus is
 #HotIf WinActive("KWS ahk_exe javaw.exe")
 ^b::^c			; maakt van ctrl-b gewoon ctrl-c; de originele functie van ctrl-b was uitloggen, en was te dicht tegen ctrl-c
