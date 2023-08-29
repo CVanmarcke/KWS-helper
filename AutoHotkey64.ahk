@@ -24,8 +24,8 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 #HotIf (GetKeyState("LButton") and WinActive("Diagnostic Desktop - Images ("))
 RButton::Ctrl ;; linker + rechtermuis samen: pan
 ;; linkermuis + scroll: zoom.
-WheelUp::Send("{LButton Up}{Ctrl down}{WheelUp}{Ctrl Up}{LButton Down}")
-WheelDown::Send("{LButton Up}{Ctrl down}{WheelDown}{Ctrl Up}{LButton Down}")
+WheelUp::Send("^{WheelUp}")
+WheelDown::Send("^{WheelDown}")
 
 ;; Hotkeys die enkel werken als het KWS patientscherm in focus is
 #HotIf WinActive("KWS ahk_exe javaw.exe")
