@@ -363,6 +363,10 @@ validateAndClose_KWS() {
 	Send("{Ctrl down}{Shift down}v{Ctrl up}{Shift up}") ;; KWS knop om te valideren
 	_log(ead, "Gevalideerd en gesloten")
 	_makeSplashText(title := "Gevalideerd", text := "Gevalideerd.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
+	Sleep(500)
+	if ImageSearch(&FoundX, &FoundY, 0, 0, 4040, 1300, "images\discardButton.png") {
+			MouseClick("left", FoundX+5, FoundY+5)
+	}
 }
 
 saveAndClose_KWS() {
@@ -385,6 +389,10 @@ saveAndClose_KWS() {
 	Send("{Ctrl down}{F4}{Ctrl up}") ;; KWS knop om huidig formulier te sluiten
 	_log(ead, "Opgeslagen en gesloten")
 	_makeSplashText(title := "Opgeslagen", text := "Opgeslagen.`n`nEAD (" . ead . ") opgeslagen in de logfile.", time := -1000)
+	Sleep(500)
+	if ImageSearch(&FoundX, &FoundY, 0, 0, 4040, 1300, "images\discardButton.png") {
+			MouseClick("left", FoundX+5, FoundY+5)
+	}
 }
 
 closeWithoutSaving() {
