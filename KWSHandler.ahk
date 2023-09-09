@@ -1239,6 +1239,7 @@ UpdateScript() {
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/Sift.ahk", "Sift.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/SpeechDetector.ahk", "SpeechDetector.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/TIRADSv2.ahk", "TIRADSv2.ahk"
+						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/bevindingenLabel-alt.png", "images/bevindingenLabel-alt.png"
 						MsgBox("Script is geupdated naar de laatste versie!", "Script updater")
 						Reload
 				} catch Error {
@@ -1272,7 +1273,8 @@ _KWS_CopyReportToClipboard(selectReportBox := True) {
 
 _KWS_SelectReportBox(mousebutton := "left", resetMousePosition := true) {
 	;; assumes KWS already active
-	if (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\bevindingenLabel.png")) {
+	if (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\bevindingenLabel.png") or
+			ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\bevindingenLabel-alt.png")) {
 			_BlockUserInput(true)
 			if (resetMousePosition)
 					MouseGetPos(&mouseX, &mouseY)
