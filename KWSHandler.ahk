@@ -248,10 +248,14 @@ copyLastReport_KWS() {
 	Errorlevel := !ClipWait(1)
 	oldreportunclean := A_Clipboard			; zet variabele gelijk aan clipboard
 
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\sluitLaatstVerslagKnop.png")
-	MouseClick("left", FoundX+5, FoundY+5)
-	Sleep(50)
-	MouseClick("left", FoundX+25, FoundY+650) ;; Selecteerd Textbox van KWS
+
+	; ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\sluitLaatstVerslagKnop.png")
+	; MouseClick("left", FoundX+5, FoundY+5)
+	; Sleep(50)
+	Send("{Ctrl down}{F4}{Ctrl up}") ;; KWS knop om huidig formulier te sluiten
+	Sleep(150)
+	_KWS_SelectReportBox(, false)
+	; MouseClick("left", FoundX+25, FoundY+650) ;; Selecteerd Textbox van KWS
 	Sleep(100) ;; even tijd geven
 	A_Clipboard := ""
 	if (RegExMatch(oldreportunclean, "m)^ingevoerde beelden$")) { ; undoes the whole operation
@@ -311,10 +315,13 @@ onveranderdMetVorigVerslag() {
 	Errorlevel := !ClipWait(1)
 	oldreportunclean := A_Clipboard			; zet variabele gelijk aan clipboard
 
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\sluitLaatstVerslagKnop.png")
-	MouseClick("left", FoundX+5, FoundY+5)
-	Sleep(100)
-	MouseClick("left", FoundX+5, FoundY+650) ;; Selecteerd Textbox van KWS
+	; ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\sluitLaatstVerslagKnop.png")
+	; MouseClick("left", FoundX+5, FoundY+5)
+	; Sleep(50)
+	Send("{Ctrl down}{F4}{Ctrl up}") ;; KWS knop om huidig formulier te sluiten
+	Sleep(150)
+	_KWS_SelectReportBox(, false)
+	; MouseClick("left", FoundX+25, FoundY+650) ;; Selecteerd Textbox van KWS
 	Sleep(100) ;; even tijd geven
 	A_Clipboard := ""
 	if (RegExMatch(oldreportunclean, "m)^ingevoerde beelden$")) { ; undoes the whole operation
@@ -1263,18 +1270,19 @@ _KWS_CopyReportToClipboard(selectReportBox := True) {
 		throw Error("Could not copy data to A_Clipboard!", -1)						; STOPT als geen data in clipboard
 }
 
-_KWS_SelectReportBox(mousebutton := "left") {
+_KWS_SelectReportBox(mousebutton := "left", resetMousePosition := true) {
 	;; assumes KWS already active
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\bevindingenLabel.png")
-	if (ErrorLevel = 2)
-		_makeSplashText(title := "Error", text := "Something went wrong when looking for enter field", time := -2000)
-	else if (ErrorLevel = 1)
-		_makeSplashText(title := "Error", text := "Error finding the report[0] field: did the action succeed nonetheless?", time := -2000)
-	_BlockUserInput(true)
-	MouseGetPos(&mouseX, &mouseY)
-	MouseClick(mousebutton, FoundX+100, FoundY+200)
-	MouseMove(mouseX, mouseY)
-	_BlockUserInput(false)
+	if (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\bevindingenLabel.png")) {
+			_BlockUserInput(true)
+			if (resetMousePosition)
+					MouseGetPos(&mouseX, &mouseY)
+			MouseClick(mousebutton, FoundX+100, FoundY+200)
+			if (resetMousePosition)
+					MouseMove(mouseX, mouseY)
+			_BlockUserInput(false)
+			return
+	}
+	_makeSplashText(title := "Error", text := "Het tekstvak van het verslag werd niet gevonden: is de actie toch nog gelukt?", time := -2000)
 }
 
 _KWS_PasteToReport(text, overwrite := true) {
