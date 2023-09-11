@@ -337,7 +337,7 @@ onveranderdMetVorigVerslag() {
 	foundprevious := RegExMatch(oldreportunclean, RegexQuery, &oldreport)
 	;; Checkt of de regex van het vorige verslag gelukt is, en zo niet verwijderd het hele gedoe.
 	if (not foundprevious) {
-		_makeSplashText(title := "ERROR", text := "Probleem met de layout van het vorige verslag: is het een extern onderzoek?", time := -2000)
+		_makeSplashText(title := "ERROR", text := "Probleem met de layout van het vorige verslag: meest waarschijnlijk is het een extern onderzoek.", time := -2000)
 		return ""
 	}
 	if (not foundcurrent) {
