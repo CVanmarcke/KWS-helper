@@ -86,8 +86,12 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "longtrauma", "longtrama")
 	inputtext := StrReplace(inputtext, "aortaal", "aortisch")
 	inputtext := StrReplace(inputtext, "op niveau van", "aan")
+	inputtext := StrReplace(inputtext, " dd ", " DD ")
 	inputtext := StrReplace(inputtext, " won ", " WON ")
+	inputtext := StrReplace(inputtext, "rx ", "RX ", 0)
 	inputtext := StrReplace(inputtext, "met glandulair", "midglandulair")
+	inputtext := StrReplace(inputtext, "transplantatienier", "transplantnier")
+	inputtext := StrReplace(inputtext, "transplantatielever", "transplantlever")
 	inputtext := RegExReplace(inputtext, "[KkCc]a[mn] configuratie", "`"cam`" configuratie")
 	;; inputtext := StrReplace(inputtext, "bewaarde", "intacte")
 	inputtext := StrReplace(inputtext, "partiële beeld", "partiëel in beeld")
@@ -100,17 +104,19 @@ cleanreport(inputtext) {
 	; inputtext := StrReplace(inputtext, "voorkomen van", "###", 0)
 	; inputtext := RegExReplace(inputtext, "i)gekende?", "###")
 	inputtext := RegExReplace(inputtext, "(?<=[a-z\d]),(?=[a-z])", ", ")  ; zet een extra spatie achter komma als nog niet aanwezig
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VIII(?=[\/\-\s\.\,])", "8")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VII(?=[\/\-\s\.\,])", "7")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VI(?=[\/\-\s\.\,])", "6")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])IV([ab])(?=[\/\-\s\.\,])", "4$1")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])V(?=[\/\-\s\.\,])", "5")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])III(?=[\/\-\s\.\,])", "3")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])II(?=[\/\-\s\.\,])", "2")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VIII(?=[\/\-\s\.\,\:])", "8")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VII(?=[\/\-\s\.\,\:])", "7")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VI(?=[\/\-\s\.\,\:])", "6")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])IV([ab])(?=[\/\-\s\.\,\:])", "4$1")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])V(?=[\/\-\s\.\,\:])", "5")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])III(?=[\/\-\s\.\,\:])", "3")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])II(?=[\/\-\s\.\,\:])", "2")
 	inputtext := RegExReplace(inputtext, "segment I(?=[ ,\.])", "segment 1")
 	inputtext := RegExReplace(inputtext, "(?<=\d )n?o?r?maal(?= \d)", "x")	; Corrigeert een veel gemaakte fout van de speech
 	inputtext := RegExReplace(inputtext, "(\d)\*(\d)", "$1 x $2")	; Corrigeert een veel gemaakte fout van de speech
-	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra) (?=[\w\-])", "$1")	; peri centimetrisch -> pericentimetrisch
+	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra|inter|intra) (?=en |of )", "$1- ")	; peri en infra -> peri- en infra
+	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra|inter|intra) (?=[\w\-])", "$1")	; peri centimetrisch -> pericentimetrisch
+	inputtext := RegExReplace(inputtext, "(?<!van) (de|het) (\w{1,10} ?\w{4,13}) (link|recht)s(?! \w{3,5}aal| in )", " $1 $3er $2") ; Het been rechts -> het rechter been
 
        ;; mammo:
 	inputtext := RegExReplace(inputtext, "(eefseltype(?:ring)?)\:? ([a-d])", "$1 $U2")	; zet het weefseltype in hoofdletters
