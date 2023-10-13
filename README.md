@@ -52,6 +52,8 @@ VolumeCalculator() | `volcalc`<br />`calcvol` | Typ de shortcut om het volume te
 RIcalculatorGUI() | `ricalc`<br />`calcri` | Typ de shortcut om de RI te berekenen van de PSV en EDV.
 VDTCalculator() | `vdtcalc`<br />`calcvdt` | Typ de shortcut om de volume doubling time te berekenen.
 TIRADS calculator (versie 2) | `tirads2` | Typ de shortcut om een tool te openen waarmee de TIRADS score van meerdere noduli can worden uitgerekend, en waarvan dan automatisch een verslag met conclusie kan worden gemaakt. [Voorbeeld hier](#tirads-calculator)
+ADCcalculatorGUI() | `adccalc` | Typ de shortcut om op basis van de b0 en b1000 de ADC waarde te berekenen.
+fatFractionCalculatorGUI() | `adccalc` | Typ de shortcut om op basis de in- en uit fase beelden van de lever (en de milt) de vetfractie en vetpercentage te berekenen.
 
 ### Aanvaardingen
 Functienaam | Standaard Hotkey | Beschrijving
