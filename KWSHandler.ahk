@@ -1304,7 +1304,7 @@ UpdateScript() {
 		if (Answer == "Yes") {
 				Try {
 						FileCopy "AutoHotkey64.ahk", "AutoHotkey64_personal.ahk", 1
-						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/AutoHotkey64.ahk", "KWSHandler.ahk"
+						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/AutoHotkey64.ahk", "AutoHotkey64.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/KWSHandler.ahk", "KWSHandler.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/aanvaardingen.ahk", "aanvaardingen.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/Sift.ahk", "Sift.ahk"
