@@ -41,6 +41,7 @@ initKWSHandler() {
 	ToolsSubmenu.Add("Volume calculator", MenuHandler)
 	ToolsSubmenu.Add("Volume doubling time calc", MenuHandler)
 	ToolsSubmenu.Add("ADC calc", MenuHandler)
+	ToolsSubmenu.Add("Fat fraction calculator", MenuHandler)
 	ToolsSubmenu.Add("Clean teams cache", MenuHandler)
 
 	; A_TrayMenu.Delete("Window Spy")  ; Creates a new menu item.
@@ -491,6 +492,48 @@ VolumeCalculator() {
 			}
 	}
 }
+
+
+fatFractionCalculatorGUI() {
+	FatCalc := Gui()
+	FatCalc.Opt("+LastFound")
+	FatCalc.OnEvent("Close", FatCalcGuiHandler.bind("Close", FatCalc))
+	FatCalc.OnEvent("Escape", FatCalcGuiHandler.bind("Close", FatCalc))
+	GuiHWND := WinExist()
+
+	FatCalc.Add("Text", , "Calculate fat fraction")
+	ogcEditHepIP := FatCalc.Add("Edit", "vHepIP")
+	ogcEditHepIP.OnEvent("Change", FatCalcGuiHandler.Bind("Change", FatCalc))
+	ogcEditHepOP := FatCalc.Add("Edit", "vHepOP")
+	ogcEditHepOP.OnEvent("Change", FatCalcGuiHandler.Bind("Change", FatCalc))
+	ogcTextRIresult := FatCalc.Add("Text", "vRIresult w150", "vetfractie: ")
+	ogcButtonOK := FatCalc.Add("Button", "Default", "OK")
+	ogcButtonOK.OnEvent("Click", FatCalcGuiHandler.Bind("Normal", FatCalc))
+	FatCalc.Title := "RI calculator"
+	FatCalc.Show()
+
+	FatCalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
+			if (A_GuiEvent = "Change") {
+					hepIP := toInteger(GuiCtrlObj["HepIP"].value)
+					hepOP := toInteger(GuiCtrlObj["HepOP"].value)
+					fatFraction := Round(100*((hepIP-hepOP)/(2*hepIP)), 1)
+					; absolute := Round((Max(hepIP,hepOP) - Min(hepIP,hepOP)) / Max(hepIP,hepOP), 2)
+					; percentage := Round(((Max(hepIP,hepOP) - Min(hepIP,hepOP)) / Max(hepIP,hepOP)) * 100, 1)
+					GuiCtrlObj["RIresult"].value := "vetfractie: " . fatFraction . "%"
+			}
+			if (A_GuiEvent = "Normal") {
+					result := GuiCtrlObj["RIresult"].value
+					WinActivate(report_window_title)
+					Sleep(50)
+					_KWS_PasteToReport(result, false)
+					GuiCtrlObj.Destroy()
+			}
+			if (A_GuiEvent = "Close") {
+		GuiCtrlObj.Destroy()
+			}
+	}
+}
+
 
 VDTCalculator() {
 	currentdate := FormatTime("A_Now", "yyy-MM-dd")
@@ -1233,6 +1276,8 @@ MenuHandler(ItemName, ItemPos, MyMenu) {
 				case "Volume doubling time calc": VDTCalculator()
 				case "ADC calc": ADCcalculatorGUI()
 				case "Clean teams cache": _deleteTeamsCache()
+				case "Fat fraction calculator": fatFractionCalculatorGUI()
+
 		}
 }
 
