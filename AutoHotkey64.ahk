@@ -52,6 +52,7 @@ F12::Run(A_AHKPath " `"" A_ScriptDir "\aanvaardingen.ahk`"")
 :X:calcvol::VolumeCalculator()
 :X:vdtcalc::VDTCalculator()
 :X:calcvdt::VDTCalculator()
+:X:adccalc::ADCcalculatorGUI()
 ^NumpadAdd::aanvaardOnderzoek(1, "IV veneus {+} 3 PO") ; Met contrast en die tekst
 ^NumpadSub::aanvaardOnderzoek(0, "") ; zonder contrast, geen tekst
 
