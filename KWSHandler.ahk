@@ -501,25 +501,43 @@ fatFractionCalculatorGUI() {
 	FatCalc.OnEvent("Escape", FatCalcGuiHandler.bind("Close", FatCalc))
 	GuiHWND := WinExist()
 
-	FatCalc.Add("Text", , "Calculate fat fraction")
-	ogcEditHepIP := FatCalc.Add("Edit", "vHepIP")
+	FatCalc.Add("Text", , "Calculate fat fraction and fat percentage")
+	FatCalc.Add("Text", "x10", "Hepatic IP SI: ")
+	ogcEditHepIP := FatCalc.Add("Edit", "xp+80 yp-5 vHepIP")
 	ogcEditHepIP.OnEvent("Change", FatCalcGuiHandler.Bind("Change", FatCalc))
-	ogcEditHepOP := FatCalc.Add("Edit", "vHepOP")
+	FatCalc.Add("Text", "x10", "Hepatic OP SI: ")
+	ogcEditHepOP := FatCalc.Add("Edit", "xp+80 yp-5 vHepOP")
 	ogcEditHepOP.OnEvent("Change", FatCalcGuiHandler.Bind("Change", FatCalc))
-	ogcTextRIresult := FatCalc.Add("Text", "vRIresult w150", "vetfractie: ")
-	ogcButtonOK := FatCalc.Add("Button", "Default", "OK")
+
+	FatCalc.Add("Text", "x10", "Spleen IP SI: ")
+	ogcEditSpleenIP := FatCalc.Add("Edit", "xp+80 yp-5 vSpleenIP")
+	ogcEditSpleenIP.OnEvent("Change", FatCalcGuiHandler.Bind("Change", FatCalc))
+	FatCalc.Add("Text", "x10", "Spleen OP SI: ")
+	ogcEditSpleenOP := FatCalc.Add("Edit", "xp+80 yp-5 vSpleenOP")
+	ogcEditSpleenOP.OnEvent("Change", FatCalcGuiHandler.Bind("Change", FatCalc))
+
+	ogcTextresult := FatCalc.Add("Text", "vresult w150 x10", "vetfractie: %")
+	ogcTextFatPercentage := FatCalc.Add("Text", "vfatPercentage w150 x10", "vetpercentage: %")
+	ogcButtonOK := FatCalc.Add("Button", "Default x10", "OK")
 	ogcButtonOK.OnEvent("Click", FatCalcGuiHandler.Bind("Normal", FatCalc))
-	FatCalc.Title := "RI calculator"
+	FatCalc.Title := "Fat Fraction calculator"
 	FatCalc.Show()
 
 	FatCalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
 			if (A_GuiEvent = "Change") {
+					fatFraction := ""
+					fatPercentage := ""
 					hepIP := toInteger(GuiCtrlObj["HepIP"].value)
 					hepOP := toInteger(GuiCtrlObj["HepOP"].value)
-					fatFraction := Round(100*((hepIP-hepOP)/(2*hepIP)), 1)
-					; absolute := Round((Max(hepIP,hepOP) - Min(hepIP,hepOP)) / Max(hepIP,hepOP), 2)
-					; percentage := Round(((Max(hepIP,hepOP) - Min(hepIP,hepOP)) / Max(hepIP,hepOP)) * 100, 1)
-					GuiCtrlObj["RIresult"].value := "vetfractie: " . fatFraction . "%"
+					spleenIP := toInteger(GuiCtrlObj["SpleenIP"].value)
+					spleenOP := toInteger(GuiCtrlObj["SpleenOP"].value)
+					if (hepIP != 0 and hepOP != 0) {
+							fatFraction := Round(100*((hepIP-hepOP)/(2*hepIP)), 1)
+							if (SpleenIP != 0 and SpleenOP != 0)
+									fatPercentage := Round(100*((( hepIP / SpleenIP )-( hepOP / SpleenOP ))/(2*hepIP/SpleenIP)), 1)
+					}
+					GuiCtrlObj["result"].value := "vetfractie: " . fatFraction . "%"
+					GuiCtrlObj["fatPercentage"].value := "vetpercentage: " . fatPercentage . "%"
 			}
 			if (A_GuiEvent = "Normal") {
 					result := GuiCtrlObj["RIresult"].value
@@ -529,7 +547,7 @@ fatFractionCalculatorGUI() {
 					GuiCtrlObj.Destroy()
 			}
 			if (A_GuiEvent = "Close") {
-		GuiCtrlObj.Destroy()
+					GuiCtrlObj.Destroy()
 			}
 	}
 }
