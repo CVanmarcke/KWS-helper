@@ -4,10 +4,32 @@ Collectie van Autohotkey scripts om de radiologie workflow in het KWS van UZLeuv
 Dit programma laat onder andere toe automatisch het vorige verslag over te nemen, je verslag automatisch op te kuisen (met correctie van speechfouten, automatische layout en sortering, hoofdletters enzovoort...), meerdere tools die helpen met verslagen maken (bijvoorbeeld TIRADS noduli beschrijven, standaard deviaties bepalen voor de organen van kinderen, volume berekening, hoogteverlies berekening, ...) en vele functies.
 
 ## Installatie
+### Automatisch
+1. Ga in de UZ data schijf naar de volgende folder: `\uz\Data\Radiologie\Assistenten\PersoonlijkeMappen\KWS-helper`.
+2. Dubbelklik op `AutoinstallKWSHelper.bat`.
+
+Alternatief:
+Open de opdrachten prompt (command promt) via start -> cmd, en plak het volgende er in.
+```
+@echo off
+echo Installing KWS-helper
+set PWS=powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile
+
+%PWS% -command "Invoke-WebRequest https://github.com/CVanmarcke/KWS-helper/archive/refs/heads/main.zip -O P:\uzldownloads\KWSHelper.zip"
+%PWS% -command "Expand-Archive -Force 'P:\uzldownloads\KWSHelper.zip' 'P:\'"
+
+set TARGET='P:\KWS-helper-main\AutoHotkey64.exe'
+set SHORTCUT='P:\uzlsystem\StartMenu\Programs\Startup\kws-helper.lnk'
+%PWS% -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut(%SHORTCUT%); $S.TargetPath = %TARGET%; $S.Save()"
+
+start /D P:\KWS-helper-main\ AutoHotkey64.exe
+```
+
+### Manueel
 1. Download de bestanden van deze repo [hier](https://github.com/CVanmarcke/KWS-helper/archive/refs/heads/main.zip), en pak de volledige inhoud uit ergens in een folder.
 2. Start het programma via `Autohotkey64.exe`
 
-### Automatisch opstarten
+#### Automatisch opstarten
 Om het script automatisch te laten opstarten met de computer, volg deze stappen:
 1. `Rechtsklik` op `Autohotkey64.exe` --> `Kopiëren`.
 2. Typ `Windows knop + R` (open het `run` venster). Typ hierin `shell:startup`.
