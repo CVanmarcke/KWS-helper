@@ -5,10 +5,10 @@ Dit programma laat onder andere toe automatisch het vorige verslag over te nemen
 
 ## Installatie
 ### Automatisch
-1. Ga in de UZ data schijf naar de volgende folder: `\uz\Data\Radiologie\Assistenten\PersoonlijkeMappen\KWS-helper`.
+1. Ga in de UZ data schijf naar de volgende folder: `\\uz\Data\Radiologie\Assistenten\PersoonlijkeMappen\KWS-helper`.
 2. Dubbelklik op `AutoinstallKWSHelper.bat`.
 
-Alternatief:
+#### Alternatief voor automatische installatie
 Open de opdrachten prompt (command promt) via start -> cmd, en plak het volgende er in.
 ```
 @echo off
