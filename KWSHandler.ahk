@@ -1311,6 +1311,7 @@ UpdateScript() {
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/SpeechDetector.ahk", "SpeechDetector.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/TIRADSv2.ahk", "TIRADSv2.ahk"
 						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/bevindingenLabel-alt.png", "images/bevindingenLabel-alt.png"
+						Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/discardButton.png", "images/discardButton.png"
 						MsgBox("Script is geupdated naar de laatste versie!", "Script updater")
 						Reload
 				} catch Error {
