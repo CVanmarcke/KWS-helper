@@ -52,6 +52,8 @@ Data_neuro := "
   Scoliose						RAD mr wk 24  (-)
   Spinale AV-Fistel(enkel bij controle)			RAD mr wk 25  (+)
   Liquorlek						RAD mr wk 26  (?)
+  Zonder contrast							(-)
+  Met contrast							(+)
   Aneurysma					RAD amr hersen 57 (-)
   Arterio-Veneuze Malformatie (AVM)			RAD mr hersen 71  (+)
   Bloeding						RAD mr hersen 65  (+)
@@ -93,7 +95,7 @@ Data_neuro := "
   Tumor (Pediatrie)					RAD mr hersen 88  (+)
   Ontwikkelingsstoornis (Pediatrie)			RAD mr hersen 86 (-) [Als >3 jaar gebruik T2_mv ipv destir]
   MR Orbita					RAD mr orbita (+)
-  MR Hersenen (Pediatrie) Pubertas Praecox		RAD mr hersen 42  (-)
+  Sella (Pediatrie) Pubertas Praecox			RAD mr hersen 42  (-)
   MR orbita (Pediatrie) sinus cavernosus/orbita		RAD mr orbita 03  (+) [Indien < 3j: AX DESTIR ipv ax T2 TSE]
   MR orbita (Pediatrie) opticus hypoplasie			RAD mr orbita 02  (-) [Indien > 3jaar gebruik T2_mv i.p.v. destir]
   MR Halsvaten/craniocervicaal			RAD amr hersen 60  (?) [Beter met contrast als de bepaling van de stenosegraad verplicht is]
@@ -183,6 +185,7 @@ Data_thorax := "
   Combi thorax/bovenbuik/hersenen		RAD ct comb 06 (+)
   Combi thorax/bovenbuik			RAD ct thorax 20 (+)
   Mediastinum				RAD ct thorax 15 (+)
+  Metastasen				RAD ct thorax 21 (-)
   )"
 
 Data_uro_CT  := "
@@ -321,7 +324,7 @@ druk_ok_aanvaarding(ThisHotkey) {
 	MouseGetPos(&mouseX, &mouseY)
 	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")
 	if (ErrorLevel = 2 or ErrorLevel = 1) {
-			MsgBox("Er is iets fout gegaan met zoeken naar de OK knop (niet gevonden of afbeelding bestaat niet)")
+			;; MsgBox("Er is iets fout gegaan met zoeken naar de OK knop (niet gevonden of afbeelding bestaat niet)")
 			return
 	}
 	MouseClick("left", FoundX+5, FoundY+5)
@@ -430,6 +433,8 @@ aanvaardOnderzoek(onderzoekCode := "", contrast := "?", opmerking := "") {
 					MsgBox("CAVE: rug aangevraagd maar hersenen aanvaard!!!")
 			if (RegExMatch(onderzoekCode, "mr w[kz] (01|19|18|15|22)") and RegExMatch(A_Clipboard, "mr wz"))
 					MsgBox("CAVE: full spine aangevraagd maar LWZ/CWZ aanvaard!!!")
+			if (RegExMatch(onderzoekCode, "mr cwz") and RegExMatch(A_Clipboard, "mr wk (18|15)"))
+					MsgBox("CAVE: cervicale aangevraagd maar LWZ aanvaard!!!")
 		}
 	}
 	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\contrastLabel.png")
@@ -456,10 +461,12 @@ aanvaardOnderzoek(onderzoekCode := "", contrast := "?", opmerking := "") {
 	} else {
 		MsgBox("The contrast label was not found.")
 	}
-	focus_on_aanvaarder_timer(400)
+	;; focus_on_aanvaarder_timer(200)
+	focus_on_aanvaarder_timer(600)
 }
 
 focus_on_aanvaarder_timer(time := -500) {
+	WinActivate("Aanvaardingen helper ahk_class AutoHotkeyGUI")
 	time := Abs(time) * (-1) ;; Zorgt dat time altijd negatief is
 	focus_on_aanvaarder()
 	SetTimer(focus_on_aanvaarder.bind(), time) ;; do it again after x miliseconds
