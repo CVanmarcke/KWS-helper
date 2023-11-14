@@ -1366,9 +1366,9 @@ _KWS_PasteToReport(text, overwrite := true) {
 		_BlockUserInput(True)
 		tempclip := A_Clipboard
 		A_Clipboard := ""
-		sleep(10)
+		sleep(100)
 		A_Clipboard := text		; maakt het clipboard leeg
-		Errorlevel := !ClipWait(1)			; wacht tot er data in het clipboard is
+		ClipWait(1)			; wacht tot er data in het clipboard is
 		if (overwrite) {
 			Send("^a")
 			Sleep(50)
