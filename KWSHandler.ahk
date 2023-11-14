@@ -542,7 +542,7 @@ fatFractionCalculatorGUI() {
 					GuiCtrlObj["fatPercentage"].value := "vetpercentage: " . fatPercentage . "%"
 			}
 			if (A_GuiEvent = "Normal") {
-					result := GuiCtrlObj["RIresult"].value
+					result := GuiCtrlObj["result"].value
 					WinActivate(report_window_title)
 					Sleep(50)
 					_KWS_PasteToReport(result, false)
