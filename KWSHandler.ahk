@@ -75,12 +75,14 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "ongewijzigd", "onveranderd", 0)
 	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose")		 ;; frequente speech fout
 	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie")			;; frequente speech fout
+	inputtext := StrReplace(inputtext, "interosseu", "intraosseu", 0)
 	inputtext := StrReplace(inputtext, "normale doorgankelijkheid van de", "normaal doorgankelijke")
 	inputtext := StrReplace(inputtext, "suscebiliteit", "susceptibiliteit")
 	inputtext := RegExReplace(inputtext, "i)pi[gc] katheter", "PIC katheter")
 	inputtext := StrReplace(inputtext, "flair ", "FLAIR ", 0)
 	inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", , &CaseSensitive := false)
 	inputtext := StrReplace(inputtext, "tbc", "TBC")
+	inputtext := StrReplace(inputtext, "rechteros", "rechter os", 0)
 	inputtext := StrReplace(inputtext, " EKG ", " ECG ", 0)
 	inputtext := StrReplace(inputtext, " ecg ", " ECG ", 0)
 	inputtext := StrReplace(inputtext, " hili", " hila")

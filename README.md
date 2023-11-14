@@ -23,7 +23,9 @@ set SHORTCUT='P:\uzlsystem\StartMenu\Programs\Startup\kws-helper.lnk'
 %PWS% -Command "$ws = New-Object -ComObject WScript.Shell; $s = $ws.CreateShortcut(%SHORTCUT%); $S.TargetPath = %TARGET%; $S.Save()"
 
 start /D P:\KWS-helper-main\ AutoHotkey64.exe
+exit
 ```
+Klik enter.
 
 ### Manueel
 1. Download de bestanden van deze repo [hier](https://github.com/CVanmarcke/KWS-helper/archive/refs/heads/main.zip), en pak de volledige inhoud uit ergens in een folder.
