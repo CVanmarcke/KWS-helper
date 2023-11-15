@@ -61,7 +61,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "m)^\: ", ". ")				; replaces : if at the front of the sentence with (speechfout).
 	inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")				; replaces case insensitive besluit/conclusie door upper
 	inputtext := RegExReplace(inputtext, "im)^punt ", ". ")	; corrigeert speech fout dat het punt typt ipv punt (enkel in het begin van de zin)
-	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.+)\/ ?(?=\R|$)", "  . $1")                          ;; Alle zinnen met / op einde krijgen " . " er voor
+	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.{2,})\/ ?(?=\R|$)", "  . $1")                          ;; Alle zinnen met / op einde krijgen " . " er voor
 	inputtext := RegExReplace(inputtext, "m)^([\t\ ])+\*", "$1.")                          ;; Als * geindenteerd is wordt het vervangen met .
 	inputtext := RegExReplace(inputtext, "m)[\ \t]+$", "")  ; zorgt dat er geen nutteloze spaties op het einde van de zin komen
 	if (RegExMatch(inputtext, "m)^\. ?.+(?:\R|$)") OR RegExMatch(inputtext, "m)^.+# ?.?(?:\R|$)")) {	; only executes if there is ". " or "#" in the script
