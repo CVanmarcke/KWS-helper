@@ -73,6 +73,8 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, ": in het kader van de gekende", ": gekende")
 	inputtext := StrReplace(inputtext, "in het kader van", "door")
 	inputtext := StrReplace(inputtext, "ongewijzigd", "onveranderd", 0)
+	inputtext := StrReplace(inputtext, "vgl. ", "vergelijking ")
+	inputtext := StrReplace(inputtext, "vgl ", "vergelijking ")
 	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose")		 ;; frequente speech fout
 	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie")			;; frequente speech fout
 	inputtext := StrReplace(inputtext, "interosseu", "intraosseu", 0)
@@ -89,24 +91,27 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "longtrauma", "longtrama")
 	inputtext := StrReplace(inputtext, "aortaal", "aortisch")
 	inputtext := StrReplace(inputtext, "op niveau van", "aan")
+	inputtext := StrReplace(inputtext, "ter hoogte van", "aan")
 	inputtext := StrReplace(inputtext, " dd ", " DD ")
+	inputtext := StrReplace(inputtext, "d.d.", "van")
+	inputtext := StrReplace(inputtext, " vs. ", " vs ")
 	inputtext := StrReplace(inputtext, " won ", " WON ")
 	inputtext := StrReplace(inputtext, "rx ", "RX ", 0)
 	inputtext := StrReplace(inputtext, "met glandulair", "midglandulair")
 	inputtext := StrReplace(inputtext, "transplantatienier", "transplantnier")
 	inputtext := StrReplace(inputtext, "transplantatielever", "transplantlever")
+	inputtext := StrReplace(inputtext, "levercirrose", "cirrose", 0)
 	inputtext := RegExReplace(inputtext, "[KkCc]a[mn] configuratie", "`"cam`" configuratie")
 	;; inputtext := StrReplace(inputtext, "bewaarde", "intacte")
 	inputtext := StrReplace(inputtext, "partiële beeld", "partiëel in beeld")
 	inputtext := StrReplace(inputtext, "plaatsen schroef", "plaat en schroef")
 	inputtext := StrReplace(inputtext, "nervus fascialis", "nervus facialis")
-	inputtext := StrReplace(inputtext, "rx ", "RX ", 0)
-	inputtext := StrReplace(inputtext, "aal aspect van de", "ale", 0)
-	inputtext := StrReplace(inputtext, "aal voorkomen van de", "ale", 0)
-	; inputtext := StrReplace(inputtext, "aspect van", "###", 0)
-	; inputtext := StrReplace(inputtext, "voorkomen van", "###", 0)
-	; inputtext := RegExReplace(inputtext, "i)gekende?", "###")
-	inputtext := RegExReplace(inputtext, "(?<=[a-z\d]),(?=[a-z])", ", ")  ; zet een extra spatie achter komma als nog niet aanwezig
+
+	inputtext := RegExReplace(inputtext, "[ao]?(d|al|ot|of) (aspect|voorkomen) van de", "$1e")
+	inputtext := StrReplace(inputtext, "aspect van het ", "", 0)
+	inputtext := StrReplace(inputtext, "voorkomen van het ", "", 0)
+
+	inputtext := RegExReplace(inputtext, "(?<=[a-z\d])\ ?,(?=[a-z])", ", ")  ; zet een extra spatie achter komma als nog niet aanwezig
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VIII(?=[\/\-\s\.\,\:])", "8")
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VII(?=[\/\-\s\.\,\:])", "7")
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VI(?=[\/\-\s\.\,\:])", "6")
