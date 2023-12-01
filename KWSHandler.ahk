@@ -735,11 +735,11 @@ openEAD_emacs() {
   ;   "<apps>" 'EAD-header-to-win-clipboard)
 		sleep(200)
 		if RegExMatch(A_Clipboard, "[^1-9]?(\d{8})[^1-9]?", &matchEAD) {
-				openEAD_KWS_from_clip()
+				openEAD_KWS(A_Clipboard)
 		} else {
 				A_Clipboard := ""
 				ClipWait(1)
-				openEAD_KWS_from_clip()
+				openEAD_KWS(A_Clipboard)
 		}
 }
 
@@ -872,7 +872,7 @@ aanvaardOnderzoek(contrast := 2, opmerking := "") {
 	}
 }
 
-KWStoEmacs() {
+KWStoEmacs(capturetemplate) {
   ; The follow needs to be places in the emacs init.el
   ; (setq server-use-tcp t)
   ; (setq server-socket-dir "~/.emacs.d/server")
@@ -906,7 +906,9 @@ KWStoEmacs() {
 		tag := "MSK"
 		case RegExMatch(report["onderzoek"], "i)mammo|borst"):
 		tag := "mammo"
-		case RegExMatch(report["onderzoek"], "i)nier|blaas|prostaat|gyna|vrouw|bekken|uro-genitaal"):
+		case RegExMatch(report["onderzoek"], "i)gyna|vrouw|bekkenbodem"):
+		tag := "gyn"
+		case RegExMatch(report["onderzoek"], "i)nier|blaas|prostaat|bekken|uro-genitaal"):
 		tag := "uro"
 		case RegExMatch(report["onderzoek"], "i)vascul"):
 		tag := "angio"
@@ -914,17 +916,19 @@ KWStoEmacs() {
 		tag := "cardio"
 	}
 	klinInlicht := RegExReplace(report["klinlicht"], "\.?[\r\n]{1,}", ". ")
-	onderzoek := RegExReplace(report["onderzoek"], "(.+)[\r\n]?", "$1")
-	body := "- klinische inlichtingen :: " . RegExReplace(klinInlicht, "\/", "-")
+	onderzoek := StrReplace(RegExReplace(report["onderzoek"], "(.+)[\r\n]?", "$1"), "/", "-")
+	body := "- klinische inlichtingen :: " . RegExReplace(klinInlicht, "`/", "-")
 	if (RegExMatch(report["content"], "i)(?:conclusie|besluit):[\r\n]([\s\S]+)", &concl)) {
 			body .= "`n- conclusie :: " . RegExReplace(concl[1], "m)^", "  ")
 			body := StrReplace(body, "`r", "")
 			body := StrReplace(body, "/", "%2F")
-			body := StrReplace(body, "  `n  ** Einde tekst uit ongevalideerd verslag **", "%2F")
+			body := StrReplace(body, "ï", "%C3%AF")
+			body := StrReplace(body, "ë", "%C3%AB")
+			body := StrReplace(body, "  `n  ** Einde tekst uit ongevalideerd verslag **", "")
 	}
 	onderzoekDate := RegExReplace(report["datum"], "(\d{2})-(\d{2})-(\d{4})", "$3$2$1")
 	onderzoekDate := FormatTime(onderzoekDate, "yyyy-MM-dd ddd")
-	Run("C:\Users\cvmarc2\scoop\apps\emacs-k\current\bin\emacsclientw.exe -f `"\\mixer\home50\cvmarc2\uzlsystem\AppData\.emacs.d\server\server`" org-protocol:/capture:/w/`"<" . onderzoekDate . "> " . ead . " - " . onderzoek . "`t:" . tag .  ":`"/`"" . body . "`"/`"`"")
+	Run("P:\emacs\29.1\bin\emacsclientw.exe -f `"\\mixer\home50\cvmarc2\uzlsystem\AppData\.emacs.d\server\server`" org-protocol:/capture:/" . capturetemplate "/`"<" . onderzoekDate . "> " . ead . " - " . onderzoek . "`t:" . tag .  ":`"/`"" . body)
 	Send("{Ctrl Up}") ;; to prevent ctrl sticking on window switch
 }
 
@@ -963,7 +967,7 @@ KWStoExcel(excelSavePath) {
 		XL.Workbooks.Add
 		XL.ActiveWorkbook.SaveAs(excelSavePath)
 	}
-	categoryList := ["","neuro","thorax","abdomen","spine","MSK","NKO","mammo","urogen","vasc","cardio"]
+	categoryList := ["","neuro","thorax","abdomen","spine","MSK","NKO","mammo","urogen","vasc","cardio", "gyn"]
 	indexCategory := 1
 	category := ""
 	Switch
@@ -982,7 +986,9 @@ KWStoExcel(excelSavePath) {
 		indexCategory := 6
 		case RegExMatch(report["onderzoek"], "i)mammo|borst"):
 		indexCategory := 8
-		case RegExMatch(report["onderzoek"], "i)nier|blaas|prostaat|gyna|vrouw|bekken|uro-genitaal"):
+		case RegExMatch(report["onderzoek"], "i)gyna|vrouw|bekkenbodem"):
+		indexCategory := 12
+		case RegExMatch(report["onderzoek"], "i)nier|blaas|prostaat|bekken|uro-genitaal"):
 		indexCategory := 9
 		case RegExMatch(report["onderzoek"], "i)vascul"):
 		indexCategory := 10
