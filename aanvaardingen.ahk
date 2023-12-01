@@ -113,19 +113,28 @@ Data_abdomen_MR := "
 	Pancreas Tumor					RAD mr abd 55 (+)
 	Chronische Pancreatitis				RAD mr abd 34 (-)
 	Pancreas Familiaal Carcinoma				RAD mr abd 33 (-)
-	Pancreas voor Pancreatitis				RAD mr abd 08 (?)
-	Lever met Contrast, zonder Laattijdige			RAD mr abd 48 (+)
-	Lever met Contrast, met Laattijdige			RAD mr abd 49 (+)
-	Lever zonder contrast				RAD mr abd 50 (-)
+	Pancreas voor (acute/collecties) pancreatitis		RAD mr abd 08 (+)
+	Pancreas simpele IPMN				RAD mr abd 34 (-) (NB: Als complexe cyste: tumorprotocol)
+	Lever + Contrast, zonder Laattijdige			RAD mr abd 48 (+)
+	Lever + Contrast, met Laattijdige			RAD mr abd 49 (+)
+	HCC / FNH / adenoma (Lever met Laattijdige)		RAD mr abd 49 (+)
+	Lever zonder contrast				RAD mr abd 50 (-) (zeldzaam: screening meta's, hoewel beter met contrast zonder late)
 	Lever hemochromatose				RAD mr abd 35 (?)
 	Levertransplantatie					RAD mr abd 03 (+)
-	Cholangio zonder contrast				RAD mr abd 52 (-)
+	Cholangio zonder contrast (MRCP)			RAD mr abd 51 (-)
 	Cholangio met contrast (PSC, IGG4, maligne stenose)	RAD mr abd 53 (+)
 	Cholangio gallek					RAD mr abd 52 (?)
 	Staging Recto-Anale Tumor				RAD mr abd 29 (+)
+	Anale fistel (Crohn)					RAD mr abd 21 (+)
 	Ovaria IOTA					RAD mr abd 44 (+)
-	Entero						RAD mr abd 37
+	Cervix  						RAD mr cervix (+)
+	Endometriose (lang: standaard)			RAD mr abd 59 (+)
+	Endometriose (kort)					RAD mr abd 58 (-)
+	Entero						RAD mr abd 37 (+) (door Ragna te aanvaarden!)
 
+	Lynch  						RAD mr abd 45 (+) [Moet op MR4, zo niet peritoneaalmetas protocol]
+	Rectoanale Pouch					RAD mr abd 21 (+) [Buscopan en rectale vulling met water. T2 TRUFI 5 mm in 3 richtingen. T1 cor/ax vibe pre C 3 mm. 3D T1 caipi vibe ax pre C. Contrast + 2e helft buscopan. T1 cor/ax vibe richtingen post C 3 mm. 3D T1 caipi vibe ax post C. DWI ax. T2 TSE fs indien nodig in nuttigste vlak (bijvoorbeeld fistel)]
+    Volumetrie
   )"
 
 Data_abdomen_CT_oud := "
@@ -240,7 +249,7 @@ helptext := "
   NB: Als abdomen CT is geselecteerd als discipline, zal Ctrl-Numpad+ ook 'IV veneus {+} 3 PO invullen'.
 )"
 
-inifile := "aanvaardingen.ini"
+inifile := "settings.ini"
 
 HotIfWinActive("Aanvaardingen helper ahk_class AutoHotkeyGUI")
 Hotkey("^Enter", druk_ok_aanvaarding)
