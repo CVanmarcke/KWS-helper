@@ -707,21 +707,13 @@ ADCcalculatorGUI() {
 	}
 }
 
-openEAD_KWS_from_clip() {
-		WinActivate(report_window_title)
-		Send("^+z") ; Hotkey voor zoek patient
-		Sleep(400)
-		Send("{Ctrl down}v{Ctrl up}")
-		Send("{Enter}")
-}
+; openEAD_KWS_from_clip() {
+; 		Run("curl `"http://localhost:12345/showPatientFile?&eadnr=" . A_Clipboard . "`"")
+; }
 
 openEAD_KWS(ead := "") {
 	if RegExMatch(ead, "[^1-9]?(\d{8})[^1-9]?", &matchEAD) {
-		A_Clipboard := ""
-		Sleep(100) ;; 100 werkt dacht ik
-		A_Clipboard := matchEAD[1]
-		Errorlevel := !ClipWait(1)
-		openEAD_KWS_from_clip()
+		Run("curl `"http://localhost:12345/showPatientFile?&eadnr=" . ead . "`"")
 	} else if (ead = "") {
 		A_Clipboard := ""
 		Sleep(100) ;; 150 werkt, te zien of lager werk
