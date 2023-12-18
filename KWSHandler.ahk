@@ -1089,6 +1089,19 @@ ObjIndexOf(obj, item, case_sensitive:=false) {
 	}
 }
 
+Surround(openDelim := "(", closeDelim := ")") {
+	temp := A_Clipboard
+	A_Clipboard := ""
+	Sleep(50)
+	Send("^x")
+	if ClipWait(1) {
+			A_Clipboard := openDelim . _cleanStringOngevalideerdVerslag(A_Clipboard) . closeDelim
+			Send("^v")
+	}
+	A_Clipboard := temp 
+	return
+}
+
 MoveLineUp() {
 	A_Clipboard := ""
 	Send("{End}")
@@ -1588,6 +1601,15 @@ clipboardcleaner() {
 	} else {
 		Return
 	}
+}
+
+_cleanStringOngevalideerdVerslag(text) {
+		RegExMatch(text, "(uit ongevalideerd verslag \*\*[\r\n]{2,})([\s\S]+?)([\r\n]{2,}\*\* Einde tekst uit)", &KWSfiltered)
+		return KWSfiltered[2]
+		; text := RegExReplace(text, "VERSLAGNUMMER .+[\R\n\r]+", "")
+		; text := RegExReplace(text, "m)^.+overgenomen uit ongevalideerd verslag.+[\R\n\r]+", "")
+		; text := RegExReplace(text, "[\R\n\r]+.{2} Einde tekst uit ongevalideerd verslag.+", "")
+		; return text
 }
 
 _BlockUserInput(block := true) {
