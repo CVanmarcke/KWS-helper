@@ -75,6 +75,8 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "ongewijzigd", "onveranderd", 0)
 	inputtext := StrReplace(inputtext, "vgl. ", "vergelijking ")
 	inputtext := StrReplace(inputtext, "vgl ", "vergelijking ")
+	inputtext := StrReplace(inputtext, "vnl ", "voornamelijk ")
+	inputtext := StrReplace(inputtext, "vnl. ", "voornamelijk ")
 	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose")		 ;; frequente speech fout
 	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie")			;; frequente speech fout
 	inputtext := StrReplace(inputtext, "interosseu", "intraosseu", 0)
@@ -84,7 +86,8 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "flair ", "FLAIR ", 0)
 	inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", , &CaseSensitive := false)
 	inputtext := StrReplace(inputtext, "tbc", "TBC")
-	inputtext := StrReplace(inputtext, "rechteros", "rechter os", 0)
+	inputtext := RegExReplace(inputtext, "i)linker(?=\w)", "linker ")
+	inputtext := RegExReplace(inputtext, "i)rechter(?=\w)", "rechter ")
 	inputtext := StrReplace(inputtext, " EKG ", " ECG ", 0)
 	inputtext := StrReplace(inputtext, " ecg ", " ECG ", 0)
 	inputtext := StrReplace(inputtext, " hili", " hila")
@@ -94,6 +97,7 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "ter hoogte van", "aan")
 	inputtext := StrReplace(inputtext, " dd ", " DD ")
 	inputtext := StrReplace(inputtext, "d.d.", "van")
+	inputtext := StrReplace(inputtext, "de dato", "van")
 	inputtext := StrReplace(inputtext, " vs. ", " vs ")
 	inputtext := StrReplace(inputtext, " won ", " WON ")
 	inputtext := StrReplace(inputtext, "rx ", "RX ", 0)
@@ -120,8 +124,9 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])III(?=[\/\-\s\.\,\:])", "3")
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])II(?=[\/\-\s\.\,\:])", "2")
 	inputtext := RegExReplace(inputtext, "segment I(?=[ ,\.])", "segment 1")
-	inputtext := RegExReplace(inputtext, "(?<=\d )n?o?r?maal(?= \d)", "x")	; Corrigeert een veel gemaakte fout van de speech
-	inputtext := RegExReplace(inputtext, "(\d)\*(\d)", "$1 x $2")	; Corrigeert een veel gemaakte fout van de speech
+	inputtext := RegExReplace(inputtext, "(\d)([cm]m)", "$1 $2")	; zet een spatie tussen het getal en cm/mm
+	inputtext := RegExReplace(inputtext, "(?<=\d )n?o?r?maal(?= \d)", "x")	; Corrigeert 5 maal 6 naar 5 x 6
+	inputtext := RegExReplace(inputtext, "(\d)\*(\d)", "$1 x $2")	; Corrigeert 5 * 5 naar 5 x 5
 	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra|inter|intra) (?=en |of )", "$1- ")	; peri en infra -> peri- en infra
 	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra|inter|intra) (?=[\w\-])", "$1")	; peri centimetrisch -> pericentimetrisch
 	inputtext := RegExReplace(inputtext, "(?<!van) (de|het) (\w{1,10} ?\w{4,13}) (link|recht)s(?! \w{3,5}aal| in )", " $1 $3er $2") ; Het been rechts -> het rechter been
@@ -139,7 +144,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2")				; corrigeert WOord naar Woord
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
 	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
-	inputtext := RegExReplace(inputtext, "m)(?<=(?<! [amvnAMVN]|vnl|thv)\. |\? |^- |^)(\(?\w)", "$U1")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
+	inputtext := RegExReplace(inputtext, "m)((?<! [amvnAMVN]|vnl|thv)\. |\? |^- |^\s+)(\(?\w)", "$1$U2")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
 	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")				; makes sure there is a space after a colon or point (if not number)...
 	inputtext := RegExReplace(inputtext, "(?<=[\:\;])\ ?([A-Z][^A-Z])", " $L1")				; converts after : or ; to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
 ;;	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
@@ -158,7 +163,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(\w) {2,}(\w)", "$1 $2")  ; verwijdert te veel spaties tussen 2 woorden
 	;; inputtext := RegExReplace(inputtext, "m)[\r\n]- ?(.+\:[\r\n][^\s])", "`n$1")	; Als de zin begint met - en eindigt met :, en de volgende zien niet geindenteerd is zal het het streepje weg doen
 	inputtext := RegExReplace(inputtext, "m)(^CONCLUSIE:$\R)^\-\ (.+$)(?!\R[\-\w])", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten.
-	inputtext := RegExReplace(inputtext, "m)^- ?(.+\:$)(?=\R-)", "$1")	; Als de zin begint met - en eindigt met :, en de volgende begint met een - zal het het streepje weg doen
+	inputtext := RegExReplace(inputtext, "m)^- ?(.+\:$)(?=\R[.-])", "$1")	; Als de zin begint met - en eindigt met :, en de volgende begint met een - zal het het streepje weg doen
 	inputtext := RegExReplace(inputtext, "AP.n?o?r?maal.{10,}[cC]{2}", "AP x ML x CC")	; Speechcorrect iets dat die totaal niet verstaat
 	return inputtext
 }
@@ -915,17 +920,20 @@ KWStoEmacs(capturetemplate) {
 		case RegExMatch(report["onderzoek"], "i)hart|coronair"):
 		tag := "cardio"
 	}
+	onderzoek := RegExReplace(report["onderzoek"], "(.+)[\r\n]?", "$1")
+	onderzoek := StrReplace(onderzoek, "ë", "%C3%AB")
+	onderzoek := StrReplace(onderzoek, "/", "%2F")
+	onderzoek := StrReplace(onderzoek, "ï", "%C3%AF")
 	klinInlicht := RegExReplace(report["klinlicht"], "\.?[\r\n]{1,}", ". ")
-	onderzoek := StrReplace(RegExReplace(report["onderzoek"], "(.+)[\r\n]?", "$1"), "/", "-")
-	body := "- klinische inlichtingen :: " . RegExReplace(klinInlicht, "`/", "-")
+	body := "- klinische inlichtingen :: " . klinInlicht
 	if (RegExMatch(report["content"], "i)(?:conclusie|besluit):[\r\n]([\s\S]+)", &concl)) {
 			body .= "`n- conclusie :: " . RegExReplace(concl[1], "m)^", "  ")
-			body := StrReplace(body, "`r", "")
-			body := StrReplace(body, "/", "%2F")
-			body := StrReplace(body, "ï", "%C3%AF")
-			body := StrReplace(body, "ë", "%C3%AB")
-			body := StrReplace(body, "  `n  ** Einde tekst uit ongevalideerd verslag **", "")
 	}
+	body := StrReplace(body, "`r", "")
+	body := StrReplace(body, "/", "%2F")
+	body := StrReplace(body, "ï", "%C3%AF")
+	body := StrReplace(body, "ë", "%C3%AB")
+	body := StrReplace(body, "  `n  ** Einde tekst uit ongevalideerd verslag **", "")
 	onderzoekDate := RegExReplace(report["datum"], "(\d{2})-(\d{2})-(\d{4})", "$3$2$1")
 	onderzoekDate := FormatTime(onderzoekDate, "yyyy-MM-dd ddd")
 	Run("P:\emacs\29.1\bin\emacsclientw.exe -f `"\\mixer\home50\cvmarc2\uzlsystem\AppData\.emacs.d\server\server`" org-protocol:/capture:/" . capturetemplate "/`"<" . onderzoekDate . "> " . ead . " - " . onderzoek . "`t:" . tag .  ":`"/`"" . body)
