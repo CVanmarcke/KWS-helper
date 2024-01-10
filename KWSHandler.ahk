@@ -116,6 +116,7 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "aspect van het ", "", 0)
 	inputtext := StrReplace(inputtext, "voorkomen van het ", "", 0)
 
+	inputtext := RegExReplace(inputtext, "(\w)([><](\w))", "$1 $2 $3")  ; woord>woord -> woord > woord
 	inputtext := RegExReplace(inputtext, "(?<=[a-z\d])\ ?,(?=[a-z])", ", ")  ; zet een extra spatie achter komma als nog niet aanwezig
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VIII(?=[\/\-\s\.\,\:])", "8")
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VII(?=[\/\-\s\.\,\:])", "7")
