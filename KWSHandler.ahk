@@ -95,6 +95,7 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "aortaal", "aortisch")
 	inputtext := StrReplace(inputtext, "op niveau van", "aan")
 	inputtext := StrReplace(inputtext, "ter hoogte van", "aan")
+	inputtext := RegExReplace(inputtext, "i\.?k\.?v\.?", "in kader van")
 	inputtext := StrReplace(inputtext, " dd ", " DD ")
 	inputtext := StrReplace(inputtext, "d.d.", "van")
 	inputtext := StrReplace(inputtext, "de dato", "van")
