@@ -118,13 +118,13 @@ cleanreport(inputtext) {
 
 	inputtext := RegExReplace(inputtext, "(\w)([><](\w))", "$1 $2 $3")  ; woord>woord -> woord > woord
 	inputtext := RegExReplace(inputtext, "(?<=[a-z\d])\ ?,(?=[a-z])", ", ")  ; zet een extra spatie achter komma als nog niet aanwezig
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VIII(?=[\/\-\s\.\,\:])", "8")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VII(?=[\/\-\s\.\,\:])", "7")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])VI(?=[\/\-\s\.\,\:])", "6")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])IV([ab])(?=[\/\-\s\.\,\:])", "4$1")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])V(?=[\/\-\s\.\,\:])", "5")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])III(?=[\/\-\s\.\,\:])", "3")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s])II(?=[\/\-\s\.\,\:])", "2")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VIII(?=[\/\-\s\.\,\:])", "8")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VII(?=[\/\-\s\.\,\:])", "7")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VI(?=[\/\-\s\.\,\:])", "6")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])IV([ab]?)(?=[\/\-\s\.\,\:])", "4$1$2")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])V(?=[\/\-\s\.\,\:])", "5")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])III(?=[\/\-\s\.\,\:])", "3")
+	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])II(?=[\/\-\s\.\,\:])", "2")
 	inputtext := RegExReplace(inputtext, "segment I(?=[ ,\.])", "segment 1")
 	inputtext := RegExReplace(inputtext, "(\d)([cm]m)", "$1 $2")	; zet een spatie tussen het getal en cm/mm
 	inputtext := RegExReplace(inputtext, "(?<=\d )n?o?r?maal(?= \d)", "x")	; Corrigeert 5 maal 6 naar 5 x 6
