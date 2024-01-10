@@ -129,6 +129,7 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "(\d)([cm]m)", "$1 $2")	; zet een spatie tussen het getal en cm/mm
 	inputtext := RegExReplace(inputtext, "(?<=\d )n?o?r?maal(?= \d)", "x")	; Corrigeert 5 maal 6 naar 5 x 6
 	inputtext := RegExReplace(inputtext, "(\d)\*(\d)", "$1 x $2")	; Corrigeert 5 * 5 naar 5 x 5
+	inputtext := StrReplace(inputtext, "periana", "peri-ana") ; perianaal - > peri-anaal
 	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra|inter|intra) (?=en |of )", "$1- ")	; peri en infra -> peri- en infra
 	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra|inter|intra) (?=[\w\-])", "$1")	; peri centimetrisch -> pericentimetrisch
 	inputtext := RegExReplace(inputtext, "(?<!van) (de|het) (\w{1,10} ?\w{4,13}) (link|recht)s(?! \w{3,5}aal| in )", " $1 $3er $2") ; Het been rechts -> het rechter been
