@@ -147,9 +147,9 @@ cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2")				; corrigeert WOord naar Woord
 	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
 	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
-	inputtext := RegExReplace(inputtext, "m)((?<! [amvnAMVN]|vnl|thv)\. |\? |^- |^\s+)(\(?\w)", "$1$U2")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
+	inputtext := RegExReplace(inputtext, "m)((?<! [amvnAMVN]|vnl|thv)\. |\? |^- |^\s+|^)(\(?\w)", "$1$U2")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
 	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")				; makes sure there is a space after a colon or point (if not number)...
-	inputtext := RegExReplace(inputtext, "(?<=[\:\;])\ ?([A-Z][^A-Z])", " $L1")				; converts after : or ; to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, ...
+	inputtext := RegExReplace(inputtext, "(?<=[\:\;])\ ?([A-Z][^A-Z0-9])", " $L1")				; converts after : or ; to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, T4 ...
 ;;	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
 	;;inputtext := RegExReplace(inputtext, "(?<=[\-\/])[DT](?=[1-9](?:[0-2]|[\ \:]))", "Th") ; Corrects -T10 of /D10 naar -Th10
 	;;inputtext := RegExReplace(inputtext, "(?<=\ )[DT](?=[1-9][0-2]?[\-\/])", "Th") ; Corrects T10- naar Th10
