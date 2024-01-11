@@ -58,117 +58,117 @@ initKWSHandler() {
 ;=================================================
 cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "m)\($", "#")				; Fixed speechfout: als hij hekje hoort zet hij soms ( ipv #
-	inputtext := RegExReplace(inputtext, "m)^\: ", ". ")				; replaces : if at the front of the sentence with (speechfout).
-	inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")				; replaces case insensitive besluit/conclusie door upper
-	inputtext := RegExReplace(inputtext, "im)^punt ", ". ")	; corrigeert speech fout dat het punt typt ipv punt (enkel in het begin van de zin)
-	inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.{2,})\/ ?(?=\R|$)", "  . $1")                          ;; Alle zinnen met / op einde krijgen " . " er voor
-	inputtext := RegExReplace(inputtext, "m)^([\t\ ])+\*", "$1.")                          ;; Als * geindenteerd is wordt het vervangen met .
-	inputtext := RegExReplace(inputtext, "m)[\ \t]+$", "")  ; zorgt dat er geen nutteloze spaties op het einde van de zin komen
-	if (RegExMatch(inputtext, "m)^\. ?.+(?:\R|$)") OR RegExMatch(inputtext, "m)^.+# ?.?(?:\R|$)")) {	; only executes if there is ". " or "#" in the script
-		inputtext := _sorttext(inputtext) ; zet alle zinnen met een punt vooraan, onder het verslag.
-	}
-	Sleep(50)
-	inputtext := StrReplace(inputtext, "bekend", "gekend", 0)
-	inputtext := StrReplace(inputtext, "formaliteit", "voor maligniteit")
-	inputtext := StrReplace(inputtext, ": in het kader van de gekende", ": gekende")
-	inputtext := StrReplace(inputtext, "in het kader van", "door")
-	inputtext := StrReplace(inputtext, "ongewijzigd", "onveranderd", 0)
-	inputtext := StrReplace(inputtext, "vgl. ", "vergelijking ")
-	inputtext := StrReplace(inputtext, "vgl ", "vergelijking ")
-	inputtext := StrReplace(inputtext, "vnl ", "voornamelijk ")
-	inputtext := StrReplace(inputtext, "vnl. ", "voornamelijk ")
-	inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose")		 ;; frequente speech fout
-	inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie")			;; frequente speech fout
-	inputtext := StrReplace(inputtext, "interosseu", "intraosseu", 0)
-	inputtext := StrReplace(inputtext, "normale doorgankelijkheid van de", "normaal doorgankelijke")
-	inputtext := StrReplace(inputtext, "suscebiliteit", "susceptibiliteit")
-	inputtext := RegExReplace(inputtext, "i)pi[gc] katheter", "PIC katheter")
-	inputtext := StrReplace(inputtext, "flair ", "FLAIR ", 0)
-	inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", , &CaseSensitive := false)
-	inputtext := StrReplace(inputtext, "tbc", "TBC")
-	inputtext := RegExReplace(inputtext, "i)linker(?=\w)", "linker ")
-	inputtext := RegExReplace(inputtext, "i)rechter(?=\w)", "rechter ")
-	inputtext := StrReplace(inputtext, " EKG ", " ECG ", 0)
-	inputtext := StrReplace(inputtext, " ecg ", " ECG ", 0)
-	inputtext := StrReplace(inputtext, " hili", " hila")
-	inputtext := StrReplace(inputtext, "longtrauma", "longtrama")
-	inputtext := StrReplace(inputtext, "aortaal", "aortisch")
-	inputtext := StrReplace(inputtext, "op niveau van", "aan")
-	inputtext := StrReplace(inputtext, "ter hoogte van", "aan")
-	inputtext := RegExReplace(inputtext, "i\.?k\.?v\.?", "in kader van")
-	inputtext := StrReplace(inputtext, " dd ", " DD ")
-	inputtext := StrReplace(inputtext, "d.d.", "van")
-	inputtext := StrReplace(inputtext, "de dato", "van")
-	inputtext := StrReplace(inputtext, " vs. ", " vs ")
-	inputtext := StrReplace(inputtext, " won ", " WON ")
-	inputtext := StrReplace(inputtext, "rx ", "RX ", 0)
-	inputtext := StrReplace(inputtext, "met glandulair", "midglandulair")
-	inputtext := StrReplace(inputtext, "transplantatienier", "transplantnier")
-	inputtext := StrReplace(inputtext, "transplantatielever", "transplantlever")
-	inputtext := StrReplace(inputtext, "levercirrose", "cirrose", 0)
-	inputtext := RegExReplace(inputtext, "[KkCc]a[mn] configuratie", "`"cam`" configuratie")
-	;; inputtext := StrReplace(inputtext, "bewaarde", "intacte")
-	inputtext := StrReplace(inputtext, "partiële beeld", "partiëel in beeld")
-	inputtext := StrReplace(inputtext, "plaatsen schroef", "plaat en schroef")
-	inputtext := StrReplace(inputtext, "nervus fascialis", "nervus facialis")
+		inputtext := RegExReplace(inputtext, "m)^\: ", ". ")				; replaces : if at the front of the sentence with (speechfout).
+		inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")				; replaces case insensitive besluit/conclusie door upper
+		inputtext := RegExReplace(inputtext, "im)^punt ", ". ")	; corrigeert speech fout dat het punt typt ipv punt (enkel in het begin van de zin)
+		inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.{2,})\/ ?(?=\R|$)", "  . $1")                          ;; Alle zinnen met / op einde krijgen " . " er voor
+		inputtext := RegExReplace(inputtext, "m)^([\t\ ])+\*", "$1.")                          ;; Als * geindenteerd is wordt het vervangen met .
+		inputtext := RegExReplace(inputtext, "m)[\ \t]+$", "")  ; zorgt dat er geen nutteloze spaties op het einde van de zin komen
+		if (RegExMatch(inputtext, "m)^\. ?.+(?:\R|$)") OR RegExMatch(inputtext, "m)^.+# ?.?(?:\R|$)")) {	; only executes if there is ". " or "#" in the script
+			inputtext := _sorttext(inputtext) ; zet alle zinnen met een punt vooraan, onder het verslag.
+		}
+		Sleep(50)
+		inputtext := StrReplace(inputtext, "bekend", "gekend", 0)
+		inputtext := StrReplace(inputtext, "formaliteit", "voor maligniteit")
+		inputtext := StrReplace(inputtext, ": in het kader van de gekende", ": gekende")
+		inputtext := StrReplace(inputtext, "in het kader van", "door")
+		inputtext := StrReplace(inputtext, "ongewijzigd", "onveranderd", 0)
+		inputtext := StrReplace(inputtext, "vgl. ", "vergelijking ")
+		inputtext := StrReplace(inputtext, "vgl ", "vergelijking ")
+		inputtext := StrReplace(inputtext, "vnl ", "voornamelijk ")
+		inputtext := StrReplace(inputtext, "vnl. ", "voornamelijk ")
+		inputtext := StrReplace(inputtext, "foraminaal spinaal stenose", "foraminaal- of spinaalstenose")		 ;; frequente speech fout
+		inputtext := StrReplace(inputtext, "diffuse restrictie", "diffusie restrictie")			;; frequente speech fout
+		inputtext := StrReplace(inputtext, "interosseu", "intraosseu", 0)
+		inputtext := StrReplace(inputtext, "normale doorgankelijkheid van de", "normaal doorgankelijke")
+		inputtext := StrReplace(inputtext, "suscebiliteit", "susceptibiliteit")
+		inputtext := RegExReplace(inputtext, "i)pi[gc] katheter", "PIC katheter")
+		inputtext := StrReplace(inputtext, "flair ", "FLAIR ", 0)
+		inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", , &CaseSensitive := false)
+		inputtext := StrReplace(inputtext, "tbc", "TBC")
+		inputtext := RegExReplace(inputtext, "i)linker(?=\w)", "linker ")
+		inputtext := RegExReplace(inputtext, "i)rechter(?=\w)", "rechter ")
+		inputtext := StrReplace(inputtext, " EKG ", " ECG ", 0)
+		inputtext := StrReplace(inputtext, " ecg ", " ECG ", 0)
+		inputtext := StrReplace(inputtext, " hili", " hila")
+		inputtext := StrReplace(inputtext, "longtrauma", "longtrama")
+		inputtext := StrReplace(inputtext, "aortaal", "aortisch")
+		inputtext := StrReplace(inputtext, "op niveau van", "aan")
+		inputtext := StrReplace(inputtext, "ter hoogte van", "aan")
+		inputtext := RegExReplace(inputtext, "i\.?k\.?v\.?", "in kader van")
+		inputtext := StrReplace(inputtext, " dd ", " DD ")
+		inputtext := StrReplace(inputtext, "d.d.", "van")
+		inputtext := StrReplace(inputtext, "de dato", "van")
+		inputtext := StrReplace(inputtext, " vs. ", " vs ")
+		inputtext := StrReplace(inputtext, " won ", " WON ")
+		inputtext := StrReplace(inputtext, "rx ", "RX ", 0)
+		inputtext := StrReplace(inputtext, "met glandulair", "midglandulair")
+		inputtext := StrReplace(inputtext, "transplantatienier", "transplantnier")
+		inputtext := StrReplace(inputtext, "transplantatielever", "transplantlever")
+		inputtext := StrReplace(inputtext, "levercirrose", "cirrose", 0)
+		inputtext := RegExReplace(inputtext, "[KkCc]a[mn] configuratie", "`"cam`" configuratie")
+		;; inputtext := StrReplace(inputtext, "bewaarde", "intacte")
+		inputtext := StrReplace(inputtext, "partiële beeld", "partiëel in beeld")
+		inputtext := StrReplace(inputtext, "plaatsen schroef", "plaat en schroef")
+		inputtext := StrReplace(inputtext, "nervus fascialis", "nervus facialis")
 
-	inputtext := RegExReplace(inputtext, "[ao]?(d|al|ot|of) (aspect|voorkomen) van de", "$1e")
-	inputtext := StrReplace(inputtext, "aspect van het ", "", 0)
-	inputtext := StrReplace(inputtext, "voorkomen van het ", "", 0)
+		inputtext := RegExReplace(inputtext, "[ao]?(d|al|ot|of) (aspect|voorkomen) van de", "$1e")
+		inputtext := StrReplace(inputtext, "aspect van het ", "", 0)
+		inputtext := StrReplace(inputtext, "voorkomen van het ", "", 0)
 
-	inputtext := RegExReplace(inputtext, "(\w)([><](\w))", "$1 $2 $3")  ; woord>woord -> woord > woord
-	inputtext := RegExReplace(inputtext, "(?<=[a-z\d])\ ?,(?=[a-z])", ", ")  ; zet een extra spatie achter komma als nog niet aanwezig
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VIII(?=[\/\-\s\.\,\:])", "8")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VII(?=[\/\-\s\.\,\:])", "7")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VI(?=[\/\-\s\.\,\:])", "6")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])IV([ab]?)(?=[\/\-\s\.\,\:])", "4$1$2")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])V(?=[\/\-\s\.\,\:])", "5")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])III(?=[\/\-\s\.\,\:])", "3")
-	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])II(?=[\/\-\s\.\,\:])", "2")
-	inputtext := RegExReplace(inputtext, "segment I(?=[ ,\.])", "segment 1")
-	inputtext := RegExReplace(inputtext, "(\d)([cm]m)", "$1 $2")	; zet een spatie tussen het getal en cm/mm
-	inputtext := RegExReplace(inputtext, "(?<=\d )n?o?r?maal(?= \d)", "x")	; Corrigeert 5 maal 6 naar 5 x 6
-	inputtext := RegExReplace(inputtext, "(\d)\*(\d)", "$1 x $2")	; Corrigeert 5 * 5 naar 5 x 5
-	inputtext := StrReplace(inputtext, "periana", "peri-ana") ; perianaal - > peri-anaal
-	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra|inter|intra) (?=en |of )", "$1- ")	; peri en infra -> peri- en infra
-	inputtext := RegExReplace(inputtext, "i)(peri|infra|supra|inter|intra) (?=[\w\-])", "$1")	; peri centimetrisch -> pericentimetrisch
-	inputtext := RegExReplace(inputtext, "(?<!van) (de|het) (\w{1,10} ?\w{4,13}) (link|recht)s(?! \w{3,5}aal| in )", " $1 $3er $2") ; Het been rechts -> het rechter been
+		inputtext := RegExReplace(inputtext, "(\w)([><](\w))", "$1 $2 $3")  ; woord>woord -> woord > woord
+		inputtext := RegExReplace(inputtext, "(?<=[a-z\d])\ ?,(?=[a-z])", ", ")  ; zet een extra spatie achter komma als nog niet aanwezig
+		inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VIII(?=[\/\-\s\.\,\:])", "8")
+		inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VII(?=[\/\-\s\.\,\:])", "7")
+		inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VI(?=[\/\-\s\.\,\:])", "6")
+		inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])IV([ab]?[\/\-\s\.\,\:])(?!contr|gado|jodi)", "4$1")
+		inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])V(?=[\/\-\s\.\,\:])", "5")
+		inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])III(?=[\/\-\s\.\,\:])", "3")
+		inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])II(?=[\/\-\s\.\,\:])", "2")
+		inputtext := RegExReplace(inputtext, "segment I(?=[ ,\.])", "segment 1")
+		inputtext := RegExReplace(inputtext, "(\d)([cm]m)", "$1 $2")	; zet een spatie tussen het getal en cm/mm
+		inputtext := RegExReplace(inputtext, "(?<=\d )n?o?r?maal(?= \d)", "x")	; Corrigeert 5 maal 6 naar 5 x 6
+		inputtext := RegExReplace(inputtext, "(\d)\*(\d)", "$1 x $2")	; Corrigeert 5 * 5 naar 5 x 5
+		inputtext := StrReplace(inputtext, "periana", "peri-ana") ; perianaal - > peri-anaal
+		inputtext := RegExReplace(inputtext, "i)(peri|infra|supra|inter|intra) (?=en |of )", "$1- ")	; peri en infra -> peri- en infra
+		inputtext := RegExReplace(inputtext, "i)(peri|infra|supra|inter|intra) (?=[\w\-])", "$1")	; peri centimetrisch -> pericentimetrisch
+		inputtext := RegExReplace(inputtext, "(?<!van) (de|het) (\w{1,10} ?\w{4,13}) (link|recht)s(?! \w{3,5}aal| in )", " $1 $3er $2") ; Het been rechts -> het rechter been
 
-       ;; mammo:
-	inputtext := RegExReplace(inputtext, "(eefseltype(?:ring)?)\:? ([a-d])", "$1 $U2")	; zet het weefseltype in hoofdletters
+		;; mammo:
+		inputtext := RegExReplace(inputtext, "(eefseltype(?:ring)?)\:? ([a-d])", "$1 $U2")	; zet het weefseltype in hoofdletters
 
-	inputtext := RegExReplace(inputtext, "[\r\n]GECOMMUNICEERDE DRINGENDE BEVINDINGEN:[\n\r]?$", "")	; verwijderd die zin
-	inputtext := RegExReplace(inputtext, "im)^Vergelijking met ", "Vergeleken met ")
-	; inputtext := RegExReplace(inputtext, "i)gekende?", "\#\#\#")
-	inputtext := RegExReplace(inputtext, "im)[\ \t]*supervis.*$", "") ; verwijderd supervisie.
+		inputtext := RegExReplace(inputtext, "[\r\n]GECOMMUNICEERDE DRINGENDE BEVINDINGEN:[\n\r]?$", "")	; verwijderd die zin
+		inputtext := RegExReplace(inputtext, "im)^Vergelijking met ", "Vergeleken met ")
+		; inputtext := RegExReplace(inputtext, "i)gekende?", "\#\#\#")
+		inputtext := RegExReplace(inputtext, "im)[\ \t]*supervis.*$", "") ; verwijderd supervisie.
 
-	;;; inputtext := RegExReplace(inputtext, "([\n\r\.]) +(?=[\n\r])", "$1")  ; zorgt dat er geen spatie achter . of op nieuwe lijn komt
-	inputtext := RegExReplace(inputtext, "\x{2013}", "-")  ; veranderd het unicode streepje (â€“ aka \x{2013}) naar een ASCII streepje. Nog niet getest.
-	inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2")				; corrigeert WOord naar Woord
-	inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
-	inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit or )
-	inputtext := RegExReplace(inputtext, "m)((?<! [amvnAMVN]|vnl|thv)\. |\? |^- |^\s+|^)(\(?\w)", "$1$U2")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
-	inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")				; makes sure there is a space after a colon or point (if not number)...
-	inputtext := RegExReplace(inputtext, "(?<=[\:\;])\ ?([A-Z][^A-Z0-9])", " $L1")				; converts after : or ; to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, T4 ...
-;;	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
-	;;inputtext := RegExReplace(inputtext, "(?<=[\-\/])[DT](?=[1-9](?:[0-2]|[\ \:]))", "Th") ; Corrects -T10 of /D10 naar -Th10
-	;;inputtext := RegExReplace(inputtext, "(?<=\ )[DT](?=[1-9][0-2]?[\-\/])", "Th") ; Corrects T10- naar Th10
-	;;inputtext := RegExReplace(inputtext, "([CThD]\d{1,2}[\/-])[TD](?=\d{1,2})", "$1Th")			; corrects T1/X to Th1 TODO: werkt niet T11-L3
-	;;inputtext := RegExReplace(inputtext, "[TD](?=\d{1,2}[\/-][ThDL]{1,2}\d{1,2})", "Th")			; corrects X/T1 to Th1
-	inputtext := RegExReplace(inputtext, "((?:C|Th|L|S)\d{1,2})\/((?:C|Th|L|S)\d{1,2})", "$1-$2")	; corrects L1/L2 to L1-L2
-	inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3")			; corrects d/m/y tot d-m-y
-	inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n")											; replaces triple+ newline with double
-;; TODO: checken of die [A-Z] ok is, want is toch met case insensitive gedaan...
-	inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\`")(?!CONCLUSIE|Verder:|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]I-?RADS|CAD-?RADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
-	;;inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1Ãƒ$2")							; maakt  als a tussen 2 getallen.
-	inputtext := RegExReplace(inputtext, "([\-\.]) {2,}(?=[\R\n\r\w])", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
-	inputtext := RegExReplace(inputtext, "\ +, \ +", ", ")  ; verwijdert te veel spaties rond een komma
-	inputtext := RegExReplace(inputtext, "(\w) {2,}(\w)", "$1 $2")  ; verwijdert te veel spaties tussen 2 woorden
-	;; inputtext := RegExReplace(inputtext, "m)[\r\n]- ?(.+\:[\r\n][^\s])", "`n$1")	; Als de zin begint met - en eindigt met :, en de volgende zien niet geindenteerd is zal het het streepje weg doen
-	inputtext := RegExReplace(inputtext, "m)(^CONCLUSIE:$\R)^\-\ (.+$)(?!\R[\-\w])", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten.
-	inputtext := RegExReplace(inputtext, "m)^- ?(.+\:$)(?=\R[.-])", "$1")	; Als de zin begint met - en eindigt met :, en de volgende begint met een - zal het het streepje weg doen
-	inputtext := RegExReplace(inputtext, "AP.n?o?r?maal.{10,}[cC]{2}", "AP x ML x CC")	; Speechcorrect iets dat die totaal niet verstaat
-	return inputtext
+		;;; inputtext := RegExReplace(inputtext, "([\n\r\.]) +(?=[\n\r])", "$1")  ; zorgt dat er geen spatie achter . of op nieuwe lijn komt
+		inputtext := RegExReplace(inputtext, "\x{2013}", "-")  ; veranderd het unicode streepje (â€“ aka \x{2013}) naar een ASCII streepje. Nog niet getest.
+		inputtext := RegExReplace(inputtext, "([A-Z])([A-Z][a-z]{3,})", "$U1$L2")				; corrigeert WOord naar Woord
+		inputtext := RegExReplace(inputtext, "(?<=^|[\n\r])\*\s?(.+?):? ?(?=\R)", "* $U1:")			; adds : at end of string with * and makes uppercase. Not done with m) because of strange bug where it would only capture the first
+		inputtext := RegExReplace(inputtext, "m)([\w\d\)\%\°`"])\ ?(?=\R|$)", "$1.")				; adds . to end of string, word, digit, ) or "
+		inputtext := RegExReplace(inputtext, "m)((?<! [amvnAMVN]|vnl|thv)\. |\? |^- |^\s+|^)(\(?\w)", "$1$U2")				; converts to uppercase after ., newline or newline - (exception for a. hepatica, m. pectoralis etc)
+		inputtext := RegExReplace(inputtext, "([a-z])([\:\.])([a-zA-Z])", "$1$2 $3")				; makes sure there is a space after a colon or point (if not number)...
+		inputtext := RegExReplace(inputtext, "(?<=[\:\;])\ ?([A-Z][^A-Z0-9])", " $L1")				; converts after : or ; to lowercase (escept if 2x capital letter) for eg. DD, FLAIR, T4 ...
+		;;	inputtext := RegExReplace(inputtext, "(?<=[\-\/\ ])[D](?=[1-9](?:[0-2]|[\ \:\ ]))", "T") ; Corrects -T10 of /D10 naar -Th10
+		;;inputtext := RegExReplace(inputtext, "(?<=[\-\/])[DT](?=[1-9](?:[0-2]|[\ \:]))", "Th") ; Corrects -T10 of /D10 naar -Th10
+		;;inputtext := RegExReplace(inputtext, "(?<=\ )[DT](?=[1-9][0-2]?[\-\/])", "Th") ; Corrects T10- naar Th10
+		;;inputtext := RegExReplace(inputtext, "([CThD]\d{1,2}[\/-])[TD](?=\d{1,2})", "$1Th")			; corrects T1/X to Th1 TODO: werkt niet T11-L3
+		;;inputtext := RegExReplace(inputtext, "[TD](?=\d{1,2}[\/-][ThDL]{1,2}\d{1,2})", "Th")			; corrects X/T1 to Th1
+		inputtext := RegExReplace(inputtext, "((?:C|Th|L|S)\d{1,2})\/((?:C|Th|L|S)\d{1,2})", "$1-$2")	; corrects L1/L2 to L1-L2
+		inputtext := RegExReplace(inputtext, "(\d{1,2})\/(\d{1,2})\/(\d{2,4})", "$1-$2-$3")			; corrects d/m/y tot d-m-y
+		inputtext := RegExReplace(inputtext, "\R{3,}", "`n`n")											; replaces triple+ newline with double
+		;; TODO: checken of die [A-Z] ok is, want is toch met case insensitive gedaan...
+		inputtext := RegExReplace(inputtext, "im)^\-?(?<=\-)?(?=\w|\(|\`")(?!CONCLUSIE|Verder:|Vergeleken|Mede in|In (?:vergel|vgl)|NB|Nota|Storende|Suboptim|Opname in|Reserve|Naar [lr]|[PBT]I-?RADS|CAD-?RADS|\d[\/\)\.])", "- ")	; adds - to all words and (, excluding BESLUIT, vergeleken...
+			;;inputtext := RegExReplace(inputtext, "(\d )a( \d)", "$1Ãƒ$2")							; maakt  als a tussen 2 getallen.
+			inputtext := RegExReplace(inputtext, "([\-\.]) {2,}(?=[\R\n\r\w])", "$1 ")  ; zorgt dat er niet meer dan 1 spatie na een streepje komt
+			inputtext := RegExReplace(inputtext, "\ +, \ +", ", ")  ; verwijdert te veel spaties rond een komma
+			inputtext := RegExReplace(inputtext, "(\w) {2,}(\w)", "$1 $2")  ; verwijdert te veel spaties tussen 2 woorden
+			;; inputtext := RegExReplace(inputtext, "m)[\r\n]- ?(.+\:[\r\n][^\s])", "`n$1")	; Als de zin begint met - en eindigt met :, en de volgende zien niet geindenteerd is zal het het streepje weg doen
+			inputtext := RegExReplace(inputtext, "m)(^CONCLUSIE:$\R)^\-\ (.+$)(?!\R[\-\w])", "$1$2")	; Als maar 1 lijn conclusie, zal het het streepje weglaten.
+			inputtext := RegExReplace(inputtext, "m)^- ?(.+\:$)(?=\R[.-])", "$1")	; Als de zin begint met - en eindigt met :, en de volgende begint met een - zal het het streepje weg doen
+			inputtext := RegExReplace(inputtext, "AP.n?o?r?maal.{10,}[cC]{2}", "AP x ML x CC")	; Speechcorrect iets dat die totaal niet verstaat
+			return inputtext
 }
 
 cleanReport_KWS() {
