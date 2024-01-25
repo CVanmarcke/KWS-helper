@@ -24,6 +24,9 @@ CapsLock::F8      ; remaps capslock naar F8 (voor de speech)
 #HotIf (GetKeyState("LButton") and WinActive("Diagnostic Desktop - Images ("))
 RButton::Ctrl ;; linker + rechtermuis samen: pan
 ;; linkermuis + scroll: zoom.
+~LButton Up::Send("{Ctrl Up}") ;; Fix if you release left button before right.
+~Alt::Send("{Ctrl Up}") ;; Fix if you switch window before releasing right button
+~LWin::Send("{Ctrl Up}") ;; Fix if you switch window before releasing right button
 WheelUp::Send("^{WheelUp}")
 WheelDown::Send("^{WheelDown}")
 
