@@ -107,14 +107,12 @@ Data_neuro := "
 
 Data_abdomen_MR := "
   (
-	TODO: onvolledig!!
-
 	Abdomen Peritoneaalmetastasen			RAD mr abd 41 (+)
 	Pancreas Tumor					RAD mr abd 55 (+)
 	Chronische Pancreatitis				RAD mr abd 34 (-)
 	Pancreas Familiaal Carcinoma				RAD mr abd 33 (-)
 	Pancreas voor (acute/collecties) pancreatitis		RAD mr abd 08 (+)
-	Pancreas simpele IPMN				RAD mr abd 34 (-) (NB: Als complexe cyste: tumorprotocol)
+	Pancreas simpele IPMN				RAD mr abd 34 (-) (Als complexe cyste: tumorprotocol)
 	Lever + Contrast, zonder Laattijdige			RAD mr abd 48 (+)
 	Lever + Contrast, met Laattijdige			RAD mr abd 49 (+)
 	HCC / FNH / adenoma (Lever met Laattijdige)		RAD mr abd 49 (+)
@@ -123,18 +121,22 @@ Data_abdomen_MR := "
 	Levertransplantatie					RAD mr abd 03 (+)
 	Cholangio zonder contrast (MRCP)			RAD mr abd 51 (-)
 	Cholangio met contrast (PSC, IGG4, maligne stenose)	RAD mr abd 53 (+)
-	Cholangio gallek					RAD mr abd 52 (?)
+	Cholangio gallek					RAD mr abd 52 (?) [Multihance en laattijdige niet vergeten!]
 	Staging Recto-Anale Tumor				RAD mr abd 29 (+)
-	Anale fistel (Crohn)					RAD mr abd 21 (+)
+	Anale fistel (Crohn)					RAD mr abd 21 (+) [Centreren op fistel aub, bedankt!]
 	Ovaria IOTA					RAD mr abd 44 (+)
 	Cervix  						RAD mr cervix (+)
+	Endometriumcarcinoom 				RAD mr abd 63 (+)
+	Uterusfibromen 					RAD mr abd 61 (+)
 	Endometriose (lang: standaard)			RAD mr abd 59 (+)
 	Endometriose (kort)					RAD mr abd 58 (-)
 	Entero						RAD mr abd 37 (+) (door Ragna te aanvaarden!)
 
-	Lynch  						RAD mr abd 45 (+) [Moet op MR4, zo niet peritoneaalmetas protocol]
+	Lynch  						RAD mr abd 45 (+) [Enkel MR4, zo niet peritoneaalmetas protocol]
 	Rectoanale Pouch					RAD mr abd 21 (+) [Buscopan en rectale vulling met water. T2 TRUFI 5 mm in 3 richtingen. T1 cor/ax vibe pre C 3 mm. 3D T1 caipi vibe ax pre C. Contrast + 2e helft buscopan. T1 cor/ax vibe richtingen post C 3 mm. 3D T1 caipi vibe ax post C. DWI ax. T2 TSE fs indien nodig in nuttigste vlak (bijvoorbeeld fistel)]
-    Volumetrie
+	Nierletsel / niertumor (pre of postop)			RAD mr nier 08 (+)
+	Volumetrie
+	Studie 						 (?) [Volgens studie]
   )"
 
 Data_abdomen_CT_oud := "
@@ -226,6 +228,12 @@ Data_uro_MR  := "
   Transplantnier (cave geen angio!)			RAD mr tpnier 01 (+)
   Bijnier						RAD mr bijnier 02 mc (?) [graag bellen voor contrast wordt gegeven.]
   Bijnier met contrast					RAD mr bijnier 02 mc (+)
+  Bijnier zonder contrast				RAD mr bijnier 01 zc (-)
+
+  MR urethra zonder contrast 				RAD mr urethra 01 (-)
+  MR urethra met contrast 				RAD mr urethra 02 (+)
+  MR penis 					RAD mr penis 01 (+)
+  MR scrotum 					RAD mr scrotum 01 (+)
 
   Angio renale vaten   		 		RAD amr nier 01 (+)
   Angio transplantnier vaten   		 		RAD amr tpnier 02 (+)
