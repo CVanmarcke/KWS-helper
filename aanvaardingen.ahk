@@ -271,6 +271,8 @@ Hotkey("^i", selectOpmerking)
 Hotkey("^l", selectLabo)
 Hotkey("^d", selectToonDocument)
 Hotkey("^q", sluitaanvaardschermKWS)
+^Backspace::Send("^+{Left}{Backspace}{Backspace}")
+
 toon_onderzoeken := ""
 global aanvaarder
 aanvaarder := Gui()
@@ -337,6 +339,7 @@ vulin_knop(A_GuiEvent, GuiCtrlObj, Info := "", *) {
 }
 
 druk_ok_aanvaarding(ThisHotkey) {
+	global Data
 	WinActivate("KWS ahk_exe javaw.exe")
 	MouseGetPos(&mouseX, &mouseY)
 	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")
@@ -346,9 +349,10 @@ druk_ok_aanvaarding(ThisHotkey) {
 	}
 	MouseClick("left", FoundX+5, FoundY+5)
 	MouseMove(mouseX, mouseY)
-	ogcEditonderzoek_naam.Text := "" ;;nodig?
-	zoek_onderzoek_naam("Button", "")
-	focus_on_aanvaarder_timer()
+	ogcEditonderzoek_naam.Text := "" ;; clear zoekbalk
+	ogcEditGui_Display.Value := Data
+	; zoek_onderzoek_naam("Button", "")
+	focus_on_aanvaarder_timer(200)
 }
 
 aanvaarderGuiEscape(*) {
@@ -404,8 +408,9 @@ selectLabo(ThisHotkey) {
 
 sluitaanvaardschermKWS(ThisHotkey) {
   WinActivate("KWS ahk_exe javaw.exe")
-  sleep(200)
+  sleep(300)
   Send("^{F4}")
+  sleep(50)
   focus_on_aanvaarder_timer()
 }
 
