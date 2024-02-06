@@ -59,7 +59,7 @@ initKWSHandler() {
 cleanreport(inputtext) {
 	inputtext := RegExReplace(inputtext, "m)\($", "#")				; Fixed speechfout: als hij hekje hoort zet hij soms ( ipv #
 		inputtext := RegExReplace(inputtext, "m)^\: ", ". ")				; replaces : if at the front of the sentence with (speechfout).
-		inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)", "CONCLUSIE")				; replaces case insensitive besluit/conclusie door upper
+		inputtext := RegExReplace(inputtext, "im)^(besluit|conclusie)(?: (:))?", "CONCLUSIE$2")				; replaces case insensitive besluit/conclusie door upper
 		inputtext := RegExReplace(inputtext, "im)^punt ", ". ")	; corrigeert speech fout dat het punt typt ipv punt (enkel in het begin van de zin)
 		inputtext := RegExReplace(inputtext, "m)^ *\.?-? *(.{2,})\/ ?(?=\R|$)", "  . $1")                          ;; Alle zinnen met / op einde krijgen " . " er voor
 		inputtext := RegExReplace(inputtext, "m)^([\t\ ])+\*", "$1.")                          ;; Als * geindenteerd is wordt het vervangen met .
@@ -99,10 +99,12 @@ cleanreport(inputtext) {
 		inputtext := StrReplace(inputtext, " dd ", " DD ")
 		inputtext := StrReplace(inputtext, "d.d.", "van")
 		inputtext := StrReplace(inputtext, "de dato", "van")
+		inputtext := StrReplace(inputtext, " IMA ", " im ")
 		inputtext := StrReplace(inputtext, " vs. ", " vs ")
 		inputtext := StrReplace(inputtext, " won ", " WON ")
 		inputtext := StrReplace(inputtext, "rx ", "RX ", 0)
 		inputtext := StrReplace(inputtext, "met glandulair", "midglandulair")
+		inputtext := StrReplace(inputtext, "nephrolithias", "nefrolithias", 0)
 		inputtext := StrReplace(inputtext, "transplantatienier", "transplantnier")
 		inputtext := StrReplace(inputtext, "transplantatielever", "transplantlever")
 		inputtext := StrReplace(inputtext, "levercirrose", "cirrose", 0)
