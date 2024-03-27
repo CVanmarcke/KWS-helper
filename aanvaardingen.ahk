@@ -120,17 +120,19 @@ Data_abdomen_MR := "
 	Lever hemochromatose				RAD mr abd 35 (?)
 	Levertransplantatie					RAD mr abd 03 (+)
 	Cholangio zonder contrast (MRCP)			RAD mr abd 51 (-)
-	Cholangio met contrast (PSC, IGG4, maligne stenose)	RAD mr abd 53 (+)
+	Cholangio met contrast (PSC, IGG4, maligne stenose)	RAD mr abd 53 (+) (beter lever + MRCP)
 	Cholangio gallek					RAD mr abd 52 (?) [Multihance en laattijdige niet vergeten!]
 	Staging Recto-Anale Tumor				RAD mr abd 29 (+)
-	Anale fistel (Crohn)					RAD mr abd 21 (+) [Centreren op fistel aub, bedankt!]
+	Anale fistel (Crohn)					RAD mr abd 21 (+) [Als fistel zichtbaar, zeker zien dat die volledig in beeld is!]
 	Ovaria IOTA					RAD mr abd 44 (+)
 	Cervix  						RAD mr cervix (+)
 	Endometriumcarcinoom 				RAD mr abd 63 (+)
 	Uterusfibromen 					RAD mr abd 61 (+)
 	Endometriose (lang: standaard)			RAD mr abd 59 (+)
-	Endometriose (kort)					RAD mr abd 58 (-)
+	Endometriose (kort)					RAD mr abd 58 (-) (Nooit van extern/niet-gynaeco)
+	Vrouwelijke genitalia (congenitaal, adenomoyose)		RAD mr abd 60 (-) [Bellen voor assen]
 	Entero						RAD mr abd 37 (+) (door Ragna te aanvaarden!)
+	Acuut bij zwangerschap				RAD mr abd 47 (-) (Te bespreken met supervisie)
 
 	Lynch  						RAD mr abd 45 (+) [Enkel MR4, zo niet peritoneaalmetas protocol]
 	Rectoanale Pouch					RAD mr abd 21 (+) [Buscopan en rectale vulling met water. T2 TRUFI 5 mm in 3 richtingen. T1 cor/ax vibe pre C 3 mm. 3D T1 caipi vibe ax pre C. Contrast + 2e helft buscopan. T1 cor/ax vibe richtingen post C 3 mm. 3D T1 caipi vibe ax post C. DWI ax. T2 TSE fs indien nodig in nuttigste vlak (bijvoorbeeld fistel)]
@@ -209,6 +211,7 @@ Data_uro_CT  := "
   IVU					RAD ct uro 20 (+)
   Follow up/screening abdomen met aflopen	RAD ct uro 30 (+)
   Combi thorax/abdomen			RAD ct uro 24 (+)
+  Combi RCC				RAD ct uro 24 (+) [Graag arteriele van de thorax opentrekken over de bovenbuik; dan klassieke veneuze abdomen]
   Combi + hersenen				RAD ct uro 27 (+)
   Combi thorax/abdomen + afloop 		RAD ct uro 29 (+)
   Trauma					RAD ct uro 22 (+)
@@ -229,7 +232,9 @@ Data_uro_MR  := "
   Bijnier						RAD mr bijnier 02 mc (?) [graag bellen voor contrast wordt gegeven.]
   Bijnier met contrast					RAD mr bijnier 02 mc (+)
   Bijnier zonder contrast				RAD mr bijnier 01 zc (-)
+  Gemetastaseerd RCC abdomen			RAD mr nier 09 (+)
 
+  MR blaas 					RAD mr blaas (+)
   MR urethra zonder contrast 				RAD mr urethra 01 (-)
   MR urethra met contrast 				RAD mr urethra 02 (+)
   MR penis 					RAD mr penis 01 (+)
