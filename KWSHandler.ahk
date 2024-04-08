@@ -30,7 +30,7 @@ initKWSHandler() {
 	_makeSplashText(title := "KWS-helper", text := "Started KWS-helper", time := -3000)
 
 	SetTimer(_deleteTeamsCache.bind(), -10000) ;; execute ONCE in 10 seconds (10000 ms)
-	SetTimer(_deleteTeamsCache.bind(), 60000) ;; execute every minute (900000 ms)
+	SetTimer(_deleteTeamsCache.bind(), 600000) ;; execute every 10 minute (900000 ms)
 
 	ToolsSubmenu := Menu()
 	ToolsSubmenu.Add("Aanvaarder", MenuHandler)
@@ -86,8 +86,8 @@ cleanreport(inputtext) {
 		inputtext := StrReplace(inputtext, "flair ", "FLAIR ", 0)
 		inputtext := StrReplace(inputtext, "fascikels graad", "Fazekas graad", , &CaseSensitive := false)
 		inputtext := StrReplace(inputtext, "tbc", "TBC")
-		inputtext := RegExReplace(inputtext, "i)linker(?=\w)", "linker ")
-		inputtext := RegExReplace(inputtext, "i)rechter(?=\w)", "rechter ")
+		inputtext := RegExReplace(inputtext, "i)(linker)(?=\w)", "$1 ")
+		inputtext := RegExReplace(inputtext, "i)(rechter)(?=\w)", "$1 ")
 		inputtext := StrReplace(inputtext, " EKG ", " ECG ", 0)
 		inputtext := StrReplace(inputtext, " ecg ", " ECG ", 0)
 		inputtext := StrReplace(inputtext, " hili", " hila")
@@ -111,6 +111,7 @@ cleanreport(inputtext) {
 		inputtext := RegExReplace(inputtext, "[KkCc]a[mn] configuratie", "`"cam`" configuratie")
 		;; inputtext := StrReplace(inputtext, "bewaarde", "intacte")
 		inputtext := StrReplace(inputtext, "partiële beeld", "partiëel in beeld")
+		inputtext := StrReplace(inputtext, "partieel", "partiëel")
 		inputtext := StrReplace(inputtext, "plaatsen schroef", "plaat en schroef")
 		inputtext := StrReplace(inputtext, "nervus fascialis", "nervus facialis")
 
