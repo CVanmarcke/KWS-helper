@@ -698,23 +698,26 @@ ADCcalculatorGUI() {
 	ADCcalc.Show()
 
 	ADCcalcGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
-			if (A_GuiEvent = "Change") {
-					b0result := toInteger(ADCcalc["b0"].value)
-					bxresult := toInteger(ADCcalc["bx"].value)
-					bvalueresult := toInteger(ADCcalc["bvalue"].value)
-					ADC := round(-ln(bxresult/b0result) / bvalueresult * 1000, 2)
-					ADCcalc["ADCresult"].value := "ADC: " . ADC . " * 10^-3 mm²/s"
-			}
-			if (A_GuiEvent = "Normal") {
-					result := ADCcalc["ADCresult"].value
-					WinActivate(report_window_title)
-					Sleep(50)
-					_KWS_PasteToReport(result, false)
-					ADCcalc.Destroy()
-			}
-			if (A_GuiEvent = "Close") {
-		ADCcalc.Destroy()
-			}
+		if (A_GuiEvent = "Change") {
+			b0result := toInteger(ADCcalc["b0"].value)
+			bxresult := toInteger(ADCcalc["bx"].value)
+			bvalueresult := toInteger(ADCcalc["bvalue"].value)
+			if (bvalueresult != 0) {
+				ADC := round(-ln(bxresult/b0result) / bvalueresult * 1000, 2)
+				ADCcalc["ADCresult"].value := "ADC: " . ADC . " * 10^-3 mm²/s"
+			} else
+				ADCcalc["ADCresult"].value := "Second b value cannot be 0!"
+		}
+		if (A_GuiEvent = "Normal") {
+			result := ADCcalc["ADCresult"].value
+			WinActivate(report_window_title)
+			Sleep(50)
+			_KWS_PasteToReport(result, false)
+			ADCcalc.Destroy()
+		}
+		if (A_GuiEvent = "Close") {
+			ADCcalc.Destroy()
+		}
 	}
 }
 
