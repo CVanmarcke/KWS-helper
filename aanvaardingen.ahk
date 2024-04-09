@@ -227,7 +227,7 @@ Data_uro_MR  := "
   Prostaat veld / radiotherapie 				RAD mr v prostaat 02 (-)
 
   Nierletsel / niertumor (pre of postop)			RAD mr nier 08 (+)
-  IVU / urinewegen / afloop				RAD mr nier 05 (+)
+  IVU / urinewegen / afloop (hematurie)			RAD mr nier 05 (+)
   Transplantnier (cave geen angio!)			RAD mr tpnier 01 (+)
   Bijnier						RAD mr bijnier 02 mc (?) [graag bellen voor contrast wordt gegeven.]
   Bijnier met contrast					RAD mr bijnier 02 mc (+)
