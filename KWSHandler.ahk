@@ -279,8 +279,8 @@ copyLastReport_KWS() {
 	; Sleep(50)
 	Send("{Ctrl down}{F4}{Ctrl up}") ;; KWS knop om huidig formulier te sluiten
 	Sleep(150)
-	_KWS_SelectReportBox(, false)
-	; MouseClick("left", FoundX+25, FoundY+650) ;; Selecteerd Textbox van KWS
+	; _KWS_SelectReportBox(, false)
+	MouseClick("left", FoundX+1000, FoundY+650) ;; Selecteerd Textbox van KWS
 	Sleep(100) ;; even tijd geven
 	A_Clipboard := ""
 	if (RegExMatch(oldreportunclean, "m)^ingevoerde beelden$")) { ; undoes the whole operation
