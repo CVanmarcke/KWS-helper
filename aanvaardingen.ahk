@@ -58,7 +58,6 @@ Data_neuro := "
   Arterio-Veneuze Malformatie (AVM)			RAD mr hersen 71  (+)
   Bloeding						RAD mr hersen 65  (+)
   Caverneuze Malformatie/Fabry			RAD mr hersen 67  (-)
-  Cerebellair Letsel (tumor)				RAD mr hersen 13  (+)
   CVA-TIA						RAD mr hersen 04  (-)
   Dementie						RAD mr hersen 11  (-)
   Epilepsie, Hippocampus				RAD mr hersen 06  (-)
@@ -83,6 +82,7 @@ Data_neuro := "
   Tumor/infectie zonder Perfusie			RAD mr hersen 78  (+)
   Vasculitis						RAD amr hersen 58 (+)
   Veneuze Trombose					RAD mr hersen 14  (-)
+  Cerebellair Letsel (tumor)				RAD mr hersen 13  (+)
   Vertigo/Duizeligheid					RAD mr hersen 29  (-)
   Vestibulair Schwannoom				RAD mr hersen 70  (+)
   Trauma						RAD mr hersen 32  (-)
@@ -108,6 +108,7 @@ Data_neuro := "
 Data_abdomen_MR := "
   (
 	Abdomen Peritoneaalmetastasen			RAD mr abd 41 (+)
+	Peritoneaalmetastasen (RCC)			RAD mr nier 09 (+) (is voor uro, bij twijfel bespreken met uro supervisie)
 	Pancreas Tumor					RAD mr abd 55 (+)
 	Chronische Pancreatitis				RAD mr abd 34 (-)
 	Pancreas Familiaal Carcinoma				RAD mr abd 33 (-)
@@ -136,6 +137,8 @@ Data_abdomen_MR := "
 
 	Lynch  						RAD mr abd 45 (+) [Enkel MR4, zo niet peritoneaalmetas protocol]
 	Rectoanale Pouch					RAD mr abd 21 (+) [Buscopan en rectale vulling met water. T2 TRUFI 5 mm in 3 richtingen. T1 cor/ax vibe pre C 3 mm. 3D T1 caipi vibe ax pre C. Contrast + 2e helft buscopan. T1 cor/ax vibe richtingen post C 3 mm. 3D T1 caipi vibe ax post C. DWI ax. T2 TSE fs indien nodig in nuttigste vlak (bijvoorbeeld fistel)]
+	CCD - defaecografie 				RAD mr abd 18
+	Bekkenbodem - mesh 				RAD mr abd 82
 	Nierletsel / niertumor (pre of postop)			RAD mr nier 08 (+)
 	Volumetrie
 	Studie 						 (?) [Volgens studie]
