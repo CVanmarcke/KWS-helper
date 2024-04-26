@@ -73,6 +73,7 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, ": in het kader van de gekende", ": gekende")
 	inputtext := StrReplace(inputtext, "in het kader van", "door")
 	inputtext := StrReplace(inputtext, "ongewijzigd", "onveranderd", 0)
+	inputtext := RegExReplace(inputtext, "i)(geen [a-zë]+) noch", "$1 of")
 	inputtext := StrReplace(inputtext, "vgl. ", "vergelijking ")
 	inputtext := StrReplace(inputtext, "vgl ", "vergelijking ")
 	inputtext := StrReplace(inputtext, "vnl ", "voornamelijk ")
@@ -119,7 +120,7 @@ cleanreport(inputtext) {
 	inputtext := StrReplace(inputtext, "aspect van het ", "", 0)
 	inputtext := StrReplace(inputtext, "voorkomen van het ", "", 0)
 
-	inputtext := RegExReplace(inputtext, "(\w)([><](\w))", "$1 $2 $3")  ; woord>woord -> woord > woord
+	inputtext := RegExReplace(inputtext, "(\w)([><])(\w)", "$1 $2 $3")  ; woord>woord -> woord > woord
 	inputtext := RegExReplace(inputtext, "(?<=[a-z\d])\ ?,(?=[a-z])", ", ")  ; zet een extra spatie achter komma als nog niet aanwezig
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VIII(?=[\/\-\s\.\,\:\)])", "8")
 	inputtext := RegExReplace(inputtext, "(?<=[\/\-\s\,])VII(?=[\/\-\s\.\,\:\)])", "7")
