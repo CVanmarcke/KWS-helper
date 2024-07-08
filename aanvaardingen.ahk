@@ -118,7 +118,7 @@ Data_abdomen_MR := "
 	Lever + Contrast, met Laattijdige			RAD mr abd 49 (+)
 	HCC / FNH / adenoma (Lever met Laattijdige)		RAD mr abd 49 (+)
 	Lever zonder contrast				RAD mr abd 50 (-) (zeldzaam: screening meta's, hoewel beter met contrast zonder late)
-	Lever hemochromatose				RAD mr abd 35 (?)
+	Lever hemochromatose (ijzer)			RAD mr abd 35 (?)
 	Levertransplantatie					RAD mr abd 03 (+)
 	Cholangio zonder contrast (MRCP)			RAD mr abd 51 (-)
 	Cholangio met contrast (PSC, IGG4, maligne stenose)	RAD mr abd 53 (+) (beter lever + MRCP)
@@ -136,7 +136,7 @@ Data_abdomen_MR := "
 	Acuut bij zwangerschap				RAD mr abd 47 (-) (Te bespreken met supervisie)
 
 	Lynch  						RAD mr abd 45 (+) [Enkel MR4, zo niet peritoneaalmetas protocol]
-	Rectoanale Pouch					RAD mr abd 21 (+) [Buscopan en rectale vulling met water. T2 TRUFI 5 mm in 3 richtingen. T1 cor/ax vibe pre C 3 mm. 3D T1 caipi vibe ax pre C. Contrast + 2e helft buscopan. T1 cor/ax vibe richtingen post C 3 mm. 3D T1 caipi vibe ax post C. DWI ax. T2 TSE fs indien nodig in nuttigste vlak (bijvoorbeeld fistel)]
+	Rectoanale Pouch					RAD mr abd 21 (+) [Pouch protocol. Buscopan en rectale vulling met water. T2 TRUFI 5 mm 3 richtingen. T1 cor/ax vibe pre C 3 mm. 3D T1 caipi vibe ax pre C. Contrast + 2e helft buscopan. T1 cor/ax vibe post C 3 mm. 3D T1 caipi vibe ax post C. DWI ax. T2 TSE fs volgens fistel als aanwezig]
 	CCD - defaecografie 				RAD mr abd 18
 	Bekkenbodem - mesh 				RAD mr abd 82
 	Nierletsel / niertumor (pre of postop)			RAD mr nier 08 (+)
@@ -350,17 +350,14 @@ druk_ok_aanvaarding(ThisHotkey) {
 	global Data
 	WinActivate("KWS ahk_exe javaw.exe")
 	MouseGetPos(&mouseX, &mouseY)
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")
-	if (ErrorLevel = 2 or ErrorLevel = 1) {
-			;; MsgBox("Er is iets fout gegaan met zoeken naar de OK knop (niet gevonden of afbeelding bestaat niet)")
-			return
+	if(ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png") or
+		ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButtonW11.png")) {
+		MouseClick("left", FoundX+5, FoundY+5)
+		MouseMove(mouseX, mouseY)
+		ogcEditonderzoek_naam.Text := "" ;; clear zoekbalk
+		ogcEditGui_Display.Value := Data
+		focus_on_aanvaarder_timer(200)
 	}
-	MouseClick("left", FoundX+5, FoundY+5)
-	MouseMove(mouseX, mouseY)
-	ogcEditonderzoek_naam.Text := "" ;; clear zoekbalk
-	ogcEditGui_Display.Value := Data
-	; zoek_onderzoek_naam("Button", "")
-	focus_on_aanvaarder_timer(200)
 }
 
 aanvaarderGuiEscape(*) {
@@ -375,7 +372,8 @@ aanvaarderGuiEscape(*) {
 selectToonDocument(ThisHotkey) {
 	WinActivate("KWS ahk_exe javaw.exe")
 	MouseGetPos(&mouseX, &mouseY)
-	If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")) {
+	If (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png") or
+		ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButtonW11.png")) {
 		MouseClick("left", FoundX + 180, FoundY + 5)
 		MouseMove(mouseX, mouseY)
 		focus_on_aanvaarder_timer()

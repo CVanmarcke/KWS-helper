@@ -24,11 +24,10 @@ initKWSHandler() {
 	SetMouseDelay(-1) ;remove delays from mouse actions
 	SetDefaultMouseSpeed 0
 
-	;; Verwijderd de Teams cache folder: die neemt soms meer dan een GB aan data in zonder reden.
-
 	;; indien blockinput true is, zullen de volgende knoppen geblokkeerd worden:
 	_makeSplashText(title := "KWS-helper", text := "Started KWS-helper", time := -3000)
 
+	;; Verwijderd de Teams cache folder: die neemt soms meer dan een GB aan data in zonder reden.
 	SetTimer(_deleteTeamsCache.bind(), -10000) ;; execute ONCE in 10 seconds (10000 ms)
 	SetTimer(_deleteTeamsCache.bind(), 600000) ;; execute every 10 minute (900000 ms)
 
@@ -44,12 +43,11 @@ initKWSHandler() {
 	ToolsSubmenu.Add("Fat fraction calculator", MenuHandler)
 	ToolsSubmenu.Add("Clean teams cache", MenuHandler)
 
-	; A_TrayMenu.Delete("Window Spy")  ; Creates a new menu item.
 	A_TrayMenu.Add()  ; Creates a separator line.
 	A_TrayMenu.Add("Tools/calculators", ToolsSubmenu)  ; Creates a new menu item.
 	A_TrayMenu.Add("Open help page", MenuHandler)  ; Creates a new menu item.
 	A_TrayMenu.Add("Update script", MenuHandler)  ; Creates a new menu item.
-	A_TrayMenu.delete("4&") ;; deletes "Windows Spy" from the list
+	; A_TrayMenu.delete("4&") ;; deletes "Windows Spy" from the list
 }
 
 ;=================================================
