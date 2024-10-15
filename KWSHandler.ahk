@@ -832,7 +832,9 @@ pedAbdomenTemplate() {
 
 pressOKButton() {
 	MouseGetPos(&mouseX, &mouseY)
-	if(ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png")) {
+	if(ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png") or
+		ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButtonW11.png") or
+		ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton2.png")) {
 		MouseClick("left", FoundX+5, FoundY+5)
 		MouseMove(mouseX, mouseY)
 	} else {
