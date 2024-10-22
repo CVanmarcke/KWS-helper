@@ -82,7 +82,7 @@ F9::cleanReport_KWS()
 ;; :X*b0:gst::insertPastDatePeriod(1) ;; Gisteren: nog niet actief om verwarring te voorkomen want gst kan accidenteel wel veel geschreven worden
 
 
-#HotIf WinActive("ahk_exe EXCEL.EXE") or WinActive("Google Spreadsheets - Google Chrome") or WinActive("ahk_exe OUTLOOK.EXE") or WinActive("ahk_exe Teams.exe")
+#HotIf WinActive("ahk_exe EXCEL.EXE") or WinActive("Google Spreadsheets - Google Chrome") or WinActive("ahk_exe OUTLOOK.EXE") or WinActive("ahk_exe ms-teams.exe")
 ^o::openEAD_KWS()
 
 ; Allows windowing in IMPAX with the numpad keys
