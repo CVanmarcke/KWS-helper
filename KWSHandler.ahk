@@ -444,8 +444,6 @@ heightLossGuiHandler(A_GuiEvent, GuiCtrlObj, info, *) {
 		oSaved := GuiCtrlObj.Submit(1)
 		h1 := toInteger(oSaved.Height1)
 		h2 := toInteger(oSaved.Height2)
-		; h1 := GuiCtrlObj["Height1"].Text
-		; h2 := GuiCtrlObj["Height2"].Text
 		hl := _calcHeightLoss(h1, h2)
 		result := "hoogteverlies van " . hl[1] . " mm of " . hl[2] . "%"
 		WinActivate(report_window_title)
@@ -1349,6 +1347,8 @@ UpdateScript() {
 			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/TIRADSv2.ahk", "TIRADSv2.ahk"
 			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/bevindingenLabel-alt.png", "images/bevindingenLabel-alt.png"
 			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/discardButton.png", "images/discardButton.png"
+			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/additioneleSupervisor.png", "images/additioneleSupervisor.png"
+			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/voegToeButton.png", "images/voegToeButton.png"
 			MsgBox("Script is geupdated naar de laatste versie!", "Script updater")
 			Reload
 		} catch Error {
@@ -1393,8 +1393,8 @@ _KWS_SelectReportBox(mousebutton := "left", resetMousePosition := true) {
 			MouseMove(mouseX, mouseY)
 		_BlockUserInput(false)
 		return
-		}
-		_makeSplashText(title := "Error", text := "Het tekstvak van het verslag werd niet gevonden: is de actie toch nog gelukt?", time := -2000)
+	}
+	_makeSplashText(title := "Error", text := "Het tekstvak van het verslag werd niet gevonden: is de actie toch nog gelukt?", time := -2000)
 }
 
 _KWS_PasteToReport(text, overwrite := true) {
