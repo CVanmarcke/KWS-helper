@@ -854,7 +854,11 @@ _getTagFromOnderzoekHeader(header) {
 	{
 		case RegExMatch(header, "i)hersen|schedel|hypophyse"):
 			return "neuro"
-     	case RegExMatch(header, "i)abdomen|lever|pancreas"):
+     	case RegExMatch(header, "i)lever"):
+     		return "liver"
+     	case RegExMatch(header, "i)pancreas"):
+     		return "pancreas"
+     	case RegExMatch(header, "i)abdomen"):
      		return "abdomen"
 		case RegExMatch(header, "i)thorax|longen|embol"):
 			return "thorax"
@@ -868,7 +872,13 @@ _getTagFromOnderzoekHeader(header) {
 			return "mammo"
 		case RegExMatch(header, "i)gyna|vrouw|bekkenbodem"):
 			return "gyn"
-		case RegExMatch(header, "i)nier|blaas|prostaat|bekken|uro-genitaal"):
+		case RegExMatch(header, "i)nier"):
+			return "kidney"
+		case RegExMatch(header, "i)prostaat"):
+			return "prostate"
+		case RegExMatch(header, "i)blaas"):
+			return "bladder"
+		case RegExMatch(header, "i)bekken|uro-genitaal"):
 			return "uro"
 		case RegExMatch(header, "i)vascul"):
 			return "angio"
@@ -895,7 +905,7 @@ KWStoEmacs(capturetemplate) {
 	RegExMatch(A_Clipboard, RegexQuery, &report)
 	ead := _getEAD()
 	tag := _getTagFromOnderzoekHeader(report["onderzoek"])
-	onderzoek := RegExReplace(report["onderzoek"], "(.+)[\r\n]?", "$1")
+	onderzoek := RegExReplace(report["onderzoek"], "(.+)\s*[\r\n]?[\s\S]*", "$1")
 	onderzoek := UrlEncode(onderzoek)
 	klinInlicht := RegExReplace(report["klinlicht"], "\.?[\r\n]{1,}", ". ") ;; newline vervangen met ". "
 	body := "- klinische inlichtingen :: " . klinInlicht
@@ -905,9 +915,9 @@ KWStoEmacs(capturetemplate) {
 	body := StrReplace(body, "`r", "")
 	body := StrReplace(body, "  `n  ** Einde tekst uit ongevalideerd verslag **", "")
 	body := UrlEncode(body)
-	onderzoekDate := RegExReplace(report["datum"], "(\d{2})-(\d{2})-(\d{4})", "$3$2$1")
-	onderzoekDate := FormatTime(onderzoekDate, "yyyy-MM-dd ddd")
-	Run("P:\emacs\latest\bin\emacsclientw.exe -f `"\\mixer\home50\cvmarc2\uzlsystem\AppData\.emacs.d\server\server`" org-protocol:/capture:/" . capturetemplate "/`"<" . onderzoekDate . "> " . ead . " - " . onderzoek . "%^{title}`t:" . tag .  ":`"/`"" . body)
+	onderzoekDate := RegExReplace(report["datum"], "(\d{2})-(\d{2})-(\d{4})", "$3-$2-$1")
+	; onderzoekDate := FormatTime(onderzoekDate, "yyyy-MM-dd")
+	Run("P:\emacs\latest\bin\emacsclientw.exe -f `"\\mixer\home50\cvmarc2\uzlsystem\AppData\.emacs.d\server\server`" org-protocol:/capture:/" . capturetemplate "/`"<" . onderzoekDate . "> " . ead . " - " . onderzoek . ": %^{title}`t:" . tag .  ":`"/`"" . body)
 	Send("{Ctrl Up}") ;; to prevent ctrl sticking on window switch
 }
 
