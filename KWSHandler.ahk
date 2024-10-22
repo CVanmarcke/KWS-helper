@@ -1182,6 +1182,39 @@ yankLine() {
 	Send("^c")
 }
 
+;; TODO
+convertProstateBiopsyToAPO() {
+	ClipWait(1)
+	clip := A_Clipboard
+	if (not RegExMatch(clip, "m)^- PSA: ([0-9.]+) ng/ml$", &psamatch)) {
+		MsgBox("Geen PSA waarde in tekst gevonden: ben je zeker dat je het verslag hebt gekopieërd?")
+		return
+	}
+	output := "- PSA: " . psamatch[1] . " ng/ml"
+
+	;; zoek letsel 1, letsel 2, etc
+	letselNr := 1
+	letselDescriptionStart := RegExMatch(clip, "Letsel " . letselNr . ":")
+	while (letselDescriptionStart) {
+		;; locatie van regexmatch bijhouden en vanaf daar verder zoeken
+		RegExMatch(clip, "m)^- Locatie: (.+)$", &locationMatch, letselDescriptionStart)
+		RegExMatch(clip, "m)^- Pirads vlgs biopteur: (.+)$", &piradsMatch, letselDescriptionStart)
+		RegExMatch(clip, "m)^- Label potje: (.+)$", &labelMatch, letselDescriptionStart)
+		RegExMatch(clip, "m)^- Aantal biopten: (\d)$", &aantalMatch, letselDescriptionStart)
+		letselzin := format("- Potje {1}: {2}x core biopt van een {3} letsel in de {4}", labelMatch[1], aantalMatch[1], piradsMatch ? piradsMatch[1] : "verdacht", locationMatch[1])
+		output := output . "`n" . letselzin
+		letselNr := letselNr + 1
+		letselDescriptionStart := RegExMatch(clip, "Letsel " . letselNr . ":", , letselDescriptionStart + 10)
+	}
+	if (RegExMatch(clip, "m)^Gesystematiseerde biopsies: ([0-9]+)$", &match)) {
+		output := output . "`n" . format("- {1} gesystematiseerde biopsies van R1->R{2} en L1->L{2} respectievelijk rechts en links in de PZ van basaal naar apicaal (potje R/L 1-3) en de TZ (potje R/L {3}{2})", match[1], Round(Integer(match[1])/2, 0), (Integer(match[1]) = 10) ? "4-" : "" )
+	}
+	output := output . "`n`nGraag uw evaluatie: maligne? Gleason graad? Bedankt!"
+
+	A_Clipboard := output
+	_makeSplashText("Clipboard modified!", "Clipboard:`n-------------`n`n" . output, time := -3000)
+}
+
 insertDatePeriod(daysInFuture := 0) {
 	Send("{Home}") ;; zorgt dat de functie eender waar in het datumvak gestart kan worden
 	CurrentDateTime := FormatTime(, "ddMMyyyy")
