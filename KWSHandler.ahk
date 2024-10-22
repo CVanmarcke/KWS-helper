@@ -1212,6 +1212,37 @@ insertPastDatePeriod(daysInPast := 1) {
 	SendInput(CurrentDateTime "0000")
 }
 
+addAdditionalSupervisor() {
+	sleep(200)
+	if ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\additioneleSupervisor.png") {
+		MouseClick("Left", FoundX+5, FoundY+5)
+		sleep(200)
+		if ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\voegToeButton.png") {
+			MouseClick("Left", FoundX+5, FoundY-20)
+			Send("^a")
+			Send("RAD")
+			MouseClick("Left", FoundX+5, FoundY+5)
+		}
+	}
+}
+
+addThoraxTag() {
+	if _findImages(["images\aanvraagButton.png", "images\aanvraagButtonW11.png"], &FoundX, &FoundY, 1400) {
+		MouseClick("Left", FoundX+5, FoundY+5)
+		sleep(200)
+	}
+	if _findImage("images\plusButton.png", &FoundX, &FoundY, 1000, 100, ,, 3, 200) {
+		MouseClick("Left", FoundX+5, FoundY+5)
+		sleep(500)
+		if _findImages(["images\thoraxTagButton.png", "images\thoraxTagButtonW11.png"], &FoundX, &FoundY) {
+			MouseClick("Left", FoundX+5, FoundY+5)
+			Send("{Enter}")
+			; pressOKButton()
+		}
+	}
+}
+
+
 
 initKWSWindows() {
 	;; Uitvoeringswerklijst
