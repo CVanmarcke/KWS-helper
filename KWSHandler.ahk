@@ -242,25 +242,20 @@ copyLastReport_KWS() {
 
 	MouseGetPos(&mouseX, &mouseY)
 	_BlockUserInput(True)
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\NieuweMededelingHeader.png") ;; klikt eerst de mededeling weg als die er is
-	if (FoundX) {
+	if (_findImage("images\NieuweMededelingHeader.png", &FoundX, &FoundY)) {
 		MouseClick("left", FoundX+400, FoundY+15)
 		Sleep(50)
 	}
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\toonLaatstVerslagKnop.png")
-	if (FoundX = "") {
-		ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\toonLaatstVerslagKnopSelected.png")
-		if (FoundX = "") {
-			_makeSplashText(title := "Error", text := "Geen vorig verslag aanwezig!", time := -2000)
-			MouseMove(mouseX, mouseY)
-			return
-		}
+
+	if not (_findImages(["images\toonLaatstVerslagKnop.png", "images\toonLaatstVerslagKnopSelected.png"], &FoundX, &FoundY)) {
+		_makeSplashText(title := "Error", text := "Geen vorig verslag aanwezig!", time := -2000)
+		MouseMove(mouseX, mouseY)
+		return
 	}
 	MouseClick("left", FoundX+10, FoundY+10)
 	Sleep(250) ;;300 werkt
 
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\laatstVerslagHeader.png")
-	if (FoundX = "") {
+	if not (_findImage("images\laatstVerslagHeader.png", &FoundX, &FoundY)) {
 		_makeSplashText(title := "Error", text := "Verslag popup niet gevonden!", time := -2000)
 		MouseMove(mouseX, mouseY)
 		return
@@ -272,10 +267,6 @@ copyLastReport_KWS() {
 	Errorlevel := !ClipWait(1)
 	oldreportunclean := A_Clipboard			; zet variabele gelijk aan clipboard
 
-
-	; ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\sluitLaatstVerslagKnop.png")
-	; MouseClick("left", FoundX+5, FoundY+5)
-	; Sleep(50)
 	Send("{Ctrl down}{F4}{Ctrl up}") ;; KWS knop om huidig formulier te sluiten
 	Sleep(150)
 	; _KWS_SelectReportBox(, false)
@@ -309,25 +300,20 @@ onveranderdMetVorigVerslag() {
 
 	MouseGetPos(&mouseX, &mouseY)
 	_BlockUserInput(True)
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\NieuweMededelingHeader.png") ;; klikt eerst de mededeling weg als die er is
-	if (FoundX) {
+	if (_findImage("images\NieuweMededelingHeader.png", &FoundX, &FoundY)) {
 		MouseClick("left", FoundX+400, FoundY+15)
 		Sleep(50)
 	}
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\toonLaatstVerslagKnop.png")
-	if (FoundX = "") {
-		ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\toonLaatstVerslagKnopSelected.png")
-		if (FoundX = "") {
-			_makeSplashText(title := "Error", text := "Geen vorig verslag aanwezig!", time := -2000)
-			MouseMove(mouseX, mouseY)
-			return
-		}
+
+	if not (_findImages(["images\toonLaatstVerslagKnop.png", "images\toonLaatstVerslagKnopSelected.png"], &FoundX, &FoundY)) {
+		_makeSplashText(title := "Error", text := "Geen vorig verslag aanwezig!", time := -2000)
+		MouseMove(mouseX, mouseY)
+		return
 	}
 	MouseClick("left", FoundX+10, FoundY+10)
-	Sleep(300)
+	Sleep(250) ;;300 werkt
 
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\laatstVerslagHeader.png")
-	if (FoundX = "") {
+	if not (_findImage("images\laatstVerslagHeader.png", &FoundX, &FoundY)) {
 		_makeSplashText(title := "Error", text := "Verslag popup niet gevonden!", time := -2000)
 		MouseMove(mouseX, mouseY)
 		return
@@ -409,8 +395,7 @@ saveAndClose_KWS() {
 		return
 	}
 	_destroySplash()
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\bewarenGreyedButton.png")
-	if (ErrorLevel) {
+	if not (_findImage("images\bewarenGreyedButton.png", &FoundX, &FoundY)) {
 		_makeSplashText(title := "Save function", text := "Something went wrong when checking if it was alreade saved, or report was not saved", time := -2000)
 		Send("^s")
 		return
@@ -832,9 +817,10 @@ pedAbdomenTemplate() {
 
 pressOKButton() {
 	MouseGetPos(&mouseX, &mouseY)
-	if(ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png") or
-		ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButtonW11.png") or
-		ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton2.png")) {
+	if _findImages(["images\okButton.png", "images\okButtonW11.png", "images\okButton2.png"], &FoundX, &FoundY) {
+	; if(ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton.png") or
+	; 	ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButtonW11.png") or
+	; 	ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\okButton2.png")) {
 		MouseClick("left", FoundX+5, FoundY+5)
 		MouseMove(mouseX, mouseY)
 	} else {
@@ -1290,7 +1276,7 @@ switchMPR(setting := "2D") {
 	MouseClick("Left", mouseX, mouseY, , ,"Up")
 	FoundX := 0
 	FoundY := 0
-	if ImageSearch(&FoundX, &FoundY, 0, 0, 4040, 1300, "images\enterpriseReconLabel.png") {
+	if _findImages(["images\enterpriseReconLabel.png", "images\enterpriseReconLabel2.png"], &FoundX, &FoundY, 0, 0, 4040, 1300) {
 		FoundX := FoundX+30
 		FoundY := FoundY-10
 		MouseClick("Left", FoundX, FoundY+10)
@@ -1398,8 +1384,7 @@ _KWS_CopyReportToClipboard(selectReportBox := True) {
 
 _KWS_SelectReportBox(mousebutton := "left", resetMousePosition := true) {
 	;; assumes KWS already active
-	if (ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\bevindingenLabel.png") or
-		ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\bevindingenLabel-alt.png")) {
+	if _findImages(["images\bevindingenLabel.png", "images\bevindingenLabel-alt.png"], &FoundX, &FoundY) {
 		_BlockUserInput(true)
 		if (resetMousePosition)
 			MouseGetPos(&mouseX, &mouseY)
@@ -1471,20 +1456,19 @@ _sorttext(inputtext) {
 }
 
 _getEAD(returnMouse := false) {
-	if (returnMouse) {
+	if (returnMouse)
 		MouseGetPos(&mouseX, &mouseY)
-	}
 	temp := A_Clipboard
 	A_Clipboard := ""
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\eadnrLabel.png")
+	if not ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\eadnrLabel.png")
+		return ""
 	_BlockUserInput(true)
 	MouseClick("left", FoundX+70, FoundY+10)
 	_BlockUserInput(false)
 	Errorlevel := !ClipWait(1)
 	ead := A_Clipboard
-	if (returnMouse) {
+	if (returnMouse)
 		MouseMove(mouseX, mouseY)
-	}
 	A_Clipboard := temp
 	return ead
 }
@@ -1495,7 +1479,7 @@ _getBirthDate(returnMouse := false) {
 	}
 	temp := A_Clipboard
 	A_Clipboard := ""
-	ErrorLevel := !ImageSearch(&FoundX, &FoundY, 0, 0, A_ScreenWidth, A_ScreenHeight, "images\eadnrLabel.png")
+	_findImage("images\eadnrLabel.png", &FoundX, &FoundY)
 	_BlockUserInput(True)
 	MouseClick("left", FoundX-25, FoundY+10)
 	Errorlevel := !ClipWait(1)
@@ -1632,6 +1616,35 @@ _cleanStringOngevalideerdVerslag(text) {
 		return text
 	}
 }
+
+;; Finds the image using ImageSearch.
+;; Supports continueing search ever few msecs untill it is found.
+_findImage(image, &OutputVarX, &OutputVarY, X1 := 0, Y1 := 0, X2 := A_ScreenWidth, Y2 := A_ScreenHeight, retryTimes := 0, repeatInterval := 100) {
+	_findImages([image], &OutputVarX, &OutputVarY, X1, Y1, X2, Y2, retryTimes, repeatInterval)
+}
+
+_findImages(imagelist, &OutputVarX, &OutputVarY, X1 := 0, Y1 := 0, X2 := A_ScreenWidth, Y2 := A_ScreenHeight, retryTimes := 0, repeatInterval := 100) {
+	result := _lookforimages(imagelist, &OutputVarX, &OutputVarY, X1, Y1, X2, Y2)
+	if ((not result) and retryTimes > 0) {
+		Loop retryTimes {
+			sleep(repeatInterval)
+			result := _lookforimages(imagelist, &OutputVarX, &OutputVarY, X1, Y1, X2, Y2)
+			if result
+				break
+		}
+	}
+	return result
+}
+
+_lookforimages(imagelist, &OutputVarX, &OutputVarY, X1, Y1, X2, Y2) {
+	for i, imagelink in imagelist {
+		result := ImageSearch(&OutputVarX, &OutputVarY, X1, Y1, X2, Y2, imagelink)
+		if result
+			break
+	}
+	return result
+}
+
 
 _BlockUserInput(block := true) {
 	if (block) {
