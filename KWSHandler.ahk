@@ -1694,7 +1694,7 @@ _cleanStringOngevalideerdVerslag(text) {
 ;; Finds the image using ImageSearch.
 ;; Supports continueing search ever few msecs untill it is found.
 _findImage(image, &OutputVarX, &OutputVarY, X1 := 0, Y1 := 0, X2 := A_ScreenWidth, Y2 := A_ScreenHeight, retryTimes := 0, repeatInterval := 100) {
-	_findImages([image], &OutputVarX, &OutputVarY, X1, Y1, X2, Y2, retryTimes, repeatInterval)
+	return _findImages([image], &OutputVarX, &OutputVarY, X1, Y1, X2, Y2, retryTimes, repeatInterval)
 }
 
 _findImages(imagelist, &OutputVarX, &OutputVarY, X1 := 0, Y1 := 0, X2 := A_ScreenWidth, Y2 := A_ScreenHeight, retryTimes := 0, repeatInterval := 100) {
@@ -1704,7 +1704,7 @@ _findImages(imagelist, &OutputVarX, &OutputVarY, X1 := 0, Y1 := 0, X2 := A_Scree
 			sleep(repeatInterval)
 			result := _lookforimages(imagelist, &OutputVarX, &OutputVarY, X1, Y1, X2, Y2)
 			if result
-				break
+				return result
 		}
 	}
 	return result
@@ -1714,7 +1714,7 @@ _lookforimages(imagelist, &OutputVarX, &OutputVarY, X1, Y1, X2, Y2) {
 	for i, imagelink in imagelist {
 		result := ImageSearch(&OutputVarX, &OutputVarY, X1, Y1, X2, Y2, imagelink)
 		if result
-			break
+			return result
 	}
 	return result
 }
