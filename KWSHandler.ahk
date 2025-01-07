@@ -1413,18 +1413,7 @@ UpdateScript() {
 	if (Answer == "Yes") {
 		Try {
 			FileCopy "AutoHotkey64.ahk", "AutoHotkey64_personal.ahk", 1
-			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/AutoHotkey64.ahk", "AutoHotkey64.ahk"
-			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/KWSHandler.ahk", "KWSHandler.ahk"
-			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/aanvaardingen.ahk", "aanvaardingen.ahk"
-			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/Sift.ahk", "Sift.ahk"
-			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/SpeechDetector.ahk", "SpeechDetector.ahk"
-			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/TIRADSv2.ahk", "TIRADSv2.ahk"
-			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/bevindingenLabel-alt.png", "images/bevindingenLabel-alt.png"
-			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/discardButton.png", "images/discardButton.png"
-			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/additioneleSupervisor.png", "images/additioneleSupervisor.png"
-			Download "https://raw.githubusercontent.com/CVanmarcke/KWS-helper/main/images/voegToeButton.png", "images/voegToeButton.png"
-			MsgBox("Script is geupdated naar de laatste versie!", "Script updater")
-			Reload
+			Run, "UpdateKWSHelperScript.bat"
 		} catch Error {
 			_makeSplashText(title := "KWS-helper", text := "Could not update", time := -3000)
 		}
