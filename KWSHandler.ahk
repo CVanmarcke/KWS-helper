@@ -248,7 +248,7 @@ copyLastReport_KWS() {
 	}
 
 	if not (_findImages(["images\toonLaatstVerslagKnop.png", "images\toonLaatstVerslagKnopSelected.png"], &FoundX, &FoundY)) {
-		_makeSplashText(title := "Error", text := "Geen vorig verslag aanwezig!", time := -2000)
+		_makeSplashText(title := "Error", text := "De 'Toon laatste verslag' knop is niet gevonden!`n- Ofwel geen vorig verslag aanwezig`n- Ofwel is het verborgen achter het speechwindow.", time := -2500)
 		MouseMove(mouseX, mouseY)
 		return
 	}
@@ -306,7 +306,7 @@ onveranderdMetVorigVerslag() {
 	}
 
 	if not (_findImages(["images\toonLaatstVerslagKnop.png", "images\toonLaatstVerslagKnopSelected.png"], &FoundX, &FoundY)) {
-		_makeSplashText(title := "Error", text := "Geen vorig verslag aanwezig!", time := -2000)
+		_makeSplashText(title := "Error", text := "De 'Toon laatste verslag' knop is niet gevonden!`n- Ofwel geen vorig verslag aanwezig`n- Ofwel is het verborgen achter het speechwindow.", time := -2500)
 		MouseMove(mouseX, mouseY)
 		return
 	}
