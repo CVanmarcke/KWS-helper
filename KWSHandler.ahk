@@ -1413,7 +1413,7 @@ UpdateScript() {
 	if (Answer == "Yes") {
 		Try {
 			FileCopy "AutoHotkey64.ahk", "AutoHotkey64_personal.ahk", 1
-			Run, "UpdateKWSHelperScript.bat"
+			Run "UpdateKWSHelperScript.bat"
 		} catch Error {
 			_makeSplashText(title := "KWS-helper", text := "Could not update", time := -3000)
 		}
